@@ -6,12 +6,15 @@ from app.core.common.entities.types_ import (
     BranchId,
     ClientId,
     FineId,
+    InvestorId,
+    InvestorPayoutId,
     OrganizationId,
     RentalId,
     ServiceTaskId,
     TransactionId,
     UserId,
     VehicleId,
+    VehicleInvestorId,
 )
 
 
@@ -49,3 +52,15 @@ def create_fine_id(value: UUID | None = None) -> FineId:
 
 def create_service_task_id(value: UUID | None = None) -> ServiceTaskId:
     return ServiceTaskId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_investor_id(value: UUID | None = None) -> InvestorId:
+    return InvestorId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_vehicle_investor_id(value: UUID | None = None) -> VehicleInvestorId:
+    return VehicleInvestorId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_investor_payout_id(value: UUID | None = None) -> InvestorPayoutId:
+    return InvestorPayoutId(value if value is not None else uuid_utils.uuid7())

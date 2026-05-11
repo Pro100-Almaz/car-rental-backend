@@ -61,3 +61,19 @@ class ServiceTaskNotFoundError(BaseError):
 
 class InvalidTaskStatusTransitionError(BaseError):
     default_message: ClassVar[str] = "Invalid task status transition."
+
+
+class InvestorNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Investor not found."
+
+
+class VehicleInvestorNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Vehicle-investor binding not found."
+
+
+class InvestorPayoutNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Investor payout not found."
+
+
+class InvalidPayoutStatusTransitionError(BaseError):
+    default_message: ClassVar[str] = "Invalid payout status transition."

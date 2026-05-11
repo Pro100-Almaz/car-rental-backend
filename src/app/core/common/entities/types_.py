@@ -11,6 +11,9 @@ RentalId = NewType("RentalId", UUID)
 TransactionId = NewType("TransactionId", UUID)
 FineId = NewType("FineId", UUID)
 ServiceTaskId = NewType("ServiceTaskId", UUID)
+InvestorId = NewType("InvestorId", UUID)
+VehicleInvestorId = NewType("VehicleInvestorId", UUID)
+InvestorPayoutId = NewType("InvestorPayoutId", UUID)
 UserPasswordHash = NewType("UserPasswordHash", bytes)
 
 
@@ -166,6 +169,23 @@ class FineStatus(StrEnum):
     CHARGED_TO_CLIENT = "charged_to_client"
     PAID_BY_OPERATOR = "paid_by_operator"
     DISPUTED = "disputed"
+
+
+class InvestorType(StrEnum):
+    OWN = "own"
+    PARTNER = "partner"
+    SHARED = "shared"
+
+
+class PayoutStatus(StrEnum):
+    CALCULATED = "calculated"
+    APPROVED = "approved"
+    PAID = "paid"
+
+
+class ProfitDistributionType(StrEnum):
+    PERCENTAGE = "percentage"
+    FIXED = "fixed"
 
 
 class UserRole(StrEnum):

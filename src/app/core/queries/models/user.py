@@ -6,8 +6,14 @@ from uuid import UUID
 @dataclass(frozen=True, slots=True)
 class UserQm:
     id: UUID
-    username: str
+    organization_id: UUID
+    email: str
+    phone: str | None
     role: str
+    first_name: str
+    last_name: str
     is_active: bool
+    last_login_at: datetime | None
+    branch_id: UUID | None
     created_at: datetime
     updated_at: datetime

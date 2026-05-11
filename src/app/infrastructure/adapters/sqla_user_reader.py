@@ -29,9 +29,15 @@ class SqlaUserReader(UserReader):
         stmt = (
             select(
                 users_table.c.id,
-                users_table.c.username,
+                users_table.c.organization_id,
+                users_table.c.email,
+                users_table.c.phone,
                 users_table.c.role,
+                users_table.c.first_name,
+                users_table.c.last_name,
                 users_table.c.is_active,
+                users_table.c.last_login_at,
+                users_table.c.branch_id,
                 users_table.c.created_at,
                 users_table.c.updated_at,
                 func.count().over().label("total"),
@@ -60,9 +66,15 @@ class SqlaUserReader(UserReader):
         users = [
             UserQm(
                 id=row.id,
-                username=row.username,
+                organization_id=row.organization_id,
+                email=row.email,
+                phone=row.phone,
                 role=row.role,
+                first_name=row.first_name,
+                last_name=row.last_name,
                 is_active=row.is_active,
+                last_login_at=row.last_login_at,
+                branch_id=row.branch_id,
                 created_at=row.created_at,
                 updated_at=row.updated_at,
             )

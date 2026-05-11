@@ -14,8 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 class UserSortingField(StrEnum):
-    USERNAME = "username"
+    EMAIL = "email"
     ROLE = "role"
+    FIRST_NAME = "first_name"
+    LAST_NAME = "last_name"
     IS_ACTIVE = "is_active"
     CREATED_AT = "created_at"
     UPDATED_AT = "updated_at"
@@ -30,11 +32,6 @@ class ListUsersRequest:
 
 
 class ListUsers:
-    """
-    - Open to admins.
-    - Retrieves paginated list of existing users with relevant info.
-    """
-
     def __init__(
         self,
         current_user_service: CurrentUserService,
@@ -51,7 +48,7 @@ class ListUsers:
             CanManageRole(),
             context=RoleManagementContext(
                 subject=current_user,
-                target_role=UserRole.USER,
+                target_role=UserRole.FIELD_STAFF,
             ),
         )
         pagination = OffsetPaginationParams(

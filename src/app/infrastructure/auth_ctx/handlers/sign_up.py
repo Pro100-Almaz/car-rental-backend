@@ -1,15 +1,17 @@
 import logging
 from dataclasses import dataclass
+from uuid import UUID
 
-from app.core.commands.exceptions import UsernameAlreadyExistsError
+from app.core.commands.exceptions import EmailAlreadyExistsError
 from app.core.commands.ports.flusher import Flusher
 from app.core.commands.ports.transaction_manager import TransactionManager
 from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.common.authorization.current_user_service import CurrentUserService
+from app.core.common.entities.types_ import OrganizationId
 from app.core.common.factories.id_factory import create_user_id
 from app.core.common.services.user import UserService
+from app.core.common.value_objects.email import Email
 from app.core.common.value_objects.raw_password import RawPassword
-from app.core.common.value_objects.username import Username
 from app.infrastructure.auth_ctx.exceptions import (
     AlreadyAuthenticatedError,
     AuthenticationError,
@@ -21,18 +23,15 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class SignUpRequest:
-    username: str
+    organization_id: UUID
+    email: str
     password: str
+    first_name: str
+    last_name: str
+    phone: str | None = None
 
 
 class SignUp:
-    """
-    - Open to everyone.
-    - Registers new user with validation and uniqueness checks.
-    - Passwords are peppered, salted, and stored as hashes.
-    - Logged-in user cannot sign up until session expires or is terminated.
-    """
-
     def __init__(
         self,
         current_user_service: CurrentUserService,
@@ -58,19 +57,24 @@ class SignUp:
         except AuthenticationError:
             pass
 
-        username = Username(request.username)
+        email = Email(request.email)
         password = RawPassword(request.password)
+        organization_id = OrganizationId(request.organization_id)
         now = self._utc_timer.now
         user = await self._user_service.create_user_with_raw_password(
             user_id=create_user_id(),
-            username=username,
+            organization_id=organization_id,
+            email=email,
             raw_password=password,
+            first_name=request.first_name,
+            last_name=request.last_name,
             now=now,
+            phone=request.phone,
         )
         self._user_tx_storage.add(user)
         try:
             await self._flusher.flush()
-        except UsernameAlreadyExistsError:
+        except EmailAlreadyExistsError:
             raise
 
         await self._transaction_manager.commit()

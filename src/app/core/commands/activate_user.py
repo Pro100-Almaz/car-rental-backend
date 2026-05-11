@@ -9,12 +9,10 @@ from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.permissions import (
-    CanManageRole,
     CanManageSubordinate,
-    RoleManagementContext,
     UserManagementContext,
 )
-from app.core.common.entities.types_ import UserId, UserRole
+from app.core.common.entities.types_ import UserId
 from app.core.common.services.user import UserService
 
 logger = logging.getLogger(__name__)
@@ -26,12 +24,6 @@ class ActivateUserRequest:
 
 
 class ActivateUser:
-    """
-    - Open to admins.
-    - Restores previously soft-deleted user.
-    - Only super admins can activate other admins.
-    """
-
     def __init__(
         self,
         current_user_service: CurrentUserService,
@@ -50,13 +42,6 @@ class ActivateUser:
         logger.info("Activate user: started.")
 
         current_user = await self._current_user_service.get_current_user()
-        authorize(
-            CanManageRole(),
-            context=RoleManagementContext(
-                subject=current_user,
-                target_role=UserRole.USER,
-            ),
-        )
         user_id = UserId(request.user_id)
         user = await self._user_tx_storage.get_by_id(
             user_id,

@@ -4,8 +4,8 @@ from typing import Final
 
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.services.user import UserService
+from app.core.common.value_objects.email import Email
 from app.core.common.value_objects.raw_password import RawPassword
-from app.core.common.value_objects.username import Username
 from app.infrastructure.auth_ctx.exceptions import (
     AlreadyAuthenticatedError,
     AuthenticationError,
@@ -20,19 +20,11 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class LogInRequest:
-    username: str
+    email: str
     password: str
 
 
 class LogIn:
-    """
-    - Open to everyone.
-    - Authenticates registered user, sets JWT with session ID in cookies, and creates session.
-    - Logged-in user cannot log in again until session expires or is terminated.
-    - Authentication renews automatically when accessing protected routes before expiration.
-    - If JWT is invalid, expired, or session is terminated, user loses authentication.
-    """
-
     def __init__(
         self,
         current_user_service: CurrentUserService,
@@ -54,9 +46,9 @@ class LogIn:
         except AuthenticationError:
             pass
 
-        username = Username(request.username)
+        email = Email(request.email)
         password = RawPassword(request.password)
-        user = await self._user_tx_storage.get_by_username(username)
+        user = await self._user_tx_storage.get_by_email(email)
         if user is None:
             raise AuthenticationError
 

@@ -20,18 +20,13 @@ from app.core.common.services.user import UserService
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True, slots=True)
-class RevokeAdminRequest:
+@dataclass(frozen=True, slots=True, kw_only=True)
+class SetUserRoleRequest:
     user_id: UUID
+    role: str
 
 
-class RevokeAdmin:
-    """
-    - Open to super admins.
-    - Revokes admin rights from specified user.
-    - Super admin rights cannot be changed
-    """
-
+class SetUserRole:
     def __init__(
         self,
         current_user_service: CurrentUserService,
@@ -46,15 +41,16 @@ class RevokeAdmin:
         self._utc_timer = utc_timer
         self._transaction_manager = transaction_manager
 
-    async def execute(self, request: RevokeAdminRequest) -> None:
-        logger.info("Revoke admin: started.")
+    async def execute(self, request: SetUserRoleRequest) -> None:
+        logger.info("Set user role: started.")
 
         current_user = await self._current_user_service.get_current_user()
+        target_role = UserRole(request.role)
         authorize(
             CanManageRole(),
             context=RoleManagementContext(
                 subject=current_user,
-                target_role=UserRole.ADMIN,
+                target_role=target_role,
             ),
         )
         user_id = UserId(request.user_id)
@@ -75,8 +71,8 @@ class RevokeAdmin:
         if self._user_service.set_role(
             user,
             now=self._utc_timer.now,
-            is_admin=False,
+            role=target_role,
         ):
             await self._transaction_manager.commit()
 
-        logger.info("Revoke admin: done.")
+        logger.info("Set user role: done.")

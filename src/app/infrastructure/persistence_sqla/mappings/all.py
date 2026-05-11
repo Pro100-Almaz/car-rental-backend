@@ -22,12 +22,28 @@ during database migrations.
 """
 
 from app.infrastructure.persistence_sqla.mappings.auth_session import map_auth_sessions_table
+from app.infrastructure.persistence_sqla.mappings.branch import map_branches_table
+from app.infrastructure.persistence_sqla.mappings.client import map_clients_table
+from app.infrastructure.persistence_sqla.mappings.fine import map_fines_table
+from app.infrastructure.persistence_sqla.mappings.organization import map_organizations_table
+from app.infrastructure.persistence_sqla.mappings.rental import map_rentals_table
+from app.infrastructure.persistence_sqla.mappings.service_task import map_service_tasks_table
+from app.infrastructure.persistence_sqla.mappings.transaction import map_transactions_table
 from app.infrastructure.persistence_sqla.mappings.user import map_users_table
+from app.infrastructure.persistence_sqla.mappings.vehicle import map_vehicles_table
 from app.infrastructure.persistence_sqla.registry import mapper_registry
 
 
 def map_tables() -> None:
     if mapper_registry.mappers:
         return
+    map_organizations_table()
+    map_branches_table()
     map_users_table()
+    map_vehicles_table()
+    map_clients_table()
+    map_rentals_table()
+    map_transactions_table()
+    map_fines_table()
+    map_service_tasks_table()
     map_auth_sessions_table()

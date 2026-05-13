@@ -22,6 +22,7 @@ VALID_TRANSITIONS: Final[Mapping[VehicleStatus, Set[VehicleStatus]]] = {
         VehicleStatus.IN_SERVICE,
         VehicleStatus.IN_WASH,
         VehicleStatus.DECOMMISSIONED,
+        VehicleStatus.SOLD,
     },
     VehicleStatus.RESERVED: {
         VehicleStatus.RENTED,
@@ -38,11 +39,15 @@ VALID_TRANSITIONS: Final[Mapping[VehicleStatus, Set[VehicleStatus]]] = {
     VehicleStatus.IN_SERVICE: {
         VehicleStatus.AVAILABLE,
         VehicleStatus.DECOMMISSIONED,
+        VehicleStatus.SOLD,
     },
     VehicleStatus.IN_WASH: {
         VehicleStatus.AVAILABLE,
     },
-    VehicleStatus.DECOMMISSIONED: set(),
+    VehicleStatus.DECOMMISSIONED: {
+        VehicleStatus.SOLD,
+    },
+    VehicleStatus.SOLD: set(),
 }
 
 

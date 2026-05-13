@@ -4,7 +4,7 @@ from sqlalchemy import UUID, Column, Date, DateTime, Enum, ForeignKey, Integer, 
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import composite
 
-from app.core.common.entities.types_ import FuelType, Transmission, VehicleCategory, VehicleStatus
+from app.core.common.entities.types_ import FuelType, Transmission, VehicleStatus
 from app.core.common.entities.vehicle import Vehicle
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 from app.infrastructure.persistence_sqla.registry import mapper_registry
@@ -31,17 +31,7 @@ vehicles_table = Table(
     Column("vin", String(17), nullable=True),
     Column("license_plate", String(20), nullable=False),
     Column("color", String(50), nullable=False),
-    Column(
-        "category",
-        Enum(
-            VehicleCategory,
-            name="vehicle_category",
-            native_enum=False,
-            validate_strings=True,
-            values_callable=get_strenum_values,
-        ),
-        nullable=False,
-    ),
+    Column("category", String(100), nullable=False),
     Column(
         "status",
         Enum(

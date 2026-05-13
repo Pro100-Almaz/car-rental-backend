@@ -9,6 +9,7 @@ from uuid import UUID
 class ClientQm:
     id: UUID
     organization_id: UUID
+    user_id: UUID | None
     phone: str
     email: str | None
     first_name: str

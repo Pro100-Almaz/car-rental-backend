@@ -12,6 +12,9 @@ class ListVehiclesRequest:
     organization_id: UUID
     status: str | None = None
     branch_id: UUID | None = None
+    category: str | None = None
+    investor_id: UUID | None = None
+    search: str | None = None
 
 
 class ListVehicles:
@@ -28,6 +31,9 @@ class ListVehicles:
             organization_id=request.organization_id,
             status=request.status,
             branch_id=request.branch_id,
+            category=request.category,
+            investor_id=request.investor_id,
+            search=request.search,
         )
 
         logger.info("List vehicles: done.")

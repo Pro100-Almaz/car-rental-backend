@@ -15,19 +15,13 @@ InvestorId = NewType("InvestorId", UUID)
 VehicleInvestorId = NewType("VehicleInvestorId", UUID)
 InvestorPayoutId = NewType("InvestorPayoutId", UUID)
 VehiclePricingId = NewType("VehiclePricingId", UUID)
+VehicleDocumentId = NewType("VehicleDocumentId", UUID)
+VehicleCategoryId = NewType("VehicleCategoryId", UUID)
 AdditionalServiceId = NewType("AdditionalServiceId", UUID)
 RentalServiceId = NewType("RentalServiceId", UUID)
 ExpenseCategoryId = NewType("ExpenseCategoryId", UUID)
 CashJournalEntryId = NewType("CashJournalEntryId", UUID)
 UserPasswordHash = NewType("UserPasswordHash", bytes)
-
-
-class VehicleCategory(StrEnum):
-    ECONOMY = "economy"
-    COMFORT = "comfort"
-    BUSINESS = "business"
-    SUV = "suv"
-    MINIVAN = "minivan"
 
 
 class VehicleStatus(StrEnum):
@@ -38,6 +32,7 @@ class VehicleStatus(StrEnum):
     IN_SERVICE = "in_service"
     IN_WASH = "in_wash"
     DECOMMISSIONED = "decommissioned"
+    SOLD = "sold"
 
 
 class FuelType(StrEnum):

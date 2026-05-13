@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Row, select
+from sqlalchemy import Row, or_, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +9,7 @@ from app.core.queries.models.vehicle import VehicleQm
 from app.core.queries.ports.vehicle_reader import ListVehiclesQm, VehicleReader
 from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.persistence_sqla.mappings.vehicle import vehicles_table
+from app.infrastructure.persistence_sqla.mappings.vehicle_investor import vehicle_investors_table
 
 
 class SqlaVehicleReader(VehicleReader):
@@ -102,6 +103,9 @@ class SqlaVehicleReader(VehicleReader):
         organization_id: UUID,
         status: str | None = None,
         branch_id: UUID | None = None,
+        category: str | None = None,
+        investor_id: UUID | None = None,
+        search: str | None = None,
     ) -> ListVehiclesQm:
         stmt = (
             select(*self._base_columns())
@@ -112,6 +116,26 @@ class SqlaVehicleReader(VehicleReader):
             stmt = stmt.where(vehicles_table.c.status == status)
         if branch_id is not None:
             stmt = stmt.where(vehicles_table.c.branch_id == branch_id)
+        if category is not None:
+            stmt = stmt.where(vehicles_table.c.category == category)
+        if investor_id is not None:
+            stmt = stmt.where(
+                vehicles_table.c.id.in_(
+                    select(vehicle_investors_table.c.vehicle_id).where(
+                        vehicle_investors_table.c.investor_id == investor_id,
+                    )
+                )
+            )
+        if search is not None:
+            pattern = f"%{search}%"
+            stmt = stmt.where(
+                or_(
+                    vehicles_table.c.nickname.ilike(pattern),
+                    vehicles_table.c.license_plate.ilike(pattern),
+                    vehicles_table.c.make.ilike(pattern),
+                    vehicles_table.c.model.ilike(pattern),
+                )
+            )
         try:
             result = await self._session.execute(stmt)
             rows = result.all()

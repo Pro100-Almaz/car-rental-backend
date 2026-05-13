@@ -24,6 +24,13 @@ clients_table = Table(
         ForeignKey("organizations.id", ondelete="CASCADE"),
         nullable=False,
     ),
+    Column(
+        "user_id",
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        unique=True,
+    ),
     Column("phone", String(20), nullable=False),
     Column("email", String(254), nullable=True),
     Column("first_name", String(100), nullable=False),
@@ -71,6 +78,7 @@ def map_clients_table() -> None:
         properties={
             "id_": clients_table.c.id,
             "organization_id": clients_table.c.organization_id,
+            "user_id": clients_table.c.user_id,
             "phone": clients_table.c.phone,
             "email": clients_table.c.email,
             "first_name": clients_table.c.first_name,

@@ -69,6 +69,7 @@ class CreateClient:
         client = Client(
             id_=create_client_id(),
             organization_id=OrganizationId(request.organization_id),
+            user_id=None,
             phone=request.phone,
             email=request.email,
             first_name=request.first_name,

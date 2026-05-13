@@ -20,6 +20,9 @@ class ListVehiclesRequestSchema(BaseModel):
     organization_id: UUID
     status: str | None = None
     branch_id: UUID | None = None
+    category: str | None = None
+    investor_id: UUID | None = None
+    search: str | None = None
 
 
 def make_list_vehicles_router() -> APIRouter:
@@ -42,6 +45,9 @@ def make_list_vehicles_router() -> APIRouter:
             organization_id=request_schema.organization_id,
             status=request_schema.status,
             branch_id=request_schema.branch_id,
+            category=request_schema.category,
+            investor_id=request_schema.investor_id,
+            search=request_schema.search,
         )
         return await interactor.execute(request)
 

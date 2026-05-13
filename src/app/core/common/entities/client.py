@@ -6,6 +6,7 @@ from app.core.common.entities.types_ import (
     ClientId,
     OrganizationId,
     TrustLevel,
+    UserId,
     VerificationStatus,
 )
 from app.core.common.value_objects.utc_datetime import UtcDatetime
@@ -17,6 +18,7 @@ class Client(Entity[ClientId]):
         *,
         id_: ClientId,
         organization_id: OrganizationId,
+        user_id: UserId | None,
         phone: str,
         email: str | None,
         first_name: str,
@@ -37,6 +39,7 @@ class Client(Entity[ClientId]):
     ) -> None:
         super().__init__(id_=id_)
         self.organization_id = organization_id
+        self.user_id = user_id
         self.phone = phone
         self.email = email
         self.first_name = first_name

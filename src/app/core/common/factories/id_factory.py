@@ -17,6 +17,8 @@ from app.core.common.entities.types_ import (
     ServiceTaskId,
     TransactionId,
     UserId,
+    VehicleCategoryId,
+    VehicleDocumentId,
     VehicleId,
     VehicleInvestorId,
     VehiclePricingId,
@@ -73,6 +75,14 @@ def create_investor_payout_id(value: UUID | None = None) -> InvestorPayoutId:
 
 def create_vehicle_pricing_id(value: UUID | None = None) -> VehiclePricingId:
     return VehiclePricingId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_vehicle_category_id(value: UUID | None = None) -> VehicleCategoryId:
+    return VehicleCategoryId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_vehicle_document_id(value: UUID | None = None) -> VehicleDocumentId:
+    return VehicleDocumentId(value if value is not None else uuid_utils.uuid7())
 
 
 def create_additional_service_id(value: UUID | None = None) -> AdditionalServiceId:

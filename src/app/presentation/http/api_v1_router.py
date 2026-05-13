@@ -15,6 +15,8 @@ from app.presentation.http.rental_services.router import make_rental_services_ro
 from app.presentation.http.rentals.router import make_rentals_router
 from app.presentation.http.service_tasks.router import make_service_tasks_router
 from app.presentation.http.users.router import make_users_router
+from app.presentation.http.vehicle_categories.router import make_vehicle_categories_router
+from app.presentation.http.vehicle_documents.router import make_vehicle_documents_router
 from app.presentation.http.vehicle_pricing.router import make_vehicle_pricing_router
 from app.presentation.http.vehicles.router import make_vehicles_router
 
@@ -27,6 +29,8 @@ def make_v1_router(*, cookie_name: str) -> APIRouter:
     router.include_router(make_branches_router())
     router.include_router(make_vehicles_router())
     router.include_router(make_vehicle_pricing_router())
+    router.include_router(make_vehicle_categories_router())
+    router.include_router(make_vehicle_documents_router())
     router.include_router(make_clients_router())
     router.include_router(make_rentals_router())
     router.include_router(make_rental_services_router())

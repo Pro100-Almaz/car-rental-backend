@@ -10,7 +10,6 @@ from app.core.common.entities.types_ import (
     FuelType,
     OrganizationId,
     Transmission,
-    VehicleCategory,
     VehicleId,
     VehicleStatus,
 )
@@ -30,7 +29,7 @@ class Vehicle(Entity[VehicleId]):
         vin: str | None,
         license_plate: str,
         color: str,
-        category: VehicleCategory,
+        category: str,
         status: VehicleStatus,
         fuel_type: FuelType,
         transmission: Transmission,

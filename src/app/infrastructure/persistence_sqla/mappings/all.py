@@ -39,6 +39,8 @@ from app.infrastructure.persistence_sqla.mappings.service_task import map_servic
 from app.infrastructure.persistence_sqla.mappings.transaction import map_transactions_table
 from app.infrastructure.persistence_sqla.mappings.user import map_users_table
 from app.infrastructure.persistence_sqla.mappings.vehicle import map_vehicles_table
+from app.infrastructure.persistence_sqla.mappings.vehicle_category import map_vehicle_categories_table
+from app.infrastructure.persistence_sqla.mappings.vehicle_document import map_vehicle_documents_table
 from app.infrastructure.persistence_sqla.mappings.vehicle_investor import map_vehicle_investors_table
 from app.infrastructure.persistence_sqla.mappings.vehicle_pricing import map_vehicle_pricing_table
 from app.infrastructure.persistence_sqla.registry import mapper_registry
@@ -67,3 +69,5 @@ def map_tables() -> None:
     map_auth_sessions_table()
     map_email_verification_codes_table()
     map_invites_table()
+    map_vehicle_categories_table()
+    map_vehicle_documents_table()

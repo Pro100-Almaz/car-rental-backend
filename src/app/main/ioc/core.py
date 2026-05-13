@@ -84,7 +84,19 @@ from app.core.queries.get_rental import GetRental
 from app.core.queries.get_service_task import GetServiceTask
 from app.core.queries.get_transaction import GetTransaction
 from app.core.queries.get_vehicle import GetVehicle
+from app.core.commands.bulk_change_vehicle_status import BulkChangeVehicleStatus
+from app.core.commands.create_vehicle_category import CreateVehicleCategory
+from app.core.commands.create_vehicle_document import CreateVehicleDocument
+from app.core.commands.delete_vehicle_document import DeleteVehicleDocument
+from app.core.commands.manage_vehicle_photos import AddVehiclePhoto, RemoveVehiclePhoto
+from app.core.commands.update_vehicle_category import UpdateVehicleCategory
+from app.core.commands.ports.vehicle_category_tx_storage import VehicleCategoryTxStorage
+from app.core.queries.list_vehicle_categories import ListVehicleCategories
+from app.core.queries.ports.vehicle_category_reader import VehicleCategoryReader
+from app.core.queries.get_vehicle_financials import GetVehicleFinancials
 from app.core.queries.get_vehicle_pricing import GetVehiclePricing
+from app.core.queries.get_vehicle_timeline import GetVehicleTimeline
+from app.core.queries.list_vehicle_documents import ListVehicleDocuments
 from app.core.queries.list_additional_services import ListAdditionalServices
 from app.core.queries.list_branches import ListBranches
 from app.core.queries.list_cash_journal_entries import ListCashJournalEntries
@@ -116,7 +128,11 @@ from app.core.queries.ports.service_task_reader import ServiceTaskReader
 from app.core.queries.ports.transaction_reader import TransactionReader
 from app.core.queries.ports.user_reader import UserReader
 from app.core.queries.ports.vehicle_pricing_reader import VehiclePricingReader
+from app.core.commands.ports.vehicle_document_tx_storage import VehicleDocumentTxStorage
+from app.core.queries.ports.vehicle_document_reader import VehicleDocumentReader
+from app.core.queries.ports.vehicle_financials_reader import VehicleFinancialsReader
 from app.core.queries.ports.vehicle_reader import VehicleReader
+from app.core.queries.ports.vehicle_timeline_reader import VehicleTimelineReader
 from app.infrastructure.adapters.auth_session_access_revoker import AuthSessionAccessRevoker
 from app.infrastructure.adapters.auth_session_identity_provider import AuthSessionIdentityProvider
 from app.infrastructure.adapters.bcrypt_password_hasher import (
@@ -156,7 +172,13 @@ from app.infrastructure.adapters.sqla_user_tx_storage import SqlaUserTxStorage
 from app.infrastructure.adapters.sqla_vehicle_investor_tx_storage import SqlaVehicleInvestorTxStorage
 from app.infrastructure.adapters.sqla_vehicle_pricing_reader import SqlaVehiclePricingReader
 from app.infrastructure.adapters.sqla_vehicle_pricing_tx_storage import SqlaVehiclePricingTxStorage
+from app.infrastructure.adapters.sqla_vehicle_category_reader import SqlaVehicleCategoryReader
+from app.infrastructure.adapters.sqla_vehicle_category_tx_storage import SqlaVehicleCategoryTxStorage
+from app.infrastructure.adapters.sqla_vehicle_document_reader import SqlaVehicleDocumentReader
+from app.infrastructure.adapters.sqla_vehicle_document_tx_storage import SqlaVehicleDocumentTxStorage
+from app.infrastructure.adapters.sqla_vehicle_financials_reader import SqlaVehicleFinancialsReader
 from app.infrastructure.adapters.sqla_vehicle_reader import SqlaVehicleReader
+from app.infrastructure.adapters.sqla_vehicle_timeline_reader import SqlaVehicleTimelineReader
 from app.infrastructure.adapters.sqla_vehicle_tx_storage import SqlaVehicleTxStorage
 from app.infrastructure.adapters.system_utc_timer import SystemUtcTimer
 from app.main.config.settings import PasswordHasherSettings
@@ -204,6 +226,8 @@ class CoreProvider(Provider):
     vehicle_investor_tx_storage = provide(SqlaVehicleInvestorTxStorage, provides=VehicleInvestorTxStorage)
     investor_payout_tx_storage = provide(SqlaInvestorPayoutTxStorage, provides=InvestorPayoutTxStorage)
     vehicle_pricing_tx_storage = provide(SqlaVehiclePricingTxStorage, provides=VehiclePricingTxStorage)
+    vehicle_category_tx_storage = provide(SqlaVehicleCategoryTxStorage, provides=VehicleCategoryTxStorage)
+    vehicle_document_tx_storage = provide(SqlaVehicleDocumentTxStorage, provides=VehicleDocumentTxStorage)
     additional_service_tx_storage = provide(SqlaAdditionalServiceTxStorage, provides=AdditionalServiceTxStorage)
     rental_service_tx_storage = provide(SqlaRentalServiceTxStorage, provides=RentalServiceTxStorage)
     expense_category_tx_storage = provide(SqlaExpenseCategoryTxStorage, provides=ExpenseCategoryTxStorage)
@@ -252,6 +276,13 @@ class CoreProvider(Provider):
     update_payout_status = provide(UpdatePayoutStatus)
     create_vehicle_pricing = provide(CreateVehiclePricing)
     update_vehicle_pricing = provide(UpdateVehiclePricing)
+    create_vehicle_document = provide(CreateVehicleDocument)
+    delete_vehicle_document = provide(DeleteVehicleDocument)
+    add_vehicle_photo = provide(AddVehiclePhoto)
+    remove_vehicle_photo = provide(RemoveVehiclePhoto)
+    create_vehicle_category = provide(CreateVehicleCategory)
+    update_vehicle_category = provide(UpdateVehicleCategory)
+    bulk_change_vehicle_status = provide(BulkChangeVehicleStatus)
     create_additional_service = provide(CreateAdditionalService)
     update_additional_service = provide(UpdateAdditionalService)
     add_rental_service = provide(AddRentalService)
@@ -274,6 +305,10 @@ class CoreProvider(Provider):
     service_task_reader = provide(SqlaServiceTaskReader, provides=ServiceTaskReader)
     investor_reader = provide(SqlaInvestorReader, provides=InvestorReader)
     vehicle_pricing_reader = provide(SqlaVehiclePricingReader, provides=VehiclePricingReader)
+    vehicle_financials_reader = provide(SqlaVehicleFinancialsReader, provides=VehicleFinancialsReader)
+    vehicle_timeline_reader = provide(SqlaVehicleTimelineReader, provides=VehicleTimelineReader)
+    vehicle_category_reader = provide(SqlaVehicleCategoryReader, provides=VehicleCategoryReader)
+    vehicle_document_reader = provide(SqlaVehicleDocumentReader, provides=VehicleDocumentReader)
     additional_service_reader = provide(SqlaAdditionalServiceReader, provides=AdditionalServiceReader)
     rental_service_reader = provide(SqlaRentalServiceReader, provides=RentalServiceReader)
     expense_category_reader = provide(SqlaExpenseCategoryReader, provides=ExpenseCategoryReader)
@@ -301,6 +336,10 @@ class CoreProvider(Provider):
     list_investor_payouts = provide(ListInvestorPayouts)
     list_vehicle_pricing = provide(ListVehiclePricing)
     get_vehicle_pricing = provide(GetVehiclePricing)
+    get_vehicle_financials = provide(GetVehicleFinancials)
+    get_vehicle_timeline = provide(GetVehicleTimeline)
+    list_vehicle_categories = provide(ListVehicleCategories)
+    list_vehicle_documents = provide(ListVehicleDocuments)
     list_additional_services = provide(ListAdditionalServices)
     list_rental_services = provide(ListRentalServices)
     list_expense_categories = provide(ListExpenseCategories)

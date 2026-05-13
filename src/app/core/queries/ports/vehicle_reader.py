@@ -25,4 +25,7 @@ class VehicleReader(Protocol):
         organization_id: UUID,
         status: str | None = None,
         branch_id: UUID | None = None,
+        category: str | None = None,
+        investor_id: UUID | None = None,
+        search: str | None = None,
     ) -> ListVehiclesQm: ...

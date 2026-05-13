@@ -14,7 +14,7 @@ from app.core.commands.ports.vehicle_tx_storage import VehicleTxStorage
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
-from app.core.common.entities.types_ import BranchId, FuelType, Transmission, VehicleCategory, VehicleId
+from app.core.common.entities.types_ import BranchId, FuelType, Transmission, VehicleId
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class UpdateVehicleRequest:
     vin: str | None | object = _UNSET
     license_plate: str | object = _UNSET
     color: str | object = _UNSET
-    category: VehicleCategory | object = _UNSET
+    category: str | object = _UNSET
     fuel_type: FuelType | object = _UNSET
     transmission: Transmission | object = _UNSET
     current_mileage: int | object = _UNSET

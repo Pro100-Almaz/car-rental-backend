@@ -19,6 +19,7 @@ class SqlaClientReader(ClientReader):
         return (
             clients_table.c.id,
             clients_table.c.organization_id,
+            clients_table.c.user_id,
             clients_table.c.phone,
             clients_table.c.email,
             clients_table.c.first_name,
@@ -42,6 +43,7 @@ class SqlaClientReader(ClientReader):
         return ClientQm(
             id=row.id,
             organization_id=row.organization_id,
+            user_id=row.user_id,
             phone=row.phone,
             email=row.email,
             first_name=row.first_name,

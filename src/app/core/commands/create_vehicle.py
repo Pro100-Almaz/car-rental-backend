@@ -19,7 +19,6 @@ from app.core.common.entities.types_ import (
     FuelType,
     OrganizationId,
     Transmission,
-    VehicleCategory,
     VehicleStatus,
 )
 from app.core.common.entities.vehicle import Vehicle
@@ -39,7 +38,7 @@ class CreateVehicleRequest:
     vin: str | None = None
     license_plate: str
     color: str
-    category: VehicleCategory
+    category: str
     fuel_type: FuelType
     transmission: Transmission
     current_mileage: int = 0

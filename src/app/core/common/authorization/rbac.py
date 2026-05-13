@@ -9,6 +9,17 @@ from app.core.common.entities.user import User
 
 PERMISSIONS: Final[Mapping[UserRole, Sequence[str]]] = {
     UserRole.SUPER_ADMIN: ["*"],
+    UserRole.OWNER: [
+        "fleet.*",
+        "rental.*",
+        "client.*",
+        "comms.*",
+        "tasks.*",
+        "analytics.*",
+        "finance.*",
+        "users.*",
+        "invites.*",
+    ],
     UserRole.BRANCH_MANAGER: [
         "fleet.*",
         "rental.*",
@@ -17,6 +28,7 @@ PERMISSIONS: Final[Mapping[UserRole, Sequence[str]]] = {
         "tasks.*",
         "analytics.read",
         "users.read",
+        "invites.create",
     ],
     UserRole.DISPATCHER: [
         "fleet.read",
@@ -35,6 +47,10 @@ PERMISSIONS: Final[Mapping[UserRole, Sequence[str]]] = {
     UserRole.FIELD_STAFF: [
         "tasks.own.*",
         "fleet.read_assigned",
+    ],
+    UserRole.CLIENT: [
+        "rental.own.*",
+        "client.own.*",
     ],
 }
 

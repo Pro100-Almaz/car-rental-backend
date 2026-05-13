@@ -2,32 +2,44 @@ import asyncio
 import logging
 from collections.abc import AsyncIterator, Iterator
 from concurrent.futures import ThreadPoolExecutor
+from datetime import timedelta
 from typing import cast
 
 from dishka import Provider, Scope, from_context, provide
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from starlette.requests import Request
 
+from app.core.common.ports.email_sender import EmailSender
 from app.infrastructure.adapters.bcrypt_password_hasher import HasherSemaphore, HasherThreadPoolExecutor
+from app.infrastructure.adapters.smtp_email_sender import SmtpEmailSender
 from app.infrastructure.auth_ctx.cookie_manager import CookieManager, CookieName
 from app.infrastructure.auth_ctx.handlers.change_password import ChangePassword
 from app.infrastructure.auth_ctx.handlers.log_in import LogIn
 from app.infrastructure.auth_ctx.handlers.log_out import LogOut
+from app.infrastructure.auth_ctx.handlers.create_invite import CreateInvite
+from app.infrastructure.auth_ctx.handlers.get_invite import GetInvite
+from app.infrastructure.auth_ctx.handlers.resend_verification import ResendVerification
 from app.infrastructure.auth_ctx.handlers.sign_up import SignUp
+from app.infrastructure.auth_ctx.handlers.verify_email import VerifyEmail
 from app.infrastructure.auth_ctx.jwt_processor import JwtProcessor
 from app.infrastructure.auth_ctx.service import AuthService
 from app.infrastructure.auth_ctx.sqla_transaction_manager import AuthSqlaTransactionManager
 from app.infrastructure.auth_ctx.sqla_tx_storage import AuthSessionSqlaTxStorage
+from app.infrastructure.auth_ctx.sqla_invite_tx_storage import InviteSqlaTxStorage
 from app.infrastructure.auth_ctx.sqla_user_tx_storage import AuthSqlaUserTxStorage
+from app.infrastructure.auth_ctx.sqla_verification_code_tx_storage import EmailVerificationCodeSqlaTxStorage
 from app.infrastructure.auth_ctx.types_ import AuthAsyncSession
 from app.infrastructure.auth_ctx.utc_timer import AuthSessionUtcTimer
+from app.infrastructure.auth_ctx.verification_types import ResendCooldown, VerificationCodeTtl
 from app.main.config.settings import (
     CookieSettings,
     JwtSettings,
     PasswordHasherSettings,
     PostgresSettings,
     SessionSettings,
+    SmtpSettings,
     SqlaSettings,
+    VerificationSettings,
 )
 
 logger = logging.getLogger(__name__)
@@ -120,10 +132,24 @@ class PersistenceSqlaProvider(Provider):
         logger.debug("Auth async session closed.")
 
 
+class EmailProvider(Provider):
+    scope = Scope.APP
+
+    @provide
+    def provide_email_sender(self, settings: SmtpSettings) -> EmailSender:
+        return SmtpEmailSender(
+            host=settings.HOST,
+            port=settings.PORT,
+            username=settings.USERNAME,
+            password=settings.PASSWORD,
+            from_email=settings.FROM_EMAIL,
+            use_tls=settings.USE_TLS,
+        )
+
+
 class AuthProvider(Provider):
     scope = Scope.REQUEST
 
-    # Auth context
     auth_service = provide(AuthService)
 
     @provide(scope=Scope.APP)
@@ -156,12 +182,26 @@ class AuthProvider(Provider):
     cookie_manager = provide(CookieManager)
 
     auth_sqla_user_tx_storage = provide(AuthSqlaUserTxStorage)
+    verification_code_tx_storage = provide(EmailVerificationCodeSqlaTxStorage)
+    invite_tx_storage = provide(InviteSqlaTxStorage)
+
+    @provide(scope=Scope.APP)
+    def provide_verification_code_ttl(self, settings: VerificationSettings) -> VerificationCodeTtl:
+        return VerificationCodeTtl(settings.code_ttl)
+
+    @provide(scope=Scope.APP)
+    def provide_resend_cooldown(self, settings: VerificationSettings) -> ResendCooldown:
+        return ResendCooldown(timedelta(seconds=settings.RESEND_COOLDOWN_SEC))
 
     # Account handlers
     sign_up = provide(SignUp)
     log_in = provide(LogIn)
     change_password = provide(ChangePassword)
     log_out = provide(LogOut)
+    verify_email = provide(VerifyEmail)
+    resend_verification = provide(ResendVerification)
+    create_invite = provide(CreateInvite)
+    get_invite = provide(GetInvite)
 
 
 class RequestProvider(Provider):
@@ -172,6 +212,7 @@ def infrastructure_providers() -> tuple[Provider, ...]:
     return (
         HasherThreadPoolProvider(),
         PersistenceSqlaProvider(),
+        EmailProvider(),
         AuthProvider(),
         RequestProvider(),
     )

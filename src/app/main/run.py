@@ -13,7 +13,9 @@ from app.main.config.loader import (
     load_password_hasher_settings,
     load_postgres_settings,
     load_session_settings,
+    load_smtp_settings,
     load_sqla_settings,
+    load_verification_settings,
 )
 from app.main.config.settings import (
     AppSettings,
@@ -22,7 +24,9 @@ from app.main.config.settings import (
     PasswordHasherSettings,
     PostgresSettings,
     SessionSettings,
+    SmtpSettings,
     SqlaSettings,
+    VerificationSettings,
 )
 from app.main.ioc.provider_registry import get_providers
 from app.main.setup import setup_global_exception_handlers, setup_logging, setup_middlewares
@@ -53,6 +57,8 @@ def make_app(
     jwt_settings: JwtSettings | None = None,
     session_settings: SessionSettings | None = None,
     cookie_settings: CookieSettings | None = None,
+    smtp_settings: SmtpSettings | None = None,
+    verification_settings: VerificationSettings | None = None,
 ) -> FastAPI:
     """Pass providers to override existing ones for testing."""
     if app_settings is None:
@@ -72,6 +78,10 @@ def make_app(
         session_settings = load_session_settings()
     if cookie_settings is None:
         cookie_settings = load_cookie_settings()
+    if smtp_settings is None:
+        smtp_settings = load_smtp_settings()
+    if verification_settings is None:
+        verification_settings = load_verification_settings()
 
     app = FastAPI(
         debug=app_settings.DEBUG_MODE,
@@ -92,6 +102,8 @@ def make_app(
             JwtSettings: jwt_settings,
             SessionSettings: session_settings,
             CookieSettings: cookie_settings,
+            SmtpSettings: smtp_settings,
+            VerificationSettings: verification_settings,
         },
     )
     setup_dishka(container, app)

@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class UserRoleRequestEnum(StrEnum):
+    OWNER = "owner"
     BRANCH_MANAGER = "branch_manager"
     DISPATCHER = "dispatcher"
     FINANCE = "finance"

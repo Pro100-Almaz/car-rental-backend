@@ -9,6 +9,7 @@ from app.core.common.value_objects.raw_password import RawPassword
 from app.infrastructure.auth_ctx.exceptions import (
     AlreadyAuthenticatedError,
     AuthenticationError,
+    EmailNotVerifiedError,
 )
 from app.infrastructure.auth_ctx.service import AuthService
 from app.infrastructure.auth_ctx.sqla_user_tx_storage import AuthSqlaUserTxStorage
@@ -57,6 +58,9 @@ class LogIn:
 
         if not user.is_active:
             raise AuthenticationError(AUTH_ACCOUNT_INACTIVE)
+
+        if not user.email_verified:
+            raise EmailNotVerifiedError
 
         await self._auth_service.issue_session(user.id_)
 

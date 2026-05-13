@@ -77,3 +77,21 @@ class CookieSettings(BaseModel):
     HTTPONLY: bool = True
     SECURE: bool = False
     SAMESITE: Literal["lax", "strict", "none"] = "lax"
+
+
+class SmtpSettings(BaseModel):
+    HOST: str = "smtp.gmail.com"
+    PORT: int = 465
+    USERNAME: str = ""
+    PASSWORD: str = ""
+    FROM_EMAIL: str = ""
+    USE_TLS: bool = True
+
+
+class VerificationSettings(BaseModel):
+    CODE_TTL_MIN: int = Field(ge=1, default=10)
+    RESEND_COOLDOWN_SEC: int = Field(ge=10, default=60)
+
+    @property
+    def code_ttl(self) -> timedelta:
+        return timedelta(minutes=self.CODE_TTL_MIN)

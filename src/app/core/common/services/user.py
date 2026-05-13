@@ -27,6 +27,7 @@ class UserService:
         now: UtcDatetime,
         role: UserRole = UserRole.DISPATCHER,
         is_active: bool = True,
+        email_verified: bool = True,
         phone: str | None = None,
         branch_id: BranchId | None = None,
     ) -> User:
@@ -42,6 +43,7 @@ class UserService:
             first_name=first_name,
             last_name=last_name,
             is_active=is_active,
+            email_verified=email_verified,
             last_login_at=None,
             branch_id=branch_id,
             created_at=now,
@@ -60,6 +62,7 @@ class UserService:
         now: UtcDatetime,
         role: UserRole = UserRole.DISPATCHER,
         is_active: bool = True,
+        email_verified: bool = True,
         phone: str | None = None,
         branch_id: BranchId | None = None,
     ) -> User:
@@ -74,6 +77,7 @@ class UserService:
             now=now,
             role=role,
             is_active=is_active,
+            email_verified=email_verified,
             phone=phone,
             branch_id=branch_id,
         )

@@ -14,6 +14,11 @@ ServiceTaskId = NewType("ServiceTaskId", UUID)
 InvestorId = NewType("InvestorId", UUID)
 VehicleInvestorId = NewType("VehicleInvestorId", UUID)
 InvestorPayoutId = NewType("InvestorPayoutId", UUID)
+VehiclePricingId = NewType("VehiclePricingId", UUID)
+AdditionalServiceId = NewType("AdditionalServiceId", UUID)
+RentalServiceId = NewType("RentalServiceId", UUID)
+ExpenseCategoryId = NewType("ExpenseCategoryId", UUID)
+CashJournalEntryId = NewType("CashJournalEntryId", UUID)
 UserPasswordHash = NewType("UserPasswordHash", bytes)
 
 
@@ -190,11 +195,23 @@ class ProfitDistributionType(StrEnum):
 
 class UserRole(StrEnum):
     SUPER_ADMIN = "super_admin"
+    OWNER = "owner"
     BRANCH_MANAGER = "branch_manager"
     DISPATCHER = "dispatcher"
     FINANCE = "finance"
     FIELD_STAFF = "field_staff"
+    CLIENT = "client"
 
     @property
     def is_system(self) -> bool:
         return self == UserRole.SUPER_ADMIN
+
+
+class OperationType(StrEnum):
+    INCOME = "income"
+    EXPENSE = "expense"
+
+
+class ExpenseCategoryType(StrEnum):
+    DIRECT = "direct"
+    OVERHEAD = "overhead"

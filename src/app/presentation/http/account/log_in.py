@@ -8,7 +8,7 @@ from fastapi_error_map import ErrorAwareRouter
 from app.core.common.authorization.exceptions import AuthorizationError
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.adapters.exceptions import PasswordHasherBusyError
-from app.infrastructure.auth_ctx.exceptions import AlreadyAuthenticatedError, AuthenticationError
+from app.infrastructure.auth_ctx.exceptions import AlreadyAuthenticatedError, AuthenticationError, EmailNotVerifiedError
 from app.infrastructure.auth_ctx.handlers.log_in import LogIn, LogInRequest
 from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
@@ -26,6 +26,7 @@ def make_log_in_router() -> APIRouter:
             AlreadyAuthenticatedError: status.HTTP_403_FORBIDDEN,
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
             AuthenticationError: status.HTTP_401_UNAUTHORIZED,
+            EmailNotVerifiedError: status.HTTP_403_FORBIDDEN,
             PasswordHasherBusyError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
         },
         default_on_error=log_info,

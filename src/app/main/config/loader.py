@@ -10,7 +10,9 @@ from app.main.config.settings import (
     PasswordHasherSettings,
     PostgresSettings,
     SessionSettings,
+    SmtpSettings,
     SqlaSettings,
+    VerificationSettings,
 )
 
 BASE_DIR: Final[Path] = Path(__file__).resolve().parents[4]
@@ -54,6 +56,14 @@ class CookieEnvConfig(BaseSettings, CookieSettings):
     model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="COOKIE_")
 
 
+class SmtpEnvConfig(BaseSettings, SmtpSettings):
+    model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="SMTP_")
+
+
+class VerificationEnvConfig(BaseSettings, VerificationSettings):
+    model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="VERIFICATION_")
+
+
 def load_app_settings() -> AppSettings:
     return _load_settings(AppEnvConfig)
 
@@ -80,3 +90,11 @@ def load_session_settings() -> SessionSettings:
 
 def load_cookie_settings() -> CookieSettings:
     return _load_settings(CookieEnvConfig)
+
+
+def load_smtp_settings() -> SmtpSettings:
+    return _load_settings(SmtpEnvConfig)
+
+
+def load_verification_settings() -> VerificationSettings:
+    return _load_settings(VerificationEnvConfig)

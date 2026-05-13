@@ -9,7 +9,11 @@ from app.core.commands.exceptions import EmailAlreadyExistsError
 from app.core.common.authorization.exceptions import AuthorizationError
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.adapters.exceptions import PasswordHasherBusyError
-from app.infrastructure.auth_ctx.exceptions import AlreadyAuthenticatedError
+from app.infrastructure.auth_ctx.exceptions import (
+    AlreadyAuthenticatedError,
+    InvalidInviteError,
+    InviteAlreadyUsedError,
+)
 from app.infrastructure.auth_ctx.handlers.sign_up import SignUp, SignUpRequest
 from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
@@ -28,6 +32,8 @@ def make_sign_up_router() -> APIRouter:
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
             PasswordHasherBusyError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             EmailAlreadyExistsError: status.HTTP_409_CONFLICT,
+            InvalidInviteError: status.HTTP_400_BAD_REQUEST,
+            InviteAlreadyUsedError: status.HTTP_409_CONFLICT,
         },
         default_on_error=log_info,
         status_code=status.HTTP_204_NO_CONTENT,

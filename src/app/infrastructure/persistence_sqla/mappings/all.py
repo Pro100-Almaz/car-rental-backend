@@ -21,16 +21,26 @@ in `env.py` for Alembic migrations to ensure all models are available
 during database migrations.
 """
 
+from app.infrastructure.persistence_sqla.mappings.additional_service import map_additional_services_table
 from app.infrastructure.persistence_sqla.mappings.auth_session import map_auth_sessions_table
 from app.infrastructure.persistence_sqla.mappings.branch import map_branches_table
+from app.infrastructure.persistence_sqla.mappings.cash_journal_entry import map_cash_journal_table
 from app.infrastructure.persistence_sqla.mappings.client import map_clients_table
+from app.infrastructure.persistence_sqla.mappings.email_verification_code import map_email_verification_codes_table
+from app.infrastructure.persistence_sqla.mappings.expense_category import map_expense_categories_table
 from app.infrastructure.persistence_sqla.mappings.fine import map_fines_table
+from app.infrastructure.persistence_sqla.mappings.invite import map_invites_table
+from app.infrastructure.persistence_sqla.mappings.investor import map_investors_table
+from app.infrastructure.persistence_sqla.mappings.investor_payout import map_investor_payouts_table
 from app.infrastructure.persistence_sqla.mappings.organization import map_organizations_table
 from app.infrastructure.persistence_sqla.mappings.rental import map_rentals_table
+from app.infrastructure.persistence_sqla.mappings.rental_service import map_rental_services_table
 from app.infrastructure.persistence_sqla.mappings.service_task import map_service_tasks_table
 from app.infrastructure.persistence_sqla.mappings.transaction import map_transactions_table
 from app.infrastructure.persistence_sqla.mappings.user import map_users_table
 from app.infrastructure.persistence_sqla.mappings.vehicle import map_vehicles_table
+from app.infrastructure.persistence_sqla.mappings.vehicle_investor import map_vehicle_investors_table
+from app.infrastructure.persistence_sqla.mappings.vehicle_pricing import map_vehicle_pricing_table
 from app.infrastructure.persistence_sqla.registry import mapper_registry
 
 
@@ -46,4 +56,14 @@ def map_tables() -> None:
     map_transactions_table()
     map_fines_table()
     map_service_tasks_table()
+    map_investors_table()
+    map_vehicle_investors_table()
+    map_investor_payouts_table()
+    map_vehicle_pricing_table()
+    map_additional_services_table()
+    map_rental_services_table()
+    map_expense_categories_table()
+    map_cash_journal_table()
     map_auth_sessions_table()
+    map_email_verification_codes_table()
+    map_invites_table()

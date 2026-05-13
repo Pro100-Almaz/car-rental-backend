@@ -19,6 +19,7 @@ class User(Entity[UserId]):
         first_name: str,
         last_name: str,
         is_active: bool,
+        email_verified: bool,
         last_login_at: datetime | None,
         branch_id: BranchId | None,
         created_at: UtcDatetime,
@@ -33,6 +34,7 @@ class User(Entity[UserId]):
         self.first_name = first_name
         self.last_name = last_name
         self.is_active = is_active
+        self.email_verified = email_verified
         self.last_login_at = last_login_at
         self.branch_id = branch_id
         self._created_at = created_at

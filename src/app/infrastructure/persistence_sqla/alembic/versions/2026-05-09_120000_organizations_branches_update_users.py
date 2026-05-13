@@ -66,6 +66,8 @@ def upgrade() -> None:
     op.alter_column("users", "first_name", nullable=False)
     op.alter_column("users", "last_name", nullable=False)
 
+    op.alter_column("users", "role", type_=sa.String(20), existing_nullable=False)
+
     op.execute("UPDATE users SET role = 'branch_manager' WHERE role = 'admin'")
     op.execute("UPDATE users SET role = 'dispatcher' WHERE role = 'user'")
 

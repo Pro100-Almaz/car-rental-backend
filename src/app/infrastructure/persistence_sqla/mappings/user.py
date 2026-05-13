@@ -41,6 +41,7 @@ users_table = Table(
     Column("first_name", String(100), nullable=False),
     Column("last_name", String(100), nullable=False),
     Column("is_active", Boolean, nullable=False),
+    Column("email_verified", Boolean, nullable=False, server_default="false"),
     Column("last_login_at", DateTime(timezone=True), nullable=True),
     Column(
         "branch_id",
@@ -67,6 +68,7 @@ def map_users_table() -> None:
             "first_name": users_table.c.first_name,
             "last_name": users_table.c.last_name,
             "is_active": users_table.c.is_active,
+            "email_verified": users_table.c.email_verified,
             "last_login_at": users_table.c.last_login_at,
             "branch_id": users_table.c.branch_id,
             "_created_at": composite(UtcDatetime, users_table.c.created_at),

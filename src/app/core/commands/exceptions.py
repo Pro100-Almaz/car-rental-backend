@@ -77,3 +77,23 @@ class InvestorPayoutNotFoundError(BaseError):
 
 class InvalidPayoutStatusTransitionError(BaseError):
     default_message: ClassVar[str] = "Invalid payout status transition."
+
+
+class AdditionalServiceNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Additional service not found."
+
+
+class RentalServiceNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Rental service not found."
+
+
+class VehiclePricingNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Vehicle pricing not found."
+
+
+class ExpenseCategoryNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Expense category not found."
+
+
+class CashJournalEntryNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Cash journal entry not found."

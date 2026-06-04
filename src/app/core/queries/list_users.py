@@ -48,7 +48,7 @@ class ListUsers:
             CanManageRole(),
             context=RoleManagementContext(
                 subject=current_user,
-                target_role=UserRole.FIELD_STAFF,
+                target_role=UserRole.TECHNICIAN,
             ),
         )
         pagination = OffsetPaginationParams(

@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from app.core.queries.list_clients import ListClients, ListClientsRequest
 from app.core.queries.ports.client_reader import ListClientsQm
 from app.infrastructure.exceptions import ReaderError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -20,6 +21,7 @@ class ListClientsRequestSchema(BaseModel):
     organization_id: UUID
     verification_status: str | None = None
     is_blacklisted: bool | None = None
+    search: str | None = None
 
 
 def make_list_clients_router() -> APIRouter:
@@ -28,6 +30,7 @@ def make_list_clients_router() -> APIRouter:
     @router.get(
         "/",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
         },
         default_on_error=log_info,
@@ -42,6 +45,7 @@ def make_list_clients_router() -> APIRouter:
             organization_id=request_schema.organization_id,
             verification_status=request_schema.verification_status,
             is_blacklisted=request_schema.is_blacklisted,
+            search=request_schema.search,
         )
         return await interactor.execute(request)
 

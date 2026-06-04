@@ -1,4 +1,4 @@
-from app.core.common.entities.types_ import BranchId, OrganizationId, UserId, UserPasswordHash, UserRole
+from app.core.common.entities.types_ import BranchId, ClientId, OrganizationId, UserId, UserPasswordHash, UserRole
 from app.core.common.entities.user import User
 from app.core.common.exceptions import (
     ActivationChangeNotPermittedError,
@@ -25,11 +25,12 @@ class UserService:
         first_name: str,
         last_name: str,
         now: UtcDatetime,
-        role: UserRole = UserRole.DISPATCHER,
+        role: UserRole = UserRole.BOOKING_MANAGER,
         is_active: bool = True,
         email_verified: bool = True,
         phone: str | None = None,
         branch_id: BranchId | None = None,
+        client_id: ClientId | None = None,
     ) -> User:
         if role.is_system:
             raise RoleAssignmentNotPermittedError
@@ -46,6 +47,8 @@ class UserService:
             email_verified=email_verified,
             last_login_at=None,
             branch_id=branch_id,
+            client_id=client_id,
+            notification_preferences=None,
             created_at=now,
             updated_at=now,
         )
@@ -60,11 +63,12 @@ class UserService:
         first_name: str,
         last_name: str,
         now: UtcDatetime,
-        role: UserRole = UserRole.DISPATCHER,
+        role: UserRole = UserRole.BOOKING_MANAGER,
         is_active: bool = True,
         email_verified: bool = True,
         phone: str | None = None,
         branch_id: BranchId | None = None,
+        client_id: ClientId | None = None,
     ) -> User:
         password_hash = await self._password_hasher.hash(raw_password)
         return self.create_user(
@@ -80,6 +84,7 @@ class UserService:
             email_verified=email_verified,
             phone=phone,
             branch_id=branch_id,
+            client_id=client_id,
         )
 
     async def is_password_valid(self, user: User, raw_password: RawPassword) -> bool:

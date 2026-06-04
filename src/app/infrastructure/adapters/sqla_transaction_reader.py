@@ -28,6 +28,9 @@ class SqlaTransactionReader(TransactionReader):
             transactions_table.c.status,
             transactions_table.c.external_id,
             transactions_table.c.metadata,
+            transactions_table.c.source,
+            transactions_table.c.client_note,
+            transactions_table.c.rejection_reason,
             transactions_table.c.created_at,
             transactions_table.c.updated_at,
         )
@@ -45,6 +48,9 @@ class SqlaTransactionReader(TransactionReader):
             status=row.status,
             external_id=row.external_id,
             metadata=row.metadata,
+            source=row.source,
+            client_note=row.client_note,
+            rejection_reason=row.rejection_reason,
             created_at=row.created_at,
             updated_at=row.updated_at,
         )

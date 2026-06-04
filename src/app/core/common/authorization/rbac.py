@@ -9,7 +9,7 @@ from app.core.common.entities.user import User
 
 PERMISSIONS: Final[Mapping[UserRole, Sequence[str]]] = {
     UserRole.SUPER_ADMIN: ["*"],
-    UserRole.OWNER: [
+    UserRole.ADMIN: [
         "fleet.*",
         "rental.*",
         "client.*",
@@ -17,40 +17,51 @@ PERMISSIONS: Final[Mapping[UserRole, Sequence[str]]] = {
         "tasks.*",
         "analytics.*",
         "finance.*",
+        "investors.*",
+        "maintenance.*",
         "users.*",
         "invites.*",
+        "settings.*",
     ],
-    UserRole.BRANCH_MANAGER: [
-        "fleet.*",
-        "rental.*",
-        "client.*",
-        "comms.*",
-        "tasks.*",
-        "analytics.read",
-        "users.read",
-        "invites.create",
-    ],
-    UserRole.DISPATCHER: [
+    UserRole.BOOKING_MANAGER: [
         "fleet.read",
+        "fleet.status.limited",
+        "fleet.photos.upload",
+        "fleet.docs.upload",
         "rental.*",
         "client.read",
+        "client.create",
+        "client.edit",
+        "client.docs.upload",
         "comms.*",
         "tasks.*",
+        "finance.cash_journal.read",
+        "finance.cash_journal.create",
     ],
-    UserRole.FINANCE: [
+    UserRole.FINANCIAL_MANAGER: [
         "fleet.read",
         "rental.read",
         "client.read",
-        "analytics.*",
         "finance.*",
+        "investors.read",
+        "investors.payout.create",
+        "investors.payout.approve",
+        "analytics.*",
+        "settings.expense_categories",
     ],
-    UserRole.FIELD_STAFF: [
-        "tasks.own.*",
-        "fleet.read_assigned",
+    UserRole.INVESTOR: [
+        "fleet.own.read",
+        "analytics.own.read",
+        "investors.own.read",
+        "investors.own.payouts.read",
+        "investors.own.export",
+    ],
+    UserRole.TECHNICIAN: [
+        "fleet.read",
+        "maintenance.*",
     ],
     UserRole.CLIENT: [
-        "rental.own.*",
-        "client.own.*",
+        "mobile.*",
     ],
 }
 

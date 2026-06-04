@@ -14,24 +14,27 @@ from app.infrastructure.adapters.bcrypt_password_hasher import HasherSemaphore, 
 from app.infrastructure.adapters.smtp_email_sender import SmtpEmailSender
 from app.infrastructure.auth_ctx.cookie_manager import CookieManager, CookieName
 from app.infrastructure.auth_ctx.handlers.change_password import ChangePassword
+from app.infrastructure.auth_ctx.handlers.create_invite import CreateInvite
+from app.infrastructure.auth_ctx.handlers.forgot_password import ForgotPassword
+from app.infrastructure.auth_ctx.handlers.get_invite import GetInvite
 from app.infrastructure.auth_ctx.handlers.log_in import LogIn
 from app.infrastructure.auth_ctx.handlers.log_out import LogOut
-from app.infrastructure.auth_ctx.handlers.create_invite import CreateInvite
-from app.infrastructure.auth_ctx.handlers.get_invite import GetInvite
 from app.infrastructure.auth_ctx.handlers.resend_verification import ResendVerification
+from app.infrastructure.auth_ctx.handlers.reset_password import ResetPassword
 from app.infrastructure.auth_ctx.handlers.sign_up import SignUp
 from app.infrastructure.auth_ctx.handlers.verify_email import VerifyEmail
 from app.infrastructure.auth_ctx.jwt_processor import JwtProcessor
 from app.infrastructure.auth_ctx.service import AuthService
+from app.infrastructure.auth_ctx.sqla_invite_tx_storage import InviteSqlaTxStorage
 from app.infrastructure.auth_ctx.sqla_transaction_manager import AuthSqlaTransactionManager
 from app.infrastructure.auth_ctx.sqla_tx_storage import AuthSessionSqlaTxStorage
-from app.infrastructure.auth_ctx.sqla_invite_tx_storage import InviteSqlaTxStorage
 from app.infrastructure.auth_ctx.sqla_user_tx_storage import AuthSqlaUserTxStorage
 from app.infrastructure.auth_ctx.sqla_verification_code_tx_storage import EmailVerificationCodeSqlaTxStorage
 from app.infrastructure.auth_ctx.types_ import AuthAsyncSession
 from app.infrastructure.auth_ctx.utc_timer import AuthSessionUtcTimer
-from app.infrastructure.auth_ctx.verification_types import ResendCooldown, VerificationCodeTtl
+from app.infrastructure.auth_ctx.verification_types import DefaultOrganizationId, ResendCooldown, VerificationCodeTtl
 from app.main.config.settings import (
+    AppSettings,
     CookieSettings,
     JwtSettings,
     PasswordHasherSettings,
@@ -193,10 +196,16 @@ class AuthProvider(Provider):
     def provide_resend_cooldown(self, settings: VerificationSettings) -> ResendCooldown:
         return ResendCooldown(timedelta(seconds=settings.RESEND_COOLDOWN_SEC))
 
+    @provide(scope=Scope.APP)
+    def provide_default_organization_id(self, settings: AppSettings) -> DefaultOrganizationId:
+        return DefaultOrganizationId(settings.DEFAULT_ORGANIZATION_ID)
+
     # Account handlers
     sign_up = provide(SignUp)
     log_in = provide(LogIn)
     change_password = provide(ChangePassword)
+    forgot_password = provide(ForgotPassword)
+    reset_password = provide(ResetPassword)
     log_out = provide(LogOut)
     verify_email = provide(VerifyEmail)
     resend_verification = provide(ResendVerification)

@@ -1,9 +1,10 @@
 import logging
 
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from app.main.config.logging_ import DATEFMT, FMT, LoggingLevel
-from app.main.config.settings import CookieSettings
+from app.main.config.settings import CookieSettings, CorsSettings
 from app.presentation.http.auth_cookie_middleware import AuthCookieMiddleware
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,14 @@ def setup_logging(*, level: LoggingLevel = LoggingLevel.INFO) -> None:
     logger.info("Logging is set up")
 
 
-def setup_middlewares(app: FastAPI, cookie_settings: CookieSettings) -> None:
+def setup_middlewares(app: FastAPI, cookie_settings: CookieSettings, cors_settings: CorsSettings) -> None:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_settings.ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.add_middleware(
         AuthCookieMiddleware,
         cookie_name=cookie_settings.NAME,

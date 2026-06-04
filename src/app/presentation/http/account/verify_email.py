@@ -10,6 +10,7 @@ from app.infrastructure.auth_ctx.exceptions import (
 )
 from app.infrastructure.auth_ctx.handlers.verify_email import VerifyEmail, VerifyEmailRequest
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -20,6 +21,7 @@ def make_verify_email_router() -> APIRouter:
     @router.post(
         "/verify-email/",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
             InvalidVerificationCodeError: status.HTTP_400_BAD_REQUEST,

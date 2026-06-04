@@ -43,6 +43,10 @@ class InvalidRentalStatusTransitionError(BaseError):
     default_message: ClassVar[str] = "Invalid rental status transition."
 
 
+class RentalDateOverlapError(BaseError):
+    default_message: ClassVar[str] = "Vehicle already has a booking for the requested dates."
+
+
 class TransactionNotFoundError(BaseError):
     default_message: ClassVar[str] = "Transaction not found."
 
@@ -97,3 +101,27 @@ class ExpenseCategoryNotFoundError(BaseError):
 
 class CashJournalEntryNotFoundError(BaseError):
     default_message: ClassVar[str] = "Cash journal entry not found."
+
+
+class ExtensionRequestNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Extension request not found."
+
+
+class PendingExtensionExistsError(BaseError):
+    default_message: ClassVar[str] = "A pending extension request already exists for this rental."
+
+
+class InvalidExtensionRequestStatusError(BaseError):
+    default_message: ClassVar[str] = "Invalid extension request status transition."
+
+
+class AlreadyJoinedOrganizationError(BaseError):
+    default_message: ClassVar[str] = "Client has already joined this organization."
+
+
+class ClientOrganizationNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Client is not a member of this organization."
+
+
+class CannotLeaveHomeOrganizationError(BaseError):
+    default_message: ClassVar[str] = "Cannot leave your home organization."

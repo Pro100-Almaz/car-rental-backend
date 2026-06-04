@@ -35,6 +35,8 @@ class CashJournalReader(Protocol):
         organization_id: UUID,
         operation_type: str | None = None,
         vehicle_id: UUID | None = None,
+        expense_category_id: UUID | None = None,
+        payment_method: str | None = None,
         date_from: date | None = None,
         date_to: date | None = None,
     ) -> ListCashJournalEntriesQm: ...
@@ -44,4 +46,6 @@ class CashJournalReader(Protocol):
         self,
         *,
         organization_id: UUID,
+        date_from: date | None = None,
+        date_to: date | None = None,
     ) -> CashJournalBalanceQm: ...

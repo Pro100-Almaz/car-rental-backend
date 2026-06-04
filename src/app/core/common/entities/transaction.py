@@ -8,6 +8,7 @@ from app.core.common.entities.types_ import (
     PaymentMethod,
     RentalId,
     TransactionId,
+    TransactionSource,
     TransactionStatus,
     TransactionType,
 )
@@ -29,6 +30,9 @@ class Transaction(Entity[TransactionId]):
         status: TransactionStatus,
         external_id: str | None,
         metadata: dict[str, Any] | None,
+        source: TransactionSource,
+        client_note: str | None,
+        rejection_reason: str | None,
         created_at: UtcDatetime,
         updated_at: UtcDatetime,
     ) -> None:
@@ -43,6 +47,9 @@ class Transaction(Entity[TransactionId]):
         self.status = status
         self.external_id = external_id
         self.metadata = metadata
+        self.source = source
+        self.client_note = client_note
+        self.rejection_reason = rejection_reason
         self._created_at = created_at
         self.updated_at = updated_at
 

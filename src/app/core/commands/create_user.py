@@ -23,11 +23,11 @@ logger = logging.getLogger(__name__)
 
 
 class UserRoleRequestEnum(StrEnum):
-    OWNER = "owner"
-    BRANCH_MANAGER = "branch_manager"
-    DISPATCHER = "dispatcher"
-    FINANCE = "finance"
-    FIELD_STAFF = "field_staff"
+    ADMIN = "admin"
+    BOOKING_MANAGER = "booking_manager"
+    FINANCIAL_MANAGER = "financial_manager"
+    INVESTOR = "investor"
+    TECHNICIAN = "technician"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

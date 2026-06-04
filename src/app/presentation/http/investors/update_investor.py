@@ -11,6 +11,7 @@ from app.core.commands.exceptions import InvestorNotFoundError
 from app.core.commands.update_investor import UpdateInvestor, UpdateInvestorRequest
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -32,6 +33,7 @@ def make_update_investor_router() -> APIRouter:
     @router.patch(
         "/{investor_id}",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
             InvestorNotFoundError: status.HTTP_404_NOT_FOUND,

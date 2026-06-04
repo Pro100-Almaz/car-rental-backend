@@ -76,6 +76,8 @@ class ResendVerification:
         self._verification_code_tx_storage.add(verification)
         await self._transaction_manager.commit()
 
+        logger.debug("Verification code for %s: %s", email.value, code)
+
         await self._email_sender.send(
             to=email.value,
             subject="Email Verification Code",

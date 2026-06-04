@@ -15,11 +15,17 @@ from app.core.common.value_objects.utc_datetime import UtcDatetime
 logger = logging.getLogger(__name__)
 
 VALID_TRANSACTION_TRANSITIONS: dict[TransactionStatus, set[TransactionStatus]] = {
-    TransactionStatus.PENDING: {TransactionStatus.PROCESSING, TransactionStatus.COMPLETED, TransactionStatus.FAILED},
+    TransactionStatus.PENDING: {
+        TransactionStatus.PROCESSING,
+        TransactionStatus.COMPLETED,
+        TransactionStatus.FAILED,
+        TransactionStatus.REJECTED,
+    },
     TransactionStatus.PROCESSING: {TransactionStatus.COMPLETED, TransactionStatus.FAILED},
     TransactionStatus.COMPLETED: {TransactionStatus.REFUNDED},
     TransactionStatus.FAILED: set(),
     TransactionStatus.REFUNDED: set(),
+    TransactionStatus.REJECTED: set(),
 }
 
 

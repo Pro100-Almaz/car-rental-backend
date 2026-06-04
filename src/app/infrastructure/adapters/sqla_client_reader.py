@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Row, select
+from sqlalchemy import Row, or_, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +9,7 @@ from app.core.queries.models.client import ClientQm
 from app.core.queries.ports.client_reader import ClientReader, ListClientsQm
 from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.persistence_sqla.mappings.client import clients_table
+from app.infrastructure.persistence_sqla.mappings.user import users_table
 
 
 class SqlaClientReader(ClientReader):
@@ -34,9 +35,19 @@ class SqlaClientReader(ClientReader):
             clients_table.c.blacklist_reason,
             clients_table.c.wallet_balance,
             clients_table.c.debt_balance,
+            clients_table.c.registration_source,
+            clients_table.c.rejection_reason,
             clients_table.c.metadata,
+            users_table.c.email_verified,
             clients_table.c.created_at,
             clients_table.c.updated_at,
+        )
+
+    def _base_query(self) -> Any:
+        return select(*self._base_columns()).join(
+            users_table,
+            clients_table.c.user_id == users_table.c.id,
+            isouter=True,
         )
 
     def _row_to_qm(self, row: Row[Any]) -> ClientQm:
@@ -58,7 +69,10 @@ class SqlaClientReader(ClientReader):
             blacklist_reason=row.blacklist_reason,
             wallet_balance=row.wallet_balance,
             debt_balance=row.debt_balance,
+            registration_source=row.registration_source,
+            rejection_reason=row.rejection_reason,
             metadata=row.metadata,
+            email_verified=row.email_verified if row.email_verified is not None else False,
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
@@ -68,8 +82,25 @@ class SqlaClientReader(ClientReader):
         *,
         client_id: UUID,
     ) -> ClientQm | None:
-        stmt = select(*self._base_columns()).where(
+        stmt = self._base_query().where(
             clients_table.c.id == client_id,
+        )
+        try:
+            result = await self._session.execute(stmt)
+            row = result.one_or_none()
+        except SQLAlchemyError as e:
+            raise ReaderError from e
+        if row is None:
+            return None
+        return self._row_to_qm(row)
+
+    async def get_by_user_id(
+        self,
+        *,
+        user_id: UUID,
+    ) -> ClientQm | None:
+        stmt = self._base_query().where(
+            clients_table.c.user_id == user_id,
         )
         try:
             result = await self._session.execute(stmt)
@@ -86,9 +117,10 @@ class SqlaClientReader(ClientReader):
         organization_id: UUID,
         verification_status: str | None = None,
         is_blacklisted: bool | None = None,
+        search: str | None = None,
     ) -> ListClientsQm:
         stmt = (
-            select(*self._base_columns())
+            self._base_query()
             .where(clients_table.c.organization_id == organization_id)
             .order_by(clients_table.c.created_at.desc())
         )
@@ -96,6 +128,16 @@ class SqlaClientReader(ClientReader):
             stmt = stmt.where(clients_table.c.verification_status == verification_status)
         if is_blacklisted is not None:
             stmt = stmt.where(clients_table.c.is_blacklisted == is_blacklisted)
+        if search is not None:
+            pattern = f"%{search}%"
+            stmt = stmt.where(
+                or_(
+                    clients_table.c.first_name.ilike(pattern),
+                    clients_table.c.last_name.ilike(pattern),
+                    clients_table.c.phone.ilike(pattern),
+                    clients_table.c.email.ilike(pattern),
+                )
+            )
         try:
             result = await self._session.execute(stmt)
             rows = result.all()

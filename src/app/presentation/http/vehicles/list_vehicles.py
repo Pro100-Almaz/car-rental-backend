@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from app.core.queries.list_vehicles import ListVehicles, ListVehiclesRequest
 from app.core.queries.ports.vehicle_reader import ListVehiclesQm
 from app.infrastructure.exceptions import ReaderError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -23,6 +24,9 @@ class ListVehiclesRequestSchema(BaseModel):
     category: str | None = None
     investor_id: UUID | None = None
     search: str | None = None
+    fuel_type: str | None = None
+    mileage_from: int | None = None
+    mileage_to: int | None = None
 
 
 def make_list_vehicles_router() -> APIRouter:
@@ -31,6 +35,7 @@ def make_list_vehicles_router() -> APIRouter:
     @router.get(
         "/",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
         },
         default_on_error=log_info,
@@ -48,6 +53,9 @@ def make_list_vehicles_router() -> APIRouter:
             category=request_schema.category,
             investor_id=request_schema.investor_id,
             search=request_schema.search,
+            fuel_type=request_schema.fuel_type,
+            mileage_from=request_schema.mileage_from,
+            mileage_to=request_schema.mileage_to,
         )
         return await interactor.execute(request)
 

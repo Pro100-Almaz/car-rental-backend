@@ -84,6 +84,8 @@ class SqlaCashJournalReader(CashJournalReader):
         organization_id: UUID,
         operation_type: str | None = None,
         vehicle_id: UUID | None = None,
+        expense_category_id: UUID | None = None,
+        payment_method: str | None = None,
         date_from: date | None = None,
         date_to: date | None = None,
     ) -> ListCashJournalEntriesQm:
@@ -96,6 +98,10 @@ class SqlaCashJournalReader(CashJournalReader):
             stmt = stmt.where(cash_journal_table.c.operation_type == operation_type)
         if vehicle_id is not None:
             stmt = stmt.where(cash_journal_table.c.vehicle_id == vehicle_id)
+        if expense_category_id is not None:
+            stmt = stmt.where(cash_journal_table.c.expense_category_id == expense_category_id)
+        if payment_method is not None:
+            stmt = stmt.where(cash_journal_table.c.payment_method == payment_method)
         if date_from is not None:
             stmt = stmt.where(cash_journal_table.c.date >= date_from)
         if date_to is not None:
@@ -115,6 +121,8 @@ class SqlaCashJournalReader(CashJournalReader):
         self,
         *,
         organization_id: UUID,
+        date_from: date | None = None,
+        date_to: date | None = None,
     ) -> CashJournalBalanceQm:
         income_sum = func.coalesce(
             func.sum(
@@ -137,6 +145,10 @@ class SqlaCashJournalReader(CashJournalReader):
         stmt = select(income_sum, expense_sum).where(
             cash_journal_table.c.organization_id == organization_id,
         )
+        if date_from is not None:
+            stmt = stmt.where(cash_journal_table.c.date >= date_from)
+        if date_to is not None:
+            stmt = stmt.where(cash_journal_table.c.date <= date_to)
         try:
             result = await self._session.execute(stmt)
             row = result.one()

@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from app.core.queries.list_service_tasks import ListServiceTasks, ListServiceTasksRequest
 from app.core.queries.ports.service_task_reader import ListServiceTasksQm
 from app.infrastructure.exceptions import ReaderError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -30,6 +31,7 @@ def make_list_service_tasks_router() -> APIRouter:
     @router.get(
         "/",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
         },
         default_on_error=log_info,

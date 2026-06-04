@@ -18,5 +18,8 @@ class TransactionQm:
     status: str
     external_id: str | None
     metadata: dict[str, Any] | None
+    source: str
+    client_note: str | None
+    rejection_reason: str | None
     created_at: datetime
     updated_at: datetime

@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from app.main.config.settings import (
     AppSettings,
     CookieSettings,
+    CorsSettings,
     JwtSettings,
     PasswordHasherSettings,
     PostgresSettings,
@@ -52,6 +53,10 @@ class SessionEnvConfig(BaseSettings, SessionSettings):
     model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="SESSION_")
 
 
+class CorsEnvConfig(BaseSettings, CorsSettings):
+    model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="CORS_")
+
+
 class CookieEnvConfig(BaseSettings, CookieSettings):
     model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="COOKIE_")
 
@@ -86,6 +91,10 @@ def load_jwt_settings() -> JwtSettings:
 
 def load_session_settings() -> SessionSettings:
     return _load_settings(SessionEnvConfig)
+
+
+def load_cors_settings() -> CorsSettings:
+    return _load_settings(CorsEnvConfig)
 
 
 def load_cookie_settings() -> CookieSettings:

@@ -35,6 +35,10 @@ class EmailAlreadyVerifiedError(BaseError):
     default_message: ClassVar[str] = "Email is already verified."
 
 
+class OrganizationIdRequiredError(BaseError):
+    default_message: ClassVar[str] = "Organization ID is required for signup."
+
+
 class InvalidInviteError(BaseError):
     default_message: ClassVar[str] = "Invalid or expired invite."
 

@@ -5,6 +5,7 @@ from decimal import Decimal
 from typing import TypedDict
 from uuid import UUID
 
+from app.core.commands.exceptions import RentalDateOverlapError
 from app.core.commands.ports.flusher import Flusher
 from app.core.commands.ports.rental_tx_storage import RentalTxStorage
 from app.core.commands.ports.transaction_manager import TransactionManager
@@ -21,6 +22,7 @@ from app.core.common.entities.types_ import (
     OrganizationId,
     PrepaymentStatus,
     RateType,
+    RentalSource,
     RentalStatus,
     UserId,
     VehicleId,
@@ -84,6 +86,14 @@ class CreateRental:
             ),
         )
 
+        has_overlap = await self._rental_tx_storage.has_overlap(
+            vehicle_id=VehicleId(request.vehicle_id),
+            scheduled_start=request.scheduled_start,
+            scheduled_end=request.scheduled_end,
+        )
+        if has_overlap:
+            raise RentalDateOverlapError
+
         now = UtcDatetime(self._utc_timer.now.value)
         rental = Rental(
             id_=create_rental_id(),
@@ -120,6 +130,8 @@ class CreateRental:
             cancellation_reason=None,
             prepayment_amount=request.prepayment_amount,
             prepayment_status=request.prepayment_status,
+            source=RentalSource.MANUAL,
+            pickup_notes=None,
             notes=request.notes,
             created_at=now,
             updated_at=now,

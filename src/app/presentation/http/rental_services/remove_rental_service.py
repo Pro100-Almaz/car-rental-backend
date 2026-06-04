@@ -8,6 +8,7 @@ from fastapi_error_map import ErrorAwareRouter
 from app.core.commands.exceptions import RentalServiceNotFoundError
 from app.core.commands.remove_rental_service import RemoveRentalService, RemoveRentalServiceRequest
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -18,6 +19,7 @@ def make_remove_rental_service_router() -> APIRouter:
     @router.delete(
         "/{rental_service_id}",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             RentalServiceNotFoundError: status.HTTP_404_NOT_FOUND,
         },

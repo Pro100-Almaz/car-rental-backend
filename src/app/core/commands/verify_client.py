@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 class VerifyClientRequest:
     client_id: UUID
     status: VerificationStatus
+    rejection_reason: str | None = None
 
 
 class VerifyClient:
@@ -57,6 +58,9 @@ class VerifyClient:
         if request.status == VerificationStatus.VERIFIED:
             client.trust_score += TRUST_EVENTS["document_verified"]
             client.trust_level = get_trust_level(client.trust_score)
+            client.rejection_reason = None
+        elif request.status == VerificationStatus.REJECTED:
+            client.rejection_reason = request.rejection_reason
 
         client.updated_at = UtcDatetime(self._utc_timer.now.value)
         await self._transaction_manager.commit()

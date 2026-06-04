@@ -106,6 +106,9 @@ class SqlaVehicleReader(VehicleReader):
         category: str | None = None,
         investor_id: UUID | None = None,
         search: str | None = None,
+        fuel_type: str | None = None,
+        mileage_from: int | None = None,
+        mileage_to: int | None = None,
     ) -> ListVehiclesQm:
         stmt = (
             select(*self._base_columns())
@@ -118,6 +121,12 @@ class SqlaVehicleReader(VehicleReader):
             stmt = stmt.where(vehicles_table.c.branch_id == branch_id)
         if category is not None:
             stmt = stmt.where(vehicles_table.c.category == category)
+        if fuel_type is not None:
+            stmt = stmt.where(vehicles_table.c.fuel_type == fuel_type)
+        if mileage_from is not None:
+            stmt = stmt.where(vehicles_table.c.current_mileage >= mileage_from)
+        if mileage_to is not None:
+            stmt = stmt.where(vehicles_table.c.current_mileage <= mileage_to)
         if investor_id is not None:
             stmt = stmt.where(
                 vehicles_table.c.id.in_(

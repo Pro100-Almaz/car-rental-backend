@@ -15,6 +15,8 @@ class ListCashJournalEntriesRequest:
     organization_id: UUID
     operation_type: str | None = None
     vehicle_id: UUID | None = None
+    expense_category_id: UUID | None = None
+    payment_method: str | None = None
     date_from: date | None = None
     date_to: date | None = None
 
@@ -33,6 +35,8 @@ class ListCashJournalEntries:
             organization_id=request.organization_id,
             operation_type=request.operation_type,
             vehicle_id=request.vehicle_id,
+            expense_category_id=request.expense_category_id,
+            payment_method=request.payment_method,
             date_from=request.date_from,
             date_to=request.date_to,
         )

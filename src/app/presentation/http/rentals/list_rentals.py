@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -9,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 
 from app.core.queries.list_rentals import ListRentals, ListRentalsRequest
 from app.core.queries.ports.rental_reader import ListRentalsQm
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
@@ -21,6 +23,8 @@ class ListRentalsRequestSchema(BaseModel):
     status: str | None = None
     vehicle_id: UUID | None = None
     client_id: UUID | None = None
+    date_from: datetime | None = None
+    date_to: datetime | None = None
 
 
 def make_list_rentals_router() -> APIRouter:
@@ -29,6 +33,7 @@ def make_list_rentals_router() -> APIRouter:
     @router.get(
         "/",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
         },
         default_on_error=log_info,
@@ -44,6 +49,8 @@ def make_list_rentals_router() -> APIRouter:
             status=request_schema.status,
             vehicle_id=request_schema.vehicle_id,
             client_id=request_schema.client_id,
+            date_from=request_schema.date_from,
+            date_to=request_schema.date_to,
         )
         return await interactor.execute(request)
 

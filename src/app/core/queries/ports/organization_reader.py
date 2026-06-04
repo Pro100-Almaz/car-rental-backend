@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from typing import Protocol, TypedDict
+from uuid import UUID
 
 from app.core.queries.models.organization import OrganizationQm
 from app.core.queries.query_support.offset_pagination import OffsetPaginationParams
@@ -14,6 +15,13 @@ class ListOrganizationsQm(TypedDict):
 
 
 class OrganizationReader(Protocol):
+    @abstractmethod
+    async def get_by_id(
+        self,
+        *,
+        organization_id: UUID,
+    ) -> OrganizationQm | None: ...
+
     @abstractmethod
     async def list_organizations(
         self,

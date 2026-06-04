@@ -7,10 +7,14 @@ from app.core.common.entities.types_ import (
     BranchId,
     CashJournalEntryId,
     ClientId,
+    ClientOrganizationId,
+    DeviceTokenId,
     ExpenseCategoryId,
+    ExtensionRequestId,
     FineId,
     InvestorId,
     InvestorPayoutId,
+    NotificationId,
     OrganizationId,
     RentalId,
     RentalServiceId,
@@ -99,3 +103,19 @@ def create_expense_category_id(value: UUID | None = None) -> ExpenseCategoryId:
 
 def create_cash_journal_entry_id(value: UUID | None = None) -> CashJournalEntryId:
     return CashJournalEntryId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_notification_id(value: UUID | None = None) -> NotificationId:
+    return NotificationId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_device_token_id(value: UUID | None = None) -> DeviceTokenId:
+    return DeviceTokenId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_extension_request_id(value: UUID | None = None) -> ExtensionRequestId:
+    return ExtensionRequestId(value if value is not None else uuid_utils.uuid7())
+
+
+def create_client_organization_id(value: UUID | None = None) -> ClientOrganizationId:
+    return ClientOrganizationId(value if value is not None else uuid_utils.uuid7())

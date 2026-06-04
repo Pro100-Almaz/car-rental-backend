@@ -5,6 +5,7 @@ from email.message import EmailMessage
 from functools import partial
 
 from app.core.common.ports.email_sender import EmailSender
+from app.infrastructure.exceptions import EmailSendError
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,11 @@ class SmtpEmailSender(EmailSender):
         msg.set_content(body)
 
         loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, partial(self._send_sync, msg))
+        try:
+            await loop.run_in_executor(None, partial(self._send_sync, msg))
+        except smtplib.SMTPException as e:
+            logger.exception("SMTP error sending email to %s", to)
+            raise EmailSendError from e
         logger.info("Email sent to %s: %s", to, subject)
 
     def _send_sync(self, msg: EmailMessage) -> None:

@@ -13,7 +13,7 @@ from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
 from app.core.common.entities.client import Client
-from app.core.common.entities.types_ import OrganizationId, TrustLevel, VerificationStatus
+from app.core.common.entities.types_ import OrganizationId, RegistrationSource, TrustLevel, VerificationStatus
 from app.core.common.factories.id_factory import create_client_id
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 
@@ -84,6 +84,8 @@ class CreateClient:
             blacklist_reason=None,
             wallet_balance=Decimal(0),
             debt_balance=Decimal(0),
+            registration_source=RegistrationSource.MANUAL,
+            rejection_reason=None,
             metadata=request.metadata,
             created_at=now,
             updated_at=now,

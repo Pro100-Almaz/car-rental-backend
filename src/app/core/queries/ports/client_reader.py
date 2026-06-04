@@ -19,10 +19,18 @@ class ClientReader(Protocol):
     ) -> ClientQm | None: ...
 
     @abstractmethod
+    async def get_by_user_id(
+        self,
+        *,
+        user_id: UUID,
+    ) -> ClientQm | None: ...
+
+    @abstractmethod
     async def list_clients(
         self,
         *,
         organization_id: UUID,
         verification_status: str | None = None,
         is_blacklisted: bool | None = None,
+        search: str | None = None,
     ) -> ListClientsQm: ...

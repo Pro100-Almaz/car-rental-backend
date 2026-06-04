@@ -1,5 +1,6 @@
 from datetime import timedelta
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field, PostgresDsn
 
@@ -13,6 +14,7 @@ class AppSettings(BaseModel):
     ROOT_PATH: str = "/"
     DEBUG_MODE: bool = False
     LOGGING_LEVEL: LoggingLevel = LoggingLevel.INFO
+    DEFAULT_ORGANIZATION_ID: UUID | None = None
 
 
 class PostgresSettings(BaseModel):
@@ -71,12 +73,19 @@ class SessionSettings(BaseModel):
         return timedelta(minutes=self.TTL_MIN)
 
 
+class CorsSettings(BaseModel):
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "https://car-rental-frontend-ruddy-nu.vercel.app",
+    ]
+
+
 class CookieSettings(BaseModel):
     NAME: str = "auth_token"
     PATH: str = "/"
     HTTPONLY: bool = True
-    SECURE: bool = False
-    SAMESITE: Literal["lax", "strict", "none"] = "lax"
+    SECURE: bool = True
+    SAMESITE: Literal["lax", "strict", "none"] = "none"
 
 
 class SmtpSettings(BaseModel):

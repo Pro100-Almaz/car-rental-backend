@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -6,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.queries.models.rental import RentalQm
-from app.core.queries.ports.rental_reader import ListRentalsQm, RentalReader
+from app.core.queries.ports.rental_reader import ListRentalsQm, RentalReader, SchedulerRentalQm
 from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.persistence_sqla.mappings.rental import rentals_table
 
@@ -51,6 +52,8 @@ class SqlaRentalReader(RentalReader):
             rentals_table.c.cancellation_reason,
             rentals_table.c.prepayment_amount,
             rentals_table.c.prepayment_status,
+            rentals_table.c.source,
+            rentals_table.c.pickup_notes,
             rentals_table.c.notes,
             rentals_table.c.created_at,
             rentals_table.c.updated_at,
@@ -92,6 +95,8 @@ class SqlaRentalReader(RentalReader):
             cancellation_reason=row.cancellation_reason,
             prepayment_amount=row.prepayment_amount,
             prepayment_status=row.prepayment_status,
+            source=row.source,
+            pickup_notes=row.pickup_notes,
             notes=row.notes,
             created_at=row.created_at,
             updated_at=row.updated_at,
@@ -121,6 +126,8 @@ class SqlaRentalReader(RentalReader):
         status: str | None = None,
         vehicle_id: UUID | None = None,
         client_id: UUID | None = None,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
     ) -> ListRentalsQm:
         stmt = (
             select(*self._base_columns())
@@ -133,6 +140,10 @@ class SqlaRentalReader(RentalReader):
             stmt = stmt.where(rentals_table.c.vehicle_id == vehicle_id)
         if client_id is not None:
             stmt = stmt.where(rentals_table.c.client_id == client_id)
+        if date_from is not None:
+            stmt = stmt.where(rentals_table.c.scheduled_end >= date_from)
+        if date_to is not None:
+            stmt = stmt.where(rentals_table.c.scheduled_start <= date_to)
         try:
             result = await self._session.execute(stmt)
             rows = result.all()
@@ -143,3 +154,77 @@ class SqlaRentalReader(RentalReader):
             rentals=rentals,
             total=len(rentals),
         )
+
+    def _scheduler_columns(self) -> tuple[Any, ...]:
+        return (
+            rentals_table.c.id,
+            rentals_table.c.client_id,
+            rentals_table.c.scheduled_start,
+            rentals_table.c.scheduled_end,
+        )
+
+    def _row_to_scheduler_qm(self, row: Row[Any]) -> SchedulerRentalQm:
+        return SchedulerRentalQm(
+            id=row.id,
+            client_id=row.client_id,
+            scheduled_start=row.scheduled_start,
+            scheduled_end=row.scheduled_end,
+        )
+
+    async def list_confirmed_starting_between(
+        self,
+        *,
+        organization_id: UUID,
+        start_from: datetime,
+        start_to: datetime,
+    ) -> list[SchedulerRentalQm]:
+        stmt = (
+            select(*self._scheduler_columns())
+            .where(rentals_table.c.organization_id == organization_id)
+            .where(rentals_table.c.status == "confirmed")
+            .where(rentals_table.c.scheduled_start >= start_from)
+            .where(rentals_table.c.scheduled_start <= start_to)
+        )
+        try:
+            result = await self._session.execute(stmt)
+            return [self._row_to_scheduler_qm(row) for row in result.all()]
+        except SQLAlchemyError as e:
+            raise ReaderError from e
+
+    async def list_active_ending_between(
+        self,
+        *,
+        organization_id: UUID,
+        end_from: datetime,
+        end_to: datetime,
+    ) -> list[SchedulerRentalQm]:
+        stmt = (
+            select(*self._scheduler_columns())
+            .where(rentals_table.c.organization_id == organization_id)
+            .where(rentals_table.c.status == "active")
+            .where(rentals_table.c.scheduled_end >= end_from)
+            .where(rentals_table.c.scheduled_end <= end_to)
+        )
+        try:
+            result = await self._session.execute(stmt)
+            return [self._row_to_scheduler_qm(row) for row in result.all()]
+        except SQLAlchemyError as e:
+            raise ReaderError from e
+
+    async def list_active_overdue(
+        self,
+        *,
+        organization_id: UUID,
+        overdue_before: datetime,
+    ) -> list[SchedulerRentalQm]:
+        stmt = (
+            select(*self._scheduler_columns())
+            .where(rentals_table.c.organization_id == organization_id)
+            .where(rentals_table.c.status == "active")
+            .where(rentals_table.c.scheduled_end < overdue_before)
+        )
+        try:
+            result = await self._session.execute(stmt)
+            return [self._row_to_scheduler_qm(row) for row in result.all()]
+        except SQLAlchemyError as e:
+            raise ReaderError from e

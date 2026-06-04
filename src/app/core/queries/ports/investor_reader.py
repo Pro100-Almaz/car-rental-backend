@@ -31,6 +31,13 @@ class InvestorReader(Protocol):
     ) -> InvestorQm | None: ...
 
     @abstractmethod
+    async def get_by_user_id(
+        self,
+        *,
+        user_id: UUID,
+    ) -> InvestorQm | None: ...
+
+    @abstractmethod
     async def list_investors(
         self,
         *,

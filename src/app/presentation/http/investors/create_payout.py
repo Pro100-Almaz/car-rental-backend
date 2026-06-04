@@ -10,6 +10,7 @@ from app.core.commands.create_investor_payout import (
 )
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -20,6 +21,7 @@ def make_create_payout_router() -> APIRouter:
     @router.post(
         "/{investor_id}/payouts",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
         },

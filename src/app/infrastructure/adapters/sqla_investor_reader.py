@@ -117,6 +117,23 @@ class SqlaInvestorReader(InvestorReader):
             return None
         return self._row_to_investor_qm(row)
 
+    async def get_by_user_id(
+        self,
+        *,
+        user_id: UUID,
+    ) -> InvestorQm | None:
+        stmt = select(*self._investor_columns()).where(
+            investors_table.c.user_id == user_id,
+        )
+        try:
+            result = await self._session.execute(stmt)
+            row = result.one_or_none()
+        except SQLAlchemyError as e:
+            raise ReaderError from e
+        if row is None:
+            return None
+        return self._row_to_investor_qm(row)
+
     async def list_investors(
         self,
         *,

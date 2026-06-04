@@ -1,6 +1,7 @@
 from enum import StrEnum
 
 from sqlalchemy import UUID, Boolean, Column, DateTime, Enum, ForeignKey, LargeBinary, String, Table
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import composite
 
 from app.core.common.entities.types_ import UserRole
@@ -49,6 +50,14 @@ users_table = Table(
         ForeignKey("branches.id", ondelete="SET NULL"),
         nullable=True,
     ),
+    Column(
+        "client_id",
+        UUID(as_uuid=True),
+        ForeignKey("clients.id", ondelete="SET NULL"),
+        nullable=True,
+        unique=True,
+    ),
+    Column("notification_preferences", JSONB, nullable=True, server_default="{}"),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
@@ -71,6 +80,8 @@ def map_users_table() -> None:
             "email_verified": users_table.c.email_verified,
             "last_login_at": users_table.c.last_login_at,
             "branch_id": users_table.c.branch_id,
+            "client_id": users_table.c.client_id,
+            "notification_preferences": users_table.c.notification_preferences,
             "_created_at": composite(UtcDatetime, users_table.c.created_at),
             "updated_at": composite(UtcDatetime, users_table.c.updated_at),
         },

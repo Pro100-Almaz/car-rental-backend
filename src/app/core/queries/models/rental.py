@@ -41,6 +41,8 @@ class RentalQm:
     cancellation_reason: str | None
     prepayment_amount: Decimal
     prepayment_status: str
+    source: str
+    pickup_notes: str | None
     notes: str | None
     created_at: datetime
     updated_at: datetime

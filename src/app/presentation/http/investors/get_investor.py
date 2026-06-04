@@ -8,6 +8,7 @@ from fastapi_error_map import ErrorAwareRouter
 from app.core.queries.get_investor import GetInvestor, GetInvestorRequest
 from app.core.queries.models.investor import InvestorQm
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -18,6 +19,7 @@ def make_get_investor_router() -> APIRouter:
     @router.get(
         "/{investor_id}",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
         },
         default_on_error=log_info,

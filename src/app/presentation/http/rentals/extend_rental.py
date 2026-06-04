@@ -10,6 +10,8 @@ from pydantic import BaseModel, ConfigDict
 
 from app.core.commands.exceptions import InvalidRentalStatusTransitionError, RentalNotFoundError
 from app.core.commands.extend_rental import ExtendRental, ExtendRentalRequest
+from app.core.common.authorization.exceptions import AuthorizationError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
@@ -28,6 +30,8 @@ def make_extend_rental_router() -> APIRouter:
     @router.post(
         "/{rental_id}/extend",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
+            AuthorizationError: status.HTTP_403_FORBIDDEN,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             RentalNotFoundError: status.HTTP_404_NOT_FOUND,
             InvalidRentalStatusTransitionError: status.HTTP_409_CONFLICT,

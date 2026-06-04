@@ -1,0 +1,37 @@
+from dishka import FromDishka
+from dishka.integrations.fastapi import inject
+from fastapi import APIRouter, status
+from fastapi_error_map import ErrorAwareRouter
+
+from app.core.commands.unregister_device_token import (
+    UnregisterDeviceToken,
+    UnregisterDeviceTokenRequest,
+)
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.core.common.authorization.exceptions import AuthorizationError
+from app.infrastructure.exceptions import StorageError
+from app.presentation.http.errors.callbacks import log_info
+from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
+
+
+def make_unregister_device_router() -> APIRouter:
+    router = ErrorAwareRouter()
+
+    @router.delete(
+        "/devices/{token}",
+        error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
+            AuthorizationError: status.HTTP_403_FORBIDDEN,
+            StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+        },
+        default_on_error=log_info,
+        status_code=status.HTTP_204_NO_CONTENT,
+    )
+    @inject
+    async def unregister_device(
+        token: str,
+        interactor: FromDishka[UnregisterDeviceToken],
+    ) -> None:
+        await interactor.execute(UnregisterDeviceTokenRequest(token=token))
+
+    return router

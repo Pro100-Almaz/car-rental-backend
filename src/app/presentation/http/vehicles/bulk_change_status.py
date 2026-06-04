@@ -13,6 +13,7 @@ from app.core.commands.bulk_change_vehicle_status import (
 )
 from app.core.common.entities.types_ import VehicleStatus
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -30,6 +31,7 @@ def make_bulk_change_status_router() -> APIRouter:
     @router.post(
         "/bulk-status",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
         },
         default_on_error=log_info,

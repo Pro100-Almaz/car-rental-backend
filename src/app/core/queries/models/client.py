@@ -24,6 +24,9 @@ class ClientQm:
     blacklist_reason: str | None
     wallet_balance: Decimal
     debt_balance: Decimal
+    registration_source: str
+    rejection_reason: str | None
     metadata: dict[str, Any] | None
+    email_verified: bool
     created_at: datetime
     updated_at: datetime

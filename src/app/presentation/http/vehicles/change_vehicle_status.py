@@ -10,6 +10,7 @@ from app.core.commands.change_vehicle_status import ChangeVehicleStatus, ChangeV
 from app.core.commands.exceptions import InvalidVehicleStatusTransitionError, VehicleNotFoundError
 from app.core.common.entities.types_ import VehicleStatus
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -26,6 +27,7 @@ def make_change_vehicle_status_router() -> APIRouter:
     @router.patch(
         "/{vehicle_id}/status",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             VehicleNotFoundError: status.HTTP_404_NOT_FOUND,
             InvalidVehicleStatusTransitionError: status.HTTP_409_CONFLICT,

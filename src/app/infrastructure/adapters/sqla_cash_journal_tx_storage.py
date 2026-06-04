@@ -31,3 +31,9 @@ class SqlaCashJournalTxStorage(CashJournalTxStorage):
             )
         except SQLAlchemyError as e:
             raise StorageError from e
+
+    async def delete(self, entry: CashJournalEntry) -> None:
+        try:
+            await self._session.delete(entry)
+        except SQLAlchemyError as e:
+            raise StorageError from e

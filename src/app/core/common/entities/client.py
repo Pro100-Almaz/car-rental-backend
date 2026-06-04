@@ -5,6 +5,7 @@ from app.core.common.entities.base import Entity
 from app.core.common.entities.types_ import (
     ClientId,
     OrganizationId,
+    RegistrationSource,
     TrustLevel,
     UserId,
     VerificationStatus,
@@ -33,6 +34,8 @@ class Client(Entity[ClientId]):
         blacklist_reason: str | None,
         wallet_balance: Decimal,
         debt_balance: Decimal,
+        registration_source: RegistrationSource,
+        rejection_reason: str | None,
         metadata: dict[str, Any] | None,
         created_at: UtcDatetime,
         updated_at: UtcDatetime,
@@ -54,6 +57,8 @@ class Client(Entity[ClientId]):
         self.blacklist_reason = blacklist_reason
         self.wallet_balance = wallet_balance
         self.debt_balance = debt_balance
+        self.registration_source = registration_source
+        self.rejection_reason = rejection_reason
         self.metadata = metadata
         self._created_at = created_at
         self.updated_at = updated_at

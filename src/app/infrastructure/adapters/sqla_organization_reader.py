@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +16,37 @@ from app.infrastructure.persistence_sqla.mappings.organization import organizati
 class SqlaOrganizationReader(OrganizationReader):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+
+    async def get_by_id(
+        self,
+        *,
+        organization_id: UUID,
+    ) -> OrganizationQm | None:
+        stmt = select(
+            organizations_table.c.id,
+            organizations_table.c.name,
+            organizations_table.c.slug,
+            organizations_table.c.settings,
+            organizations_table.c.subscription_plan,
+            organizations_table.c.created_at,
+            organizations_table.c.updated_at,
+        ).where(organizations_table.c.id == organization_id)
+        try:
+            result = await self._session.execute(stmt)
+            row = result.one_or_none()
+        except SQLAlchemyError as e:
+            raise ReaderError from e
+        if row is None:
+            return None
+        return OrganizationQm(
+            id=row.id,
+            name=row.name,
+            slug=row.slug,
+            settings=row.settings,
+            subscription_plan=row.subscription_plan,
+            created_at=row.created_at,
+            updated_at=row.updated_at,
+        )
 
     async def list_organizations(
         self,

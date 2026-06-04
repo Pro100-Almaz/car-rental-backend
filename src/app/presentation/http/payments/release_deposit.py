@@ -6,6 +6,7 @@ from fastapi_error_map import ErrorAwareRouter
 from app.core.commands.release_deposit import ReleaseDeposit, ReleaseDepositRequest, ReleaseDepositResponse
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -16,6 +17,7 @@ def make_release_deposit_router() -> APIRouter:
     @router.post(
         "/deposit/release",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
         },

@@ -12,6 +12,7 @@ class ListClientsRequest:
     organization_id: UUID
     verification_status: str | None = None
     is_blacklisted: bool | None = None
+    search: str | None = None
 
 
 class ListClients:
@@ -28,6 +29,7 @@ class ListClients:
             organization_id=request.organization_id,
             verification_status=request.verification_status,
             is_blacklisted=request.is_blacklisted,
+            search=request.search,
         )
 
         logger.info("List clients: done.")

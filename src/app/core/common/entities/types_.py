@@ -21,6 +21,10 @@ AdditionalServiceId = NewType("AdditionalServiceId", UUID)
 RentalServiceId = NewType("RentalServiceId", UUID)
 ExpenseCategoryId = NewType("ExpenseCategoryId", UUID)
 CashJournalEntryId = NewType("CashJournalEntryId", UUID)
+NotificationId = NewType("NotificationId", UUID)
+DeviceTokenId = NewType("DeviceTokenId", UUID)
+ExtensionRequestId = NewType("ExtensionRequestId", UUID)
+ClientOrganizationId = NewType("ClientOrganizationId", UUID)
 UserPasswordHash = NewType("UserPasswordHash", bytes)
 
 
@@ -130,6 +134,7 @@ class TransactionStatus(StrEnum):
     COMPLETED = "completed"
     FAILED = "failed"
     REFUNDED = "refunded"
+    REJECTED = "rejected"
 
 
 class ServiceTaskType(StrEnum):
@@ -190,11 +195,11 @@ class ProfitDistributionType(StrEnum):
 
 class UserRole(StrEnum):
     SUPER_ADMIN = "super_admin"
-    OWNER = "owner"
-    BRANCH_MANAGER = "branch_manager"
-    DISPATCHER = "dispatcher"
-    FINANCE = "finance"
-    FIELD_STAFF = "field_staff"
+    ADMIN = "admin"
+    BOOKING_MANAGER = "booking_manager"
+    FINANCIAL_MANAGER = "financial_manager"
+    INVESTOR = "investor"
+    TECHNICIAN = "technician"
     CLIENT = "client"
 
     @property
@@ -210,3 +215,47 @@ class OperationType(StrEnum):
 class ExpenseCategoryType(StrEnum):
     DIRECT = "direct"
     OVERHEAD = "overhead"
+
+
+class RegistrationSource(StrEnum):
+    MANUAL = "manual"
+    MOBILE = "mobile"
+
+
+class RentalSource(StrEnum):
+    MANUAL = "manual"
+    MOBILE = "mobile"
+
+
+class TransactionSource(StrEnum):
+    MANUAL = "manual"
+    MOBILE = "mobile"
+    AUTO = "auto"
+
+
+class NotificationType(StrEnum):
+    DOCUMENT_APPROVED = "document_approved"
+    DOCUMENT_REJECTED = "document_rejected"
+    BOOKING_CONFIRMED = "booking_confirmed"
+    BOOKING_CANCELLED = "booking_cancelled"
+    PICKUP_REMINDER = "pickup_reminder"
+    RETURN_REMINDER = "return_reminder"
+    OVERDUE_ALERT = "overdue_alert"
+    RENTAL_COMPLETED = "rental_completed"
+    EXTENSION_APPROVED = "extension_approved"
+    EXTENSION_REJECTED = "extension_rejected"
+    FINE_ADDED = "fine_added"
+    PAYMENT_CONFIRMED = "payment_confirmed"
+    PAYMENT_REJECTED = "payment_rejected"
+    DEBT_REMINDER = "debt_reminder"
+
+
+class DevicePlatform(StrEnum):
+    IOS = "ios"
+    ANDROID = "android"
+
+
+class ExtensionRequestStatus(StrEnum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"

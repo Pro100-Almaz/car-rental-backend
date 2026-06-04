@@ -7,6 +7,7 @@ from sqlalchemy.orm import composite
 from app.core.common.entities.transaction import Transaction
 from app.core.common.entities.types_ import (
     PaymentMethod,
+    TransactionSource,
     TransactionStatus,
     TransactionType,
 )
@@ -77,6 +78,20 @@ transactions_table = Table(
     ),
     Column("external_id", String(255), nullable=True),
     Column("metadata", JSONB, nullable=True),
+    Column(
+        "source",
+        Enum(
+            TransactionSource,
+            name="transaction_source",
+            native_enum=False,
+            validate_strings=True,
+            values_callable=get_strenum_values,
+        ),
+        nullable=False,
+        server_default="manual",
+    ),
+    Column("client_note", String(2000), nullable=True),
+    Column("rejection_reason", String(2000), nullable=True),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
     Index("idx_transactions_org_status", "organization_id", "status"),
@@ -102,6 +117,9 @@ def map_transactions_table() -> None:
             "status": transactions_table.c.status,
             "external_id": transactions_table.c.external_id,
             "metadata": transactions_table.c.metadata,
+            "source": transactions_table.c.source,
+            "client_note": transactions_table.c.client_note,
+            "rejection_reason": transactions_table.c.rejection_reason,
             "_created_at": composite(UtcDatetime, transactions_table.c.created_at),
             "updated_at": composite(UtcDatetime, transactions_table.c.updated_at),
         },

@@ -28,4 +28,7 @@ class VehicleReader(Protocol):
         category: str | None = None,
         investor_id: UUID | None = None,
         search: str | None = None,
+        fuel_type: str | None = None,
+        mileage_from: int | None = None,
+        mileage_to: int | None = None,
     ) -> ListVehiclesQm: ...

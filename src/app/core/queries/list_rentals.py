@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from datetime import datetime
 from uuid import UUID
 
 from app.core.queries.ports.rental_reader import ListRentalsQm, RentalReader
@@ -13,6 +14,8 @@ class ListRentalsRequest:
     status: str | None = None
     vehicle_id: UUID | None = None
     client_id: UUID | None = None
+    date_from: datetime | None = None
+    date_to: datetime | None = None
 
 
 class ListRentals:
@@ -30,6 +33,8 @@ class ListRentals:
             status=request.status,
             vehicle_id=request.vehicle_id,
             client_id=request.client_id,
+            date_from=request.date_from,
+            date_to=request.date_to,
         )
 
         logger.info("List rentals: done.")

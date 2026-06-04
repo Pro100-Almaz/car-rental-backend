@@ -26,12 +26,16 @@ from app.infrastructure.persistence_sqla.mappings.auth_session import map_auth_s
 from app.infrastructure.persistence_sqla.mappings.branch import map_branches_table
 from app.infrastructure.persistence_sqla.mappings.cash_journal_entry import map_cash_journal_table
 from app.infrastructure.persistence_sqla.mappings.client import map_clients_table
+from app.infrastructure.persistence_sqla.mappings.client_organization import map_client_organizations_table
+from app.infrastructure.persistence_sqla.mappings.device_token import map_device_tokens_table
 from app.infrastructure.persistence_sqla.mappings.email_verification_code import map_email_verification_codes_table
 from app.infrastructure.persistence_sqla.mappings.expense_category import map_expense_categories_table
+from app.infrastructure.persistence_sqla.mappings.extension_request import map_extension_requests_table
 from app.infrastructure.persistence_sqla.mappings.fine import map_fines_table
-from app.infrastructure.persistence_sqla.mappings.invite import map_invites_table
 from app.infrastructure.persistence_sqla.mappings.investor import map_investors_table
 from app.infrastructure.persistence_sqla.mappings.investor_payout import map_investor_payouts_table
+from app.infrastructure.persistence_sqla.mappings.invite import map_invites_table
+from app.infrastructure.persistence_sqla.mappings.notification import map_notifications_table
 from app.infrastructure.persistence_sqla.mappings.organization import map_organizations_table
 from app.infrastructure.persistence_sqla.mappings.rental import map_rentals_table
 from app.infrastructure.persistence_sqla.mappings.rental_service import map_rental_services_table
@@ -71,3 +75,7 @@ def map_tables() -> None:
     map_invites_table()
     map_vehicle_categories_table()
     map_vehicle_documents_table()
+    map_notifications_table()
+    map_device_tokens_table()
+    map_extension_requests_table()
+    map_client_organizations_table()

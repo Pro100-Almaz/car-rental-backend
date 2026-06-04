@@ -9,6 +9,7 @@ from fastapi_error_map import ErrorAwareRouter
 from app.core.queries.list_rental_services import ListRentalServices, ListRentalServicesRequest
 from app.core.queries.ports.rental_service_reader import ListRentalServicesQm
 from app.infrastructure.exceptions import ReaderError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -19,6 +20,7 @@ def make_list_rental_services_router() -> APIRouter:
     @router.get(
         "/",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
         },
         default_on_error=log_info,

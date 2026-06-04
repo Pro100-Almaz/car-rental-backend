@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import composite
 
 from app.core.common.entities.client import Client
-from app.core.common.entities.types_ import TrustLevel, VerificationStatus
+from app.core.common.entities.types_ import RegistrationSource, TrustLevel, VerificationStatus
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 from app.infrastructure.persistence_sqla.registry import mapper_registry
 
@@ -65,6 +65,19 @@ clients_table = Table(
     Column("blacklist_reason", Text, nullable=True),
     Column("wallet_balance", Numeric(12, 2), nullable=False, default=0),
     Column("debt_balance", Numeric(12, 2), nullable=False, default=0),
+    Column(
+        "registration_source",
+        Enum(
+            RegistrationSource,
+            name="registration_source",
+            native_enum=False,
+            validate_strings=True,
+            values_callable=get_strenum_values,
+        ),
+        nullable=False,
+        server_default="manual",
+    ),
+    Column("rejection_reason", Text, nullable=True),
     Column("metadata", JSONB, nullable=True),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
@@ -93,6 +106,8 @@ def map_clients_table() -> None:
             "blacklist_reason": clients_table.c.blacklist_reason,
             "wallet_balance": clients_table.c.wallet_balance,
             "debt_balance": clients_table.c.debt_balance,
+            "registration_source": clients_table.c.registration_source,
+            "rejection_reason": clients_table.c.rejection_reason,
             "metadata": clients_table.c.metadata,
             "_created_at": composite(UtcDatetime, clients_table.c.created_at),
             "updated_at": composite(UtcDatetime, clients_table.c.updated_at),

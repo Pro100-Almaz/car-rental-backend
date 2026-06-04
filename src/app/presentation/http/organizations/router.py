@@ -1,7 +1,9 @@
 from fastapi import APIRouter
 
 from app.presentation.http.organizations.create_organization import make_create_organization_router
+from app.presentation.http.organizations.get_organization import make_get_organization_router
 from app.presentation.http.organizations.list_organizations import make_list_organizations_router
+from app.presentation.http.organizations.update_organization import make_update_organization_router
 
 
 def make_organizations_router() -> APIRouter:
@@ -11,4 +13,6 @@ def make_organizations_router() -> APIRouter:
     )
     router.include_router(make_create_organization_router())
     router.include_router(make_list_organizations_router())
+    router.include_router(make_get_organization_router())
+    router.include_router(make_update_organization_router())
     return router

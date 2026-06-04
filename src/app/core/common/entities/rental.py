@@ -12,6 +12,7 @@ from app.core.common.entities.types_ import (
     PrepaymentStatus,
     RateType,
     RentalId,
+    RentalSource,
     RentalStatus,
     UserId,
     VehicleId,
@@ -57,6 +58,8 @@ class Rental(Entity[RentalId]):
         cancellation_reason: str | None,
         prepayment_amount: Decimal,
         prepayment_status: PrepaymentStatus,
+        source: RentalSource,
+        pickup_notes: str | None,
         notes: str | None,
         created_at: UtcDatetime,
         updated_at: UtcDatetime,
@@ -95,6 +98,8 @@ class Rental(Entity[RentalId]):
         self.cancellation_reason = cancellation_reason
         self.prepayment_amount = prepayment_amount
         self.prepayment_status = prepayment_status
+        self.source = source
+        self.pickup_notes = pickup_notes
         self.notes = notes
         self._created_at = created_at
         self.updated_at = updated_at

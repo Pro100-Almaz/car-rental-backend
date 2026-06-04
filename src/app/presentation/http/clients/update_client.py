@@ -11,6 +11,7 @@ from app.core.commands.exceptions import ClientNotFoundError
 from app.core.commands.update_client import UpdateClient, UpdateClientRequest
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -34,6 +35,7 @@ def make_update_client_router() -> APIRouter:
     @router.patch(
         "/{client_id}",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
             ClientNotFoundError: status.HTTP_404_NOT_FOUND,

@@ -9,6 +9,7 @@ from app.infrastructure.persistence_sqla.mappings.all import map_tables
 from app.main.config.loader import (
     load_app_settings,
     load_cookie_settings,
+    load_cors_settings,
     load_jwt_settings,
     load_password_hasher_settings,
     load_postgres_settings,
@@ -20,6 +21,7 @@ from app.main.config.loader import (
 from app.main.config.settings import (
     AppSettings,
     CookieSettings,
+    CorsSettings,
     JwtSettings,
     PasswordHasherSettings,
     PostgresSettings,
@@ -57,6 +59,7 @@ def make_app(
     jwt_settings: JwtSettings | None = None,
     session_settings: SessionSettings | None = None,
     cookie_settings: CookieSettings | None = None,
+    cors_settings: CorsSettings | None = None,
     smtp_settings: SmtpSettings | None = None,
     verification_settings: VerificationSettings | None = None,
 ) -> FastAPI:
@@ -78,6 +81,8 @@ def make_app(
         session_settings = load_session_settings()
     if cookie_settings is None:
         cookie_settings = load_cookie_settings()
+    if cors_settings is None:
+        cors_settings = load_cors_settings()
     if smtp_settings is None:
         smtp_settings = load_smtp_settings()
     if verification_settings is None:
@@ -107,7 +112,7 @@ def make_app(
         },
     )
     setup_dishka(container, app)
-    setup_middlewares(app, cookie_settings)
+    setup_middlewares(app, cookie_settings, cors_settings)
     setup_global_exception_handlers(app)
     app.include_router(
         make_fastapi_root_router(

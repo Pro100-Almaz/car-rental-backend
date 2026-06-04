@@ -15,6 +15,9 @@ class ListVehiclesRequest:
     category: str | None = None
     investor_id: UUID | None = None
     search: str | None = None
+    fuel_type: str | None = None
+    mileage_from: int | None = None
+    mileage_to: int | None = None
 
 
 class ListVehicles:
@@ -34,6 +37,9 @@ class ListVehicles:
             category=request.category,
             investor_id=request.investor_id,
             search=request.search,
+            fuel_type=request.fuel_type,
+            mileage_from=request.mileage_from,
+            mileage_to=request.mileage_to,
         )
 
         logger.info("List vehicles: done.")

@@ -16,6 +16,7 @@ from app.core.commands.manage_vehicle_photos import (
     RemoveVehiclePhotoRequest,
 )
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -32,6 +33,7 @@ def make_manage_photos_router() -> APIRouter:
     @router.post(
         "/{vehicle_id}/photos",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             VehicleNotFoundError: status.HTTP_404_NOT_FOUND,
             PhotoLimitExceededError: status.HTTP_400_BAD_REQUEST,
@@ -52,6 +54,7 @@ def make_manage_photos_router() -> APIRouter:
     @router.delete(
         "/{vehicle_id}/photos/{photo_index}",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             VehicleNotFoundError: status.HTTP_404_NOT_FOUND,
             PhotoNotFoundError: status.HTTP_404_NOT_FOUND,

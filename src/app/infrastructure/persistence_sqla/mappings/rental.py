@@ -11,6 +11,7 @@ from app.core.common.entities.types_ import (
     DepositType,
     PrepaymentStatus,
     RateType,
+    RentalSource,
     RentalStatus,
 )
 from app.core.common.value_objects.utc_datetime import UtcDatetime
@@ -143,6 +144,19 @@ rentals_table = Table(
         ),
         nullable=False,
     ),
+    Column(
+        "source",
+        Enum(
+            RentalSource,
+            name="rental_source",
+            native_enum=False,
+            validate_strings=True,
+            values_callable=get_strenum_values,
+        ),
+        nullable=False,
+        server_default="manual",
+    ),
+    Column("pickup_notes", Text, nullable=True),
     Column("notes", Text, nullable=True),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
@@ -188,6 +202,8 @@ def map_rentals_table() -> None:
             "cancellation_reason": rentals_table.c.cancellation_reason,
             "prepayment_amount": rentals_table.c.prepayment_amount,
             "prepayment_status": rentals_table.c.prepayment_status,
+            "source": rentals_table.c.source,
+            "pickup_notes": rentals_table.c.pickup_notes,
             "notes": rentals_table.c.notes,
             "_created_at": composite(UtcDatetime, rentals_table.c.created_at),
             "updated_at": composite(UtcDatetime, rentals_table.c.updated_at),

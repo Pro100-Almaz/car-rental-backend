@@ -6,6 +6,7 @@ from fastapi_error_map import ErrorAwareRouter
 from app.core.commands.exceptions import InvalidTransactionStatusTransitionError, TransactionNotFoundError
 from app.core.commands.update_transaction_status import UpdateTransactionStatus, UpdateTransactionStatusRequest
 from app.infrastructure.exceptions import StorageError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -16,6 +17,7 @@ def make_update_transaction_status_router() -> APIRouter:
     @router.patch(
         "/transactions/status",
         error_map={
+            AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             TransactionNotFoundError: status.HTTP_404_NOT_FOUND,
             InvalidTransactionStatusTransitionError: status.HTTP_409_CONFLICT,

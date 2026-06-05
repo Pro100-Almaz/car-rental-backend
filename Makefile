@@ -60,11 +60,25 @@ pip-audit:
 	$(PIP_AUDIT)
 
 # Code quality
-.PHONY: slotscheck lint test check
+.PHONY: slotscheck lint lint-check lint-fix test check
 slotscheck:
 	$(SLOTSCHECK) src
 
-lint:
+# Read-only checks. Safe for CI — fails non-zero on any violation, never mutates files.
+# Note: `--no-fix` is required because pyproject.toml sets `[tool.ruff] fix = true`,
+# which would otherwise make `ruff check` silently auto-apply fixes.
+lint-check:
+	ruff check --no-fix
+	ruff format --check
+	tombi format --check
+	tombi lint
+	deptry
+	$(MAKE) slotscheck
+	lint-imports
+	mypy
+
+# Apply auto-fixes and formatters. Developer convenience — mutates the working tree.
+lint-fix:
 	ruff check --fix
 	ruff format
 	tombi format
@@ -73,6 +87,9 @@ lint:
 	$(MAKE) slotscheck
 	lint-imports
 	mypy
+
+# Backwards-compatible default: `make lint` keeps the fix-and-format behavior.
+lint: lint-fix
 
 test:
 	pytest -v \

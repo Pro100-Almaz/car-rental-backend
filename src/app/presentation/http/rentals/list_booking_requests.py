@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from dishka import FromDishka
@@ -30,10 +31,8 @@ def make_list_booking_requests_router() -> APIRouter:
     @inject
     async def list_booking_requests(
         interactor: FromDishka[ListBookingRequests],
-        organization_id: UUID = Query(...),
+        organization_id: Annotated[UUID, Query(...)],
     ) -> ListRentalsQm:
-        return await interactor.execute(
-            ListBookingRequestsRequest(organization_id=organization_id)
-        )
+        return await interactor.execute(ListBookingRequestsRequest(organization_id=organization_id))
 
     return router

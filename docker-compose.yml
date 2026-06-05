@@ -17,6 +17,7 @@ services:
       - .env
     environment:
       - COVERAGE_FILE=/tmp/.coverage
+      - UVICORN_RELOAD=true
     command: ["start", "8000"]
 
   db_pg:

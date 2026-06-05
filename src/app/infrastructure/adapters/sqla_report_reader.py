@@ -4,8 +4,6 @@ from datetime import date
 from decimal import Decimal
 from uuid import UUID
 
-from collections import defaultdict
-
 from sqlalchemy import and_, case, func, outerjoin, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -77,7 +75,10 @@ class SqlaReportReader(ReportReader):
         )
 
     async def _get_revenue(
-        self, organization_id: UUID, date_from: date, date_to: date,
+        self,
+        organization_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> Decimal:
         stmt = select(
             func.coalesce(func.sum(cash_journal_table.c.amount), Decimal(0)),
@@ -135,29 +136,39 @@ class SqlaReportReader(ReportReader):
         ]
 
     async def _get_tax_expenses(
-        self, organization_id: UUID, date_from: date, date_to: date,
+        self,
+        organization_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> Decimal:
         j = outerjoin(
             cash_journal_table,
             expense_categories_table,
             cash_journal_table.c.expense_category_id == expense_categories_table.c.id,
         )
-        stmt = select(
-            func.coalesce(func.sum(cash_journal_table.c.amount), Decimal(0)),
-        ).select_from(j).where(
-            and_(
-                cash_journal_table.c.organization_id == organization_id,
-                cash_journal_table.c.operation_type == "expense",
-                cash_journal_table.c.date >= date_from,
-                cash_journal_table.c.date <= date_to,
-                func.lower(expense_categories_table.c.name) == "taxes",
-            ),
+        stmt = (
+            select(
+                func.coalesce(func.sum(cash_journal_table.c.amount), Decimal(0)),
+            )
+            .select_from(j)
+            .where(
+                and_(
+                    cash_journal_table.c.organization_id == organization_id,
+                    cash_journal_table.c.operation_type == "expense",
+                    cash_journal_table.c.date >= date_from,
+                    cash_journal_table.c.date <= date_to,
+                    func.lower(expense_categories_table.c.name) == "taxes",
+                ),
+            )
         )
         result = await self._session.execute(stmt)
         return result.scalar_one() or Decimal(0)
 
     async def _get_investor_payouts(
-        self, organization_id: UUID, date_from: date, date_to: date,
+        self,
+        organization_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> Decimal:
         stmt = select(
             func.coalesce(func.sum(investor_payouts_table.c.share_amount), Decimal(0)),
@@ -200,7 +211,9 @@ class SqlaReportReader(ReportReader):
         )
 
     async def _get_balance_before(
-        self, organization_id: UUID, before_date: date,
+        self,
+        organization_id: UUID,
+        before_date: date,
     ) -> Decimal:
         income_sum = func.coalesce(
             func.sum(
@@ -232,7 +245,10 @@ class SqlaReportReader(ReportReader):
         return result.scalar_one() or Decimal(0)
 
     async def _get_daily_breakdown(
-        self, organization_id: UUID, date_from: date, date_to: date,
+        self,
+        organization_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> list[CashFlowDayQm]:
         income_col = func.coalesce(
             func.sum(
@@ -339,10 +355,7 @@ class SqlaReportReader(ReportReader):
             .order_by(vehicles_table.c.nickname)
         )
         result = await self._session.execute(stmt)
-        return [
-            {"id": row.id, "nickname": row.nickname, "license_plate": row.license_plate}
-            for row in result.all()
-        ]
+        return [{"id": row.id, "nickname": row.nickname, "license_plate": row.license_plate} for row in result.all()]
 
     async def _get_active_direct_categories(self, organization_id: UUID) -> list[dict]:
         stmt = (
@@ -363,7 +376,10 @@ class SqlaReportReader(ReportReader):
         return [{"id": row.id, "name": row.name} for row in result.all()]
 
     async def _get_vehicle_revenue(
-        self, vehicle_id: UUID, date_from: date, date_to: date,
+        self,
+        vehicle_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> Decimal:
         stmt = select(
             func.coalesce(func.sum(cash_journal_table.c.amount), Decimal(0)),
@@ -379,7 +395,10 @@ class SqlaReportReader(ReportReader):
         return result.scalar_one() or Decimal(0)
 
     async def _get_vehicle_expenses_by_category(
-        self, vehicle_id: UUID, date_from: date, date_to: date,
+        self,
+        vehicle_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> dict[str, Decimal]:
         j = outerjoin(
             cash_journal_table,
@@ -406,7 +425,10 @@ class SqlaReportReader(ReportReader):
         return {row.category_name or "Uncategorized": row.amount for row in result.all()}
 
     async def _get_vehicle_utilization(
-        self, vehicle_id: UUID, date_from: date, date_to: date,
+        self,
+        vehicle_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> Decimal:
         days_in_period = max((date_to - date_from).days, 1)
         stmt = select(
@@ -436,7 +458,8 @@ class SqlaReportReader(ReportReader):
                 func.coalesce(
                     func.date(rentals_table.c.actual_end),
                     func.date(rentals_table.c.scheduled_end),
-                ) >= date_from,
+                )
+                >= date_from,
             ),
         )
         result = await self._session.execute(stmt)

@@ -31,8 +31,6 @@ def make_confirm_payment_router() -> APIRouter:
         transaction_id: UUID,
         interactor: FromDishka[ConfirmClientPayment],
     ) -> None:
-        await interactor.execute(
-            ConfirmClientPaymentRequest(transaction_id=transaction_id)
-        )
+        await interactor.execute(ConfirmClientPaymentRequest(transaction_id=transaction_id))
 
     return router

@@ -10,8 +10,8 @@ from fastapi_error_map import ErrorAwareRouter
 
 from app.core.queries.get_dashboard_kpis import GetDashboardKpis, GetDashboardKpisRequest
 from app.core.queries.models.dashboard_kpis import DashboardKpisQm
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -20,7 +20,7 @@ def _parse_period(period: str | None) -> tuple[datetime.date, datetime.date]:
     if period is not None:
         year, month = int(period[:4]), int(period[5:7])
         return datetime.date(year, month, 1), datetime.date(year, month, calendar.monthrange(year, month)[1])
-    today = datetime.date.today()
+    today = datetime.datetime.now(tz=datetime.UTC).date()
     return (
         datetime.date(today.year, today.month, 1),
         datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1]),
@@ -46,7 +46,7 @@ def make_kpis_router() -> APIRouter:
         interactor: FromDishka[GetDashboardKpis] = ...,  # type: ignore[assignment]
     ) -> DashboardKpisQm:
         d_from, d_to = _parse_period(period)
-        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        now = datetime.datetime.now(tz=datetime.UTC)
         request = GetDashboardKpisRequest(
             organization_id=organization_id,
             date_from=d_from,

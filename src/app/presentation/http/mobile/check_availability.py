@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from dishka import FromDishka
@@ -32,8 +33,8 @@ def make_check_availability_router() -> APIRouter:
     async def check_availability(
         vehicle_id: UUID,
         interactor: FromDishka[GetVehicleAvailability],
-        scheduled_start: datetime = Query(...),
-        scheduled_end: datetime = Query(...),
+        scheduled_start: Annotated[datetime, Query(...)],
+        scheduled_end: Annotated[datetime, Query(...)],
     ) -> VehicleAvailabilityQm:
         return await interactor.execute(
             GetVehicleAvailabilityRequest(

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.infrastructure.auth_ctx.types_ import AuthAsyncSession
@@ -22,8 +22,6 @@ class EmailVerificationCodeSqlaTxStorage:
             raise StorageError from e
 
     async def get_latest_for_user(self, user_id: UUID) -> EmailVerificationCode | None:
-        from sqlalchemy import select
-
         stmt = (
             select(EmailVerificationCode)
             .where(email_verification_codes_table.c.user_id == user_id)

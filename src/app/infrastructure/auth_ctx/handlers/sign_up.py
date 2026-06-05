@@ -87,7 +87,10 @@ class SignUp:
         self._default_organization_id = default_organization_id
 
     async def _resolve_invite(
-        self, request: SignUpRequest, email: Email, now: UtcDatetime,
+        self,
+        request: SignUpRequest,
+        email: Email,
+        now: UtcDatetime,
     ) -> tuple[OrganizationId, UserRole]:
         invite = await self._invite_tx_storage.get_by_token(request.invite_token)  # type: ignore[arg-type]
         if invite is None:

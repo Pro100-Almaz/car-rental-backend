@@ -59,8 +59,6 @@ class LogIn:
         if not user.is_active:
             raise AuthenticationError(AUTH_ACCOUNT_INACTIVE)
 
-        print("*"*10, user.email_verified)
-
         if not user.email_verified:
             raise EmailNotVerifiedError
 

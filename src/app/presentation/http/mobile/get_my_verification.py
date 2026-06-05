@@ -3,9 +3,9 @@ from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, HTTPException, status
 from fastapi_error_map import ErrorAwareRouter
 
+from app.core.common.authorization.exceptions import AuthorizationError
 from app.core.queries.get_my_verification import GetMyVerification, VerificationStatusQm
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
-from app.core.common.authorization.exceptions import AuthorizationError
 from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE

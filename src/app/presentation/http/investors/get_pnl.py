@@ -10,8 +10,8 @@ from fastapi_error_map import ErrorAwareRouter
 
 from app.core.queries.get_investor_pnl import GetInvestorPnl, GetInvestorPnlRequest
 from app.core.queries.models.investor_pnl import InvestorPnlQm
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -41,7 +41,7 @@ def make_get_pnl_router() -> APIRouter:
             date_from = datetime.date(year, month, 1)
             date_to = datetime.date(year, month, calendar.monthrange(year, month)[1])
         elif date_from is None or date_to is None:
-            today = datetime.date.today()
+            today = datetime.datetime.now(tz=datetime.UTC).date()
             date_from = datetime.date(today.year, today.month, 1)
             date_to = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
 

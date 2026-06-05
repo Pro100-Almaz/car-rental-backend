@@ -98,23 +98,15 @@ class SubmitExtensionRequestCommand:
             raise RentalNotFoundError
 
         if rental.status != RentalStatus.ACTIVE:
-            raise InvalidRentalStatusTransitionError(
-                "Only active rentals can be extended."
-            )
+            raise InvalidRentalStatusTransitionError("Only active rentals can be extended.")
 
         if request.new_end_date <= rental.scheduled_end:
-            raise InvalidExtensionDatesError(
-                "New end date must be after current scheduled end."
-            )
+            raise InvalidExtensionDatesError("New end date must be after current scheduled end.")
         extension_days = (request.new_end_date - rental.scheduled_end).days
         if extension_days > MAX_EXTENSION_DAYS:
-            raise InvalidExtensionDatesError(
-                f"Extension cannot exceed {MAX_EXTENSION_DAYS} days."
-            )
+            raise InvalidExtensionDatesError(f"Extension cannot exceed {MAX_EXTENSION_DAYS} days.")
         if request.additional_cost < Decimal(0):
-            raise InvalidExtensionDatesError(
-                "Additional cost cannot be negative."
-            )
+            raise InvalidExtensionDatesError("Additional cost cannot be negative.")
 
         pending = await self._extension_request_tx_storage.get_pending_for_rental(rental_id)
         if pending is not None:

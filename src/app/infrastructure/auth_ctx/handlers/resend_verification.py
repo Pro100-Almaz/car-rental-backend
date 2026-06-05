@@ -81,7 +81,10 @@ class ResendVerification:
         await self._email_sender.send(
             to=email.value,
             subject="Email Verification Code",
-            body=f"Your verification code is: {code}\n\nThis code expires in {self._code_ttl.total_seconds() // 60:.0f} minutes.",
+            body=(
+                f"Your verification code is: {code}\n\n"
+                f"This code expires in {self._code_ttl.total_seconds() // 60:.0f} minutes."
+            ),
         )
 
         logger.info("Resend verification: done.")

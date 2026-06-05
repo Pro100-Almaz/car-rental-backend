@@ -58,9 +58,7 @@ class RejectExtensionRequest:
             raise ExtensionRequestNotFoundError
 
         if ext_req.status != ExtensionRequestStatus.PENDING:
-            raise InvalidExtensionRequestStatusError(
-                f"Cannot reject extension request with status '{ext_req.status}'."
-            )
+            raise InvalidExtensionRequestStatusError(f"Cannot reject extension request with status '{ext_req.status}'.")
 
         now = UtcDatetime(self._utc_timer.now.value)
         ext_req.status = ExtensionRequestStatus.REJECTED

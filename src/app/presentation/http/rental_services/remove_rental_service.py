@@ -7,8 +7,8 @@ from fastapi_error_map import ErrorAwareRouter
 
 from app.core.commands.exceptions import RentalServiceNotFoundError
 from app.core.commands.remove_rental_service import RemoveRentalService, RemoveRentalServiceRequest
-from app.infrastructure.exceptions import StorageError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

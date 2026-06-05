@@ -50,7 +50,7 @@ def make_lifespan() -> Callable[[FastAPI], AbstractAsyncContextManager[None]]:
     return lifespan
 
 
-def make_app(
+def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see ROADMAP)
     *di_providers: Provider,
     app_settings: AppSettings | None = None,
     postgres_settings: PostgresSettings | None = None,

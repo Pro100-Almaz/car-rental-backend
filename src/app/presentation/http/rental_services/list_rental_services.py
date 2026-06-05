@@ -8,8 +8,8 @@ from fastapi_error_map import ErrorAwareRouter
 
 from app.core.queries.list_rental_services import ListRentalServices, ListRentalServicesRequest
 from app.core.queries.ports.rental_service_reader import ListRentalServicesQm
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

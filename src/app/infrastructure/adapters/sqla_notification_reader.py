@@ -60,9 +60,7 @@ class SqlaNotificationReader(NotificationReader):
             .offset(offset)
         )
         count_stmt = (
-            select(func.count())
-            .select_from(notifications_table)
-            .where(notifications_table.c.user_id == user_id)
+            select(func.count()).select_from(notifications_table).where(notifications_table.c.user_id == user_id)
         )
         unread_stmt = (
             select(func.count())

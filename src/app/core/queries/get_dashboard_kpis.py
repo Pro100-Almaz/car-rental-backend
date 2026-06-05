@@ -39,10 +39,12 @@ class GetDashboardKpis:
         logger.info("Get dashboard KPIs: done.")
         return result
 
+    _MIN_DAYS_IN_MONTH = 28
+
     @staticmethod
     def _previous_period(d_from: date, d_to: date) -> tuple[date, date]:
         days = (d_to - d_from).days + 1
-        if days >= 28 and d_from.day == 1:
+        if days >= GetDashboardKpis._MIN_DAYS_IN_MONTH and d_from.day == 1:
             if d_from.month == 1:
                 prev_year, prev_month = d_from.year - 1, 12
             else:

@@ -3,10 +3,9 @@ from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, status
 from fastapi_error_map import ErrorAwareRouter
 
-from app.infrastructure.auth_ctx.exceptions import InvalidInviteError, InviteAlreadyUsedError
+from app.infrastructure.auth_ctx.exceptions import AuthenticationError, InvalidInviteError, InviteAlreadyUsedError
 from app.infrastructure.auth_ctx.handlers.get_invite import GetInvite, GetInviteResponse
 from app.infrastructure.exceptions import StorageError
-from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

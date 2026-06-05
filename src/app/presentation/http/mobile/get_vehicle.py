@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from dishka import FromDishka
@@ -32,7 +33,7 @@ def make_get_vehicle_router() -> APIRouter:
     async def get_vehicle(
         vehicle_id: UUID,
         interactor: FromDishka[GetMobileVehicle],
-        organization_id: UUID = Query(...),
+        organization_id: Annotated[UUID, Query(...)],
     ) -> MobileVehicleQm:
         result = await interactor.execute(
             GetMobileVehicleRequest(

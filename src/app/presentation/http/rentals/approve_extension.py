@@ -34,8 +34,6 @@ def make_approve_extension_router() -> APIRouter:
         rental_id: UUID,
         interactor: FromDishka[ApproveExtensionRequest],
     ) -> None:
-        return await interactor.execute(
-            ApproveExtensionRequestInput(extension_request_id=rental_id)
-        )
+        return await interactor.execute(ApproveExtensionRequestInput(extension_request_id=rental_id))
 
     return router

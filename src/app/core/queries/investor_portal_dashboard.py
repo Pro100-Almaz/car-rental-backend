@@ -1,8 +1,7 @@
 import calendar
 import logging
 from dataclasses import dataclass
-from datetime import date
-from uuid import UUID
+from datetime import UTC, date, datetime
 
 from app.core.commands.exceptions import InvestorNotFoundError
 from app.core.common.authorization.current_user_service import CurrentUserService
@@ -41,7 +40,7 @@ class InvestorPortalDashboard:
         date_from = request.date_from
         date_to = request.date_to
         if date_from is None or date_to is None:
-            today = date.today()
+            today = datetime.now(tz=UTC).date()
             date_from = date(today.year, today.month, 1)
             date_to = date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
 

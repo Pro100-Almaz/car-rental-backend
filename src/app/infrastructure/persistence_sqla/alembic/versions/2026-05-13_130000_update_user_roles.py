@@ -32,13 +32,9 @@ ROLE_MAPPING_DOWN = {
 
 def upgrade() -> None:
     for old_role, new_role in ROLE_MAPPING_UP.items():
-        op.execute(
-            f"UPDATE users SET role = '{new_role}' WHERE role = '{old_role}'"
-        )
+        op.execute(f"UPDATE users SET role = '{new_role}' WHERE role = '{old_role}'")
 
 
 def downgrade() -> None:
     for new_role, old_role in ROLE_MAPPING_DOWN.items():
-        op.execute(
-            f"UPDATE users SET role = '{old_role}' WHERE role = '{new_role}'"
-        )
+        op.execute(f"UPDATE users SET role = '{old_role}' WHERE role = '{new_role}'")

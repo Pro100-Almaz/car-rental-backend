@@ -34,7 +34,8 @@ class UpdateNotificationPreferences:
         self._transaction_manager = transaction_manager
 
     async def execute(
-        self, request: UpdateNotificationPreferencesRequest,
+        self,
+        request: UpdateNotificationPreferencesRequest,
     ) -> dict[str, Any]:
         logger.info("Update notification preferences: started.")
 
@@ -48,7 +49,8 @@ class UpdateNotificationPreferences:
         )
 
         user = await self._user_tx_storage.get_by_id(
-            UserId(current_user.id_), for_update=True,
+            UserId(current_user.id_),
+            for_update=True,
         )
         if user is None:
             raise UserNotFoundError

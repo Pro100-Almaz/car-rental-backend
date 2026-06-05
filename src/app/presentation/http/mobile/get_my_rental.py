@@ -33,9 +33,7 @@ def make_get_my_rental_router() -> APIRouter:
         rental_id: UUID,
         interactor: FromDishka[GetMyRental],
     ) -> MobileRentalQm:
-        result = await interactor.execute(
-            GetMyRentalRequest(rental_id=rental_id)
-        )
+        result = await interactor.execute(GetMyRentalRequest(rental_id=rental_id))
         if result is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

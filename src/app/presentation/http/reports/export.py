@@ -6,7 +6,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, status, Query
+from fastapi import APIRouter, Query, status
 from fastapi.responses import StreamingResponse
 from fastapi_error_map import ErrorAwareRouter
 from openpyxl import Workbook
@@ -14,8 +14,8 @@ from openpyxl import Workbook
 from app.core.queries.get_cash_flow import GetCashFlow, GetCashFlowRequest
 from app.core.queries.get_company_pnl import GetCompanyPnl, GetCompanyPnlRequest
 from app.core.queries.get_vehicles_comparison import GetVehiclesComparison, GetVehiclesComparisonRequest
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -30,14 +30,14 @@ def _parse_period(
         return datetime.date(year, month, 1), datetime.date(year, month, calendar.monthrange(year, month)[1])
     if date_from is not None and date_to is not None:
         return date_from, date_to
-    today = datetime.date.today()
+    today = datetime.datetime.now(tz=datetime.UTC).date()
     return (
         datetime.date(today.year, today.month, 1),
         datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1]),
     )
 
 
-def make_export_router() -> APIRouter:
+def make_export_router() -> APIRouter:  # noqa: PLR0915 - TODO: split per-report-type into helpers (see ROADMAP)
     router = ErrorAwareRouter()
 
     @router.get(
@@ -51,7 +51,7 @@ def make_export_router() -> APIRouter:
     @inject
     async def export_report(
         organization_id: Annotated[UUID, Query(...)],
-        type: Annotated[str, Query(description="pnl, cash-flow, or vehicles-comparison")],
+        report_type: Annotated[str, Query(alias="type", description="pnl, cash-flow, or vehicles-comparison")],
         period: Annotated[str | None, Query()] = None,
         date_from: Annotated[datetime.date | None, Query(alias="from")] = None,
         date_to: Annotated[datetime.date | None, Query(alias="to")] = None,
@@ -63,7 +63,7 @@ def make_export_router() -> APIRouter:
         wb = Workbook()
         ws = wb.active
 
-        if type == "pnl":
+        if report_type == "pnl":
             result = await pnl_interactor.execute(
                 GetCompanyPnlRequest(organization_id=organization_id, date_from=d_from, date_to=d_to)
             )
@@ -90,7 +90,7 @@ def make_export_router() -> APIRouter:
             ws.append(["Investor Payouts", float(result.investor_payouts)])
             ws.append(["Retained Profit", float(result.retained_profit)])
 
-        elif type == "cash-flow":
+        elif report_type == "cash-flow":
             result = await cf_interactor.execute(
                 GetCashFlowRequest(organization_id=organization_id, date_from=d_from, date_to=d_to)
             )
@@ -106,13 +106,19 @@ def make_export_router() -> APIRouter:
             for day in result.daily_breakdown:
                 ws.append([day.date, float(day.income), float(day.expense), float(day.net)])
 
-        elif type == "vehicles-comparison":
+        elif report_type == "vehicles-comparison":
             result = await vc_interactor.execute(
                 GetVehiclesComparisonRequest(organization_id=organization_id, date_from=d_from, date_to=d_to)
             )
             ws.title = "Vehicles"
-            headers = ["Vehicle", "License Plate", "Revenue"] + result.expense_categories + [
-                "Total Expenses", "Net Profit", "Utilization %"
+            headers = [
+                "Vehicle",
+                "License Plate",
+                "Revenue",
+                *result.expense_categories,
+                "Total Expenses",
+                "Net Profit",
+                "Utilization %",
             ]
             ws.append(headers)
             for v in result.vehicles:
@@ -121,8 +127,7 @@ def make_export_router() -> APIRouter:
                     v.license_plate,
                     float(v.total_revenue),
                 ]
-                for exp in v.expenses:
-                    row.append(float(exp.amount))
+                row.extend(float(exp.amount) for exp in v.expenses)
                 row.extend([float(v.total_expenses), float(v.net_profit), float(v.utilization_percent)])
                 ws.append(row)
 
@@ -130,7 +135,7 @@ def make_export_router() -> APIRouter:
         wb.save(buf)
         buf.seek(0)
 
-        filename = f"report_{type}_{d_from}_{d_to}.xlsx"
+        filename = f"report_{report_type}_{d_from}_{d_to}.xlsx"
         return StreamingResponse(
             buf,
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

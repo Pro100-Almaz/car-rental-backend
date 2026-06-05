@@ -1,7 +1,7 @@
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import select, union_all, literal, cast, String, DateTime
+from sqlalchemy import DateTime, String, cast, literal, select, union_all
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,53 +23,41 @@ class SqlaVehicleTimelineReader(VehicleTimelineReader):
         *,
         vehicle_id: UUID,
     ) -> VehicleTimelineQm:
-        rentals_q = (
-            select(
-                rentals_table.c.id,
-                literal("rental").label("event_type"),
-                cast(rentals_table.c.created_at, DateTime(timezone=True)).label("event_date"),
-                (literal("Rental — ") + cast(rentals_table.c.status, String)).label("title"),
-                rentals_table.c.notes.label("description"),
-                rentals_table.c.actual_total.label("amount"),
-            )
-            .where(rentals_table.c.vehicle_id == vehicle_id)
-        )
+        rentals_q = select(
+            rentals_table.c.id,
+            literal("rental").label("event_type"),
+            cast(rentals_table.c.created_at, DateTime(timezone=True)).label("event_date"),
+            (literal("Rental — ") + cast(rentals_table.c.status, String)).label("title"),
+            rentals_table.c.notes.label("description"),
+            rentals_table.c.actual_total.label("amount"),
+        ).where(rentals_table.c.vehicle_id == vehicle_id)
 
-        expenses_q = (
-            select(
-                cash_journal_table.c.id,
-                literal("expense").label("event_type"),
-                cast(cash_journal_table.c.created_at, DateTime(timezone=True)).label("event_date"),
-                (literal("Expense — ") + cast(cash_journal_table.c.operation_type, String)).label("title"),
-                cash_journal_table.c.description.label("description"),
-                cash_journal_table.c.amount.label("amount"),
-            )
-            .where(cash_journal_table.c.vehicle_id == vehicle_id)
-        )
+        expenses_q = select(
+            cash_journal_table.c.id,
+            literal("expense").label("event_type"),
+            cast(cash_journal_table.c.created_at, DateTime(timezone=True)).label("event_date"),
+            (literal("Expense — ") + cast(cash_journal_table.c.operation_type, String)).label("title"),
+            cash_journal_table.c.description.label("description"),
+            cash_journal_table.c.amount.label("amount"),
+        ).where(cash_journal_table.c.vehicle_id == vehicle_id)
 
-        fines_q = (
-            select(
-                fines_table.c.id,
-                literal("fine").label("event_type"),
-                cast(fines_table.c.created_at, DateTime(timezone=True)).label("event_date"),
-                (literal("Fine — ") + cast(fines_table.c.fine_type, String)).label("title"),
-                fines_table.c.description.label("description"),
-                fines_table.c.amount.label("amount"),
-            )
-            .where(fines_table.c.vehicle_id == vehicle_id)
-        )
+        fines_q = select(
+            fines_table.c.id,
+            literal("fine").label("event_type"),
+            cast(fines_table.c.created_at, DateTime(timezone=True)).label("event_date"),
+            (literal("Fine — ") + cast(fines_table.c.fine_type, String)).label("title"),
+            fines_table.c.description.label("description"),
+            fines_table.c.amount.label("amount"),
+        ).where(fines_table.c.vehicle_id == vehicle_id)
 
-        tasks_q = (
-            select(
-                service_tasks_table.c.id,
-                literal("service_task").label("event_type"),
-                cast(service_tasks_table.c.created_at, DateTime(timezone=True)).label("event_date"),
-                (literal("Task — ") + cast(service_tasks_table.c.task_type, String)).label("title"),
-                service_tasks_table.c.description.label("description"),
-                service_tasks_table.c.estimated_cost.label("amount"),
-            )
-            .where(service_tasks_table.c.vehicle_id == vehicle_id)
-        )
+        tasks_q = select(
+            service_tasks_table.c.id,
+            literal("service_task").label("event_type"),
+            cast(service_tasks_table.c.created_at, DateTime(timezone=True)).label("event_date"),
+            (literal("Task — ") + cast(service_tasks_table.c.task_type, String)).label("title"),
+            service_tasks_table.c.description.label("description"),
+            service_tasks_table.c.estimated_cost.label("amount"),
+        ).where(service_tasks_table.c.vehicle_id == vehicle_id)
 
         combined = union_all(rentals_q, expenses_q, fines_q, tasks_q).subquery()
         stmt = select(combined).order_by(combined.c.event_date.desc())

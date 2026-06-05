@@ -6,8 +6,8 @@ from fastapi_error_map import ErrorAwareRouter
 from app.core.commands.exceptions import InvestorNotFoundError
 from app.core.queries.investor_portal_vehicles import InvestorPortalVehicles
 from app.core.queries.ports.investor_reader import ListVehicleInvestorsQm
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

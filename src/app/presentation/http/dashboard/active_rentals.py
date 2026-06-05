@@ -12,8 +12,8 @@ from app.core.queries.get_dashboard_active_rentals import (
     GetDashboardActiveRentalsRequest,
 )
 from app.core.queries.models.dashboard_active_rentals import DashboardActiveRentalsQm
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -36,7 +36,7 @@ def make_active_rentals_router() -> APIRouter:
         limit: Annotated[int, Query(ge=1, le=50)] = 5,
         interactor: FromDishka[GetDashboardActiveRentals] = ...,  # type: ignore[assignment]
     ) -> DashboardActiveRentalsQm:
-        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        now = datetime.datetime.now(tz=datetime.UTC)
         request = GetDashboardActiveRentalsRequest(
             organization_id=organization_id,
             limit=limit,

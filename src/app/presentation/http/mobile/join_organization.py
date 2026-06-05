@@ -44,8 +44,6 @@ def make_join_organization_router() -> APIRouter:
         body: JoinOrganizationBody,
         handler: FromDishka[JoinOrganization],
     ) -> None:
-        await handler.execute(
-            JoinOrganizationRequest(organization_id=body.organization_id)
-        )
+        await handler.execute(JoinOrganizationRequest(organization_id=body.organization_id))
 
     return router

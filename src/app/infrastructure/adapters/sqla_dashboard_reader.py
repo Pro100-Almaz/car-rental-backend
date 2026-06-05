@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import and_, case, func, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -153,10 +153,7 @@ class SqlaDashboardReader(DashboardReader):
         except SQLAlchemyError as e:
             raise ReaderError from e
 
-        data_points = [
-            RevenueDataPointQm(date=row.day.isoformat(), revenue=row.revenue)
-            for row in rows
-        ]
+        data_points = [RevenueDataPointQm(date=row.day.isoformat(), revenue=row.revenue) for row in rows]
         total = sum(dp.revenue for dp in data_points)
 
         return DashboardRevenueChartQm(
@@ -169,7 +166,11 @@ class SqlaDashboardReader(DashboardReader):
     # --- private helpers ---
 
     async def _sum_journal(
-        self, organization_id: UUID, d_from: date, d_to: date, op_type: str,
+        self,
+        organization_id: UUID,
+        d_from: date,
+        d_to: date,
+        op_type: str,
     ) -> Decimal:
         stmt = select(
             func.coalesce(func.sum(cash_journal_table.c.amount), Decimal(0)),
@@ -185,12 +186,16 @@ class SqlaDashboardReader(DashboardReader):
         return result.scalar_one() or Decimal(0)
 
     async def _get_fleet_status(self, organization_id: UUID) -> FleetStatusQm:
-        stmt = select(
-            vehicles_table.c.status,
-            func.count().label("cnt"),
-        ).where(
-            vehicles_table.c.organization_id == organization_id,
-        ).group_by(vehicles_table.c.status)
+        stmt = (
+            select(
+                vehicles_table.c.status,
+                func.count().label("cnt"),
+            )
+            .where(
+                vehicles_table.c.organization_id == organization_id,
+            )
+            .group_by(vehicles_table.c.status)
+        )
         result = await self._session.execute(stmt)
 
         counts: dict[str, int] = {}
@@ -214,11 +219,15 @@ class SqlaDashboardReader(DashboardReader):
         )
 
     async def _count_active_rentals(self, organization_id: UUID) -> int:
-        stmt = select(func.count()).select_from(rentals_table).where(
-            and_(
-                rentals_table.c.organization_id == organization_id,
-                rentals_table.c.status == "active",
-            ),
+        stmt = (
+            select(func.count())
+            .select_from(rentals_table)
+            .where(
+                and_(
+                    rentals_table.c.organization_id == organization_id,
+                    rentals_table.c.status == "active",
+                ),
+            )
         )
         result = await self._session.execute(stmt)
         return result.scalar_one() or 0
@@ -236,7 +245,9 @@ class SqlaDashboardReader(DashboardReader):
         return result.scalar_one() or Decimal(0)
 
     async def _get_overdue_returns(
-        self, organization_id: UUID, now: datetime,
+        self,
+        organization_id: UUID,
+        now: datetime,
     ) -> list[OverdueReturnAlertQm]:
         stmt = (
             select(
@@ -247,9 +258,9 @@ class SqlaDashboardReader(DashboardReader):
                 rentals_table.c.scheduled_end,
             )
             .select_from(
-                rentals_table
-                .join(vehicles_table, rentals_table.c.vehicle_id == vehicles_table.c.id)
-                .join(clients_table, rentals_table.c.client_id == clients_table.c.id)
+                rentals_table.join(vehicles_table, rentals_table.c.vehicle_id == vehicles_table.c.id).join(
+                    clients_table, rentals_table.c.client_id == clients_table.c.id
+                )
             )
             .where(
                 and_(
@@ -274,7 +285,9 @@ class SqlaDashboardReader(DashboardReader):
         ]
 
     async def _get_expiring_documents(
-        self, organization_id: UUID, today: date,
+        self,
+        organization_id: UUID,
+        today: date,
     ) -> list[ExpiringDocumentAlertQm]:
         threshold = today + timedelta(days=30)
         alerts: list[ExpiringDocumentAlertQm] = []
@@ -301,23 +314,24 @@ class SqlaDashboardReader(DashboardReader):
                 .order_by(col.asc())
             )
             result = await self._session.execute(stmt)
-            for row in result.all():
-                alerts.append(
-                    ExpiringDocumentAlertQm(
-                        vehicle_id=row.id,
-                        vehicle_nickname=row.nickname,
-                        license_plate=row.license_plate,
-                        document_type=doc_type,
-                        expiry_date=row.expiry_date,
-                        days_remaining=(row.expiry_date - today).days,
-                    )
+            alerts.extend(
+                ExpiringDocumentAlertQm(
+                    vehicle_id=row.id,
+                    vehicle_nickname=row.nickname,
+                    license_plate=row.license_plate,
+                    document_type=doc_type,
+                    expiry_date=row.expiry_date,
+                    days_remaining=(row.expiry_date - today).days,
                 )
+                for row in result.all()
+            )
 
         alerts.sort(key=lambda a: a.days_remaining)
         return alerts
 
     async def _get_clients_with_debt(
-        self, organization_id: UUID,
+        self,
+        organization_id: UUID,
     ) -> list[ClientDebtAlertQm]:
         stmt = (
             select(
@@ -346,7 +360,10 @@ class SqlaDashboardReader(DashboardReader):
         ]
 
     async def _get_top_active_rentals(
-        self, organization_id: UUID, limit: int, now: datetime,
+        self,
+        organization_id: UUID,
+        limit: int,
+        now: datetime,
     ) -> list[ActiveRentalItemQm]:
         stmt = (
             select(
@@ -359,9 +376,9 @@ class SqlaDashboardReader(DashboardReader):
                 rentals_table.c.scheduled_end,
             )
             .select_from(
-                rentals_table
-                .join(vehicles_table, rentals_table.c.vehicle_id == vehicles_table.c.id)
-                .join(clients_table, rentals_table.c.client_id == clients_table.c.id)
+                rentals_table.join(vehicles_table, rentals_table.c.vehicle_id == vehicles_table.c.id).join(
+                    clients_table, rentals_table.c.client_id == clients_table.c.id
+                )
             )
             .where(
                 and_(
@@ -388,7 +405,9 @@ class SqlaDashboardReader(DashboardReader):
         ]
 
     async def _get_returns_today(
-        self, organization_id: UUID, now: datetime,
+        self,
+        organization_id: UUID,
+        now: datetime,
     ) -> list[ReturnTodayItemQm]:
         today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
         today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -403,9 +422,9 @@ class SqlaDashboardReader(DashboardReader):
                 rentals_table.c.scheduled_end,
             )
             .select_from(
-                rentals_table
-                .join(vehicles_table, rentals_table.c.vehicle_id == vehicles_table.c.id)
-                .join(clients_table, rentals_table.c.client_id == clients_table.c.id)
+                rentals_table.join(vehicles_table, rentals_table.c.vehicle_id == vehicles_table.c.id).join(
+                    clients_table, rentals_table.c.client_id == clients_table.c.id
+                )
             )
             .where(
                 and_(

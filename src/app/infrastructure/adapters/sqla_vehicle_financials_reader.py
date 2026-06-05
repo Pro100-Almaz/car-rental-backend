@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import and_, case, func, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,7 +51,10 @@ class SqlaVehicleFinancialsReader(VehicleFinancialsReader):
         )
 
     async def _get_revenue(
-        self, vehicle_id: UUID, date_from: date, date_to: date,
+        self,
+        vehicle_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> Decimal | None:
         stmt = select(
             func.coalesce(func.sum(rentals_table.c.actual_total), Decimal(0)),
@@ -64,14 +67,18 @@ class SqlaVehicleFinancialsReader(VehicleFinancialsReader):
                 func.coalesce(
                     func.date(rentals_table.c.actual_end),
                     func.date(rentals_table.c.scheduled_end),
-                ) >= date_from,
+                )
+                >= date_from,
             ),
         )
         result = await self._session.execute(stmt)
         return result.scalar_one()
 
     async def _get_expenses(
-        self, vehicle_id: UUID, date_from: date, date_to: date,
+        self,
+        vehicle_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> Decimal | None:
         stmt = select(
             func.coalesce(func.sum(cash_journal_table.c.amount), Decimal(0)),
@@ -87,7 +94,10 @@ class SqlaVehicleFinancialsReader(VehicleFinancialsReader):
         return result.scalar_one()
 
     async def _get_rental_stats(
-        self, vehicle_id: UUID, date_from: date, date_to: date,
+        self,
+        vehicle_id: UUID,
+        date_from: date,
+        date_to: date,
     ) -> dict:
         stmt = select(
             func.count().label("total_rentals"),
@@ -117,7 +127,8 @@ class SqlaVehicleFinancialsReader(VehicleFinancialsReader):
                 func.coalesce(
                     func.date(rentals_table.c.actual_end),
                     func.date(rentals_table.c.scheduled_end),
-                ) >= date_from,
+                )
+                >= date_from,
             ),
         )
         result = await self._session.execute(stmt)

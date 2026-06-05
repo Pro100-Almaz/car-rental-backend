@@ -8,15 +8,15 @@ from app.presentation.http.clients.router import make_clients_router
 from app.presentation.http.dashboard.router import make_dashboard_router
 from app.presentation.http.expense_categories.router import make_expense_categories_router
 from app.presentation.http.fines.router import make_fines_router
-from app.presentation.http.invites.router import make_invites_router
 from app.presentation.http.investor_portal.router import make_investor_portal_router
 from app.presentation.http.investors.router import make_investors_router
+from app.presentation.http.invites.router import make_invites_router
 from app.presentation.http.mobile.router import make_mobile_router
 from app.presentation.http.organizations.router import make_organizations_router
 from app.presentation.http.payments.router import make_payments_router
 from app.presentation.http.rental_services.router import make_rental_services_router
-from app.presentation.http.reports.router import make_reports_router
 from app.presentation.http.rentals.router import make_rentals_router
+from app.presentation.http.reports.router import make_reports_router
 from app.presentation.http.service_tasks.router import make_service_tasks_router
 from app.presentation.http.users.router import make_users_router
 from app.presentation.http.vehicle_categories.router import make_vehicle_categories_router

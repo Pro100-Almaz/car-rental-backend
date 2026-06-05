@@ -14,8 +14,8 @@ from app.core.queries.list_organizations import (
 from app.core.queries.ports.organization_reader import ListOrganizationsQm
 from app.core.queries.query_support.offset_pagination import OffsetPaginationParams
 from app.core.queries.query_support.sorting import SortingOrder
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

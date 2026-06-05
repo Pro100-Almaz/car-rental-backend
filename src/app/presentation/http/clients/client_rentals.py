@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from dishka import FromDishka
@@ -28,7 +29,7 @@ def make_client_rentals_router() -> APIRouter:
     @inject
     async def list_client_rentals(
         client_id: UUID,
-        organization_id: UUID = Query(...),
+        organization_id: Annotated[UUID, Query(...)],
         interactor: FromDishka[ListRentals] = ...,
     ) -> ListRentalsQm:
         request = ListRentalsRequest(

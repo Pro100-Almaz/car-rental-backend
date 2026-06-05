@@ -69,9 +69,7 @@ def make_vehicle_categories_router() -> APIRouter:
         request_schema: Annotated[ListVehicleCategoriesSchema, Depends()],
         interactor: FromDishka[ListVehicleCategories],
     ) -> ListVehicleCategoriesQm:
-        return await interactor.execute(
-            ListVehicleCategoriesRequest(organization_id=request_schema.organization_id)
-        )
+        return await interactor.execute(ListVehicleCategoriesRequest(organization_id=request_schema.organization_id))
 
     @router.patch(
         "/{category_id}",

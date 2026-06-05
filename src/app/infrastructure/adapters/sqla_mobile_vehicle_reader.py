@@ -168,10 +168,7 @@ class SqlaMobileVehicleReader(MobileVehicleReader):
             rows = result.all()
         except SQLAlchemyError as e:
             raise ReaderError from e
-        conflicts = [
-            {"start": row.scheduled_start, "end": row.scheduled_end}
-            for row in rows
-        ]
+        conflicts = [{"start": row.scheduled_start, "end": row.scheduled_end} for row in rows]
         return VehicleAvailabilityQm(
             vehicle_id=vehicle_id,
             is_available=len(conflicts) == 0,

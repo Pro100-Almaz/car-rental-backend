@@ -1,5 +1,4 @@
 import logging
-from dataclasses import dataclass
 from typing import TypedDict
 
 from app.core.commands.ports.utc_timer import UtcTimer

@@ -64,9 +64,7 @@ class CancelOwnRental:
             raise RentalNotFoundError
 
         if rental.status not in CANCELLABLE_STATUSES:
-            raise InvalidRentalStatusTransitionError(
-                f"Cannot cancel rental with status '{rental.status}'."
-            )
+            raise InvalidRentalStatusTransitionError(f"Cannot cancel rental with status '{rental.status}'.")
 
         rental.status = RentalStatus.CANCELLED
         rental.cancellation_reason = request.reason

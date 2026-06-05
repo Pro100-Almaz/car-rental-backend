@@ -5,12 +5,12 @@ from fastapi_error_map import ErrorAwareRouter
 
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.auth_ctx.exceptions import (
+    AuthenticationError,
     EmailAlreadyVerifiedError,
     InvalidVerificationCodeError,
 )
 from app.infrastructure.auth_ctx.handlers.verify_email import VerifyEmail, VerifyEmailRequest
 from app.infrastructure.exceptions import StorageError
-from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

@@ -5,14 +5,14 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, status, Query
+from fastapi import APIRouter, Query, status
 from fastapi.responses import StreamingResponse
 from fastapi_error_map import ErrorAwareRouter
 from openpyxl import Workbook
 
 from app.core.queries.list_cash_journal_entries import ListCashJournalEntries, ListCashJournalEntriesRequest
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -71,26 +71,28 @@ def make_export_entries_router() -> APIRouter:
         ws.append(HEADERS)
 
         for entry in result["entries"]:
-            ws.append([
-                str(entry.date),
-                entry.operation_type,
-                str(entry.vehicle_id) if entry.vehicle_id else "",
-                str(entry.rental_id) if entry.rental_id else "",
-                str(entry.expense_category_id) if entry.expense_category_id else "",
-                entry.payment_method,
-                float(entry.amount),
-                entry.description or "",
-                str(entry.confirmed_by) if entry.confirmed_by else "",
-                str(entry.confirmed_at) if entry.confirmed_at else "",
-                str(entry.created_by),
-                str(entry.created_at),
-            ])
+            ws.append(
+                [
+                    str(entry.date),
+                    entry.operation_type,
+                    str(entry.vehicle_id) if entry.vehicle_id else "",
+                    str(entry.rental_id) if entry.rental_id else "",
+                    str(entry.expense_category_id) if entry.expense_category_id else "",
+                    entry.payment_method,
+                    float(entry.amount),
+                    entry.description or "",
+                    str(entry.confirmed_by) if entry.confirmed_by else "",
+                    str(entry.confirmed_at) if entry.confirmed_at else "",
+                    str(entry.created_by),
+                    str(entry.created_at),
+                ]
+            )
 
         buf = io.BytesIO()
         wb.save(buf)
         buf.seek(0)
 
-        filename = f"cash_journal_{datetime.date.today().isoformat()}.xlsx"
+        filename = f"cash_journal_{datetime.datetime.now(tz=datetime.UTC).date().isoformat()}.xlsx"
         return StreamingResponse(
             buf,
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

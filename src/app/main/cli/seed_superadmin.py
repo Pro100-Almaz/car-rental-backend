@@ -11,7 +11,6 @@ Environment variables required:
 
 import asyncio
 import logging
-import sys
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -35,7 +34,7 @@ logger = logging.getLogger(__name__)
 PLATFORM_ORG_ID = UUID("00000000-0000-0000-0000-000000000001")
 SUPER_ADMIN_ID = UUID("00000000-0000-0000-0000-000000000002")
 SUPER_ADMIN_EMAIL = "admin@platform.local"
-SUPER_ADMIN_PASSWORD = "ChangeMe123!"
+SUPER_ADMIN_PASSWORD = "ChangeMe123!"  # noqa: S105 - initial seed password; rotate after first login
 
 
 async def seed_superadmin() -> None:

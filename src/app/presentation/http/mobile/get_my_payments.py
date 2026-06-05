@@ -31,8 +31,6 @@ def make_get_my_payments_router() -> APIRouter:
         payment_status: str | None = Query(None, alias="status"),
         type_: str | None = Query(None, alias="type"),
     ) -> ListTransactionsQm:
-        return await interactor.execute(
-            GetMyPaymentsRequest(status=payment_status, type_=type_)
-        )
+        return await interactor.execute(GetMyPaymentsRequest(status=payment_status, type_=type_))
 
     return router

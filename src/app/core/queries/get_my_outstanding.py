@@ -62,13 +62,13 @@ class GetMyOutstanding:
             status="completed",
         )
         rentals_with_debt = [
-            r for r in completed_rentals["rentals"]
-            if r.actual_total is not None
-            and r.actual_total > (r.prepayment_amount + r.deposit_refund_amount)
+            r
+            for r in completed_rentals["rentals"]
+            if r.actual_total is not None and r.actual_total > (r.prepayment_amount + r.deposit_refund_amount)
         ]
-        total_debt = sum(
-            (r.actual_total - r.prepayment_amount) for r in rentals_with_debt
-        ) if rentals_with_debt else Decimal(0)
+        total_debt = (
+            sum((r.actual_total - r.prepayment_amount) for r in rentals_with_debt) if rentals_with_debt else Decimal(0)
+        )
 
         fines_result = await self._fine_reader.list_fines(
             organization_id=client.organization_id,

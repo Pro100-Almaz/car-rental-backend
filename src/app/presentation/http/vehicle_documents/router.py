@@ -55,9 +55,7 @@ def make_vehicle_documents_router() -> APIRouter:
         vehicle_id: UUID,
         interactor: FromDishka[ListVehicleDocuments],
     ) -> ListVehicleDocumentsQm:
-        return await interactor.execute(
-            ListVehicleDocumentsRequest(vehicle_id=vehicle_id)
-        )
+        return await interactor.execute(ListVehicleDocumentsRequest(vehicle_id=vehicle_id))
 
     @router.delete(
         "/{document_id}",
@@ -73,8 +71,6 @@ def make_vehicle_documents_router() -> APIRouter:
         document_id: UUID,
         interactor: FromDishka[DeleteVehicleDocument],
     ) -> None:
-        await interactor.execute(
-            DeleteVehicleDocumentRequest(document_id=document_id)
-        )
+        await interactor.execute(DeleteVehicleDocumentRequest(document_id=document_id))
 
     return router

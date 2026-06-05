@@ -34,9 +34,7 @@ async def test_mobile_get_endpoints_are_reachable(
 ) -> None:
     for path in MOBILE_GET_ENDPOINTS:
         r = await smoke_client.get(path)
-        assert r.status_code in EXPECTED_ROUTE_RESPONSES, (
-            f"GET {path} returned {r.status_code}, expected 401 or 422"
-        )
+        assert r.status_code in EXPECTED_ROUTE_RESPONSES, f"GET {path} returned {r.status_code}, expected 401 or 422"
 
 
 async def test_mobile_post_endpoints_are_reachable(
@@ -44,9 +42,7 @@ async def test_mobile_post_endpoints_are_reachable(
 ) -> None:
     for path in MOBILE_POST_ENDPOINTS:
         r = await smoke_client.post(path, json={})
-        assert r.status_code in EXPECTED_ROUTE_RESPONSES, (
-            f"POST {path} returned {r.status_code}, expected 401 or 422"
-        )
+        assert r.status_code in EXPECTED_ROUTE_RESPONSES, f"POST {path} returned {r.status_code}, expected 401 or 422"
 
 
 async def test_mobile_patch_endpoints_are_reachable(
@@ -54,9 +50,7 @@ async def test_mobile_patch_endpoints_are_reachable(
 ) -> None:
     for path in MOBILE_PATCH_ENDPOINTS:
         r = await smoke_client.patch(path, json={})
-        assert r.status_code in EXPECTED_ROUTE_RESPONSES, (
-            f"PATCH {path} returned {r.status_code}, expected 401 or 422"
-        )
+        assert r.status_code in EXPECTED_ROUTE_RESPONSES, f"PATCH {path} returned {r.status_code}, expected 401 or 422"
 
 
 async def test_mobile_nonexistent_returns_404(

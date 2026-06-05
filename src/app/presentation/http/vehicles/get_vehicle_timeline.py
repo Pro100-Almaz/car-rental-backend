@@ -7,8 +7,8 @@ from fastapi_error_map import ErrorAwareRouter
 
 from app.core.queries.get_vehicle_timeline import GetVehicleTimeline, GetVehicleTimelineRequest
 from app.core.queries.models.vehicle_timeline import VehicleTimelineQm
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -30,8 +30,6 @@ def make_get_vehicle_timeline_router() -> APIRouter:
         vehicle_id: UUID,
         interactor: FromDishka[GetVehicleTimeline],
     ) -> VehicleTimelineQm:
-        return await interactor.execute(
-            GetVehicleTimelineRequest(vehicle_id=vehicle_id)
-        )
+        return await interactor.execute(GetVehicleTimelineRequest(vehicle_id=vehicle_id))
 
     return router

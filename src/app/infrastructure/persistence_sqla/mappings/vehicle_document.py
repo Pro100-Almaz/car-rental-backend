@@ -5,7 +5,6 @@ from app.core.common.entities.vehicle_document import VehicleDocument
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 from app.infrastructure.persistence_sqla.registry import mapper_registry
 
-
 vehicle_documents_table = Table(
     "vehicle_documents",
     mapper_registry.metadata,

@@ -39,8 +39,6 @@ def make_leave_organization_router() -> APIRouter:
         organization_id: UUID,
         handler: FromDishka[LeaveOrganization],
     ) -> None:
-        await handler.execute(
-            LeaveOrganizationRequest(organization_id=organization_id)
-        )
+        await handler.execute(LeaveOrganizationRequest(organization_id=organization_id))
 
     return router

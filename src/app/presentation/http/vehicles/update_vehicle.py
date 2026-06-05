@@ -10,8 +10,8 @@ from pydantic import BaseModel, ConfigDict
 from app.core.commands.exceptions import VehicleNotFoundError
 from app.core.commands.update_vehicle import UpdateVehicle, UpdateVehicleRequest
 from app.core.common.exceptions import BusinessTypeError
-from app.infrastructure.exceptions import StorageError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

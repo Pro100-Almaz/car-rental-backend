@@ -30,8 +30,6 @@ def make_list_my_rentals_router() -> APIRouter:
         interactor: FromDishka[ListMyRentals],
         rental_status: str | None = Query(None, alias="status"),
     ) -> ListMobileRentalsQm:
-        return await interactor.execute(
-            ListMyRentalsRequest(status=rental_status)
-        )
+        return await interactor.execute(ListMyRentalsRequest(status=rental_status))
 
     return router

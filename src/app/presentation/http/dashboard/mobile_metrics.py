@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from dishka import FromDishka
@@ -30,10 +31,8 @@ def make_mobile_metrics_router() -> APIRouter:
     @inject
     async def get_mobile_metrics(
         interactor: FromDishka[GetMobileMetrics],
-        organization_id: UUID = Query(...),
+        organization_id: Annotated[UUID, Query(...)],
     ) -> MobileMetricsQm:
-        return await interactor.execute(
-            GetMobileMetricsRequest(organization_id=organization_id)
-        )
+        return await interactor.execute(GetMobileMetricsRequest(organization_id=organization_id))
 
     return router

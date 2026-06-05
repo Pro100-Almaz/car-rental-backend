@@ -50,8 +50,7 @@ class SendDebtReminder:
             raise ClientNotFoundError("Client has no linked user account.")
 
         body = (
-            request.message
-            or "You have an outstanding balance. Please make a payment to continue using our services."
+            request.message or "You have an outstanding balance. Please make a payment to continue using our services."
         )
 
         await self._notification_service.send(

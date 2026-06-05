@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from dishka import FromDishka
@@ -30,10 +31,8 @@ def make_list_pending_extensions_router() -> APIRouter:
     @inject
     async def list_pending_extensions(
         interactor: FromDishka[ListPendingExtensions],
-        organization_id: UUID = Query(...),
+        organization_id: Annotated[UUID, Query(...)],
     ) -> ListExtensionRequestsQm:
-        return await interactor.execute(
-            ListPendingExtensionsRequest(organization_id=organization_id)
-        )
+        return await interactor.execute(ListPendingExtensionsRequest(organization_id=organization_id))
 
     return router

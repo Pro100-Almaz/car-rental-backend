@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from dishka import FromDishka
@@ -31,14 +32,14 @@ def make_list_vehicles_router() -> APIRouter:
     @inject
     async def list_vehicles(
         interactor: FromDishka[ListMobileVehicles],
-        organization_id: UUID = Query(...),
-        category: str | None = Query(None),
-        fuel_type: str | None = Query(None),
-        transmission: str | None = Query(None),
-        branch_id: UUID | None = Query(None),
-        search: str | None = Query(None),
-        date_from: datetime | None = Query(None),
-        date_to: datetime | None = Query(None),
+        organization_id: Annotated[UUID, Query(...)],
+        category: Annotated[str | None, Query()] = None,
+        fuel_type: Annotated[str | None, Query()] = None,
+        transmission: Annotated[str | None, Query()] = None,
+        branch_id: Annotated[UUID | None, Query()] = None,
+        search: Annotated[str | None, Query()] = None,
+        date_from: Annotated[datetime | None, Query()] = None,
+        date_to: Annotated[datetime | None, Query()] = None,
     ) -> ListMobileVehiclesQm:
         return await interactor.execute(
             ListMobileVehiclesRequest(

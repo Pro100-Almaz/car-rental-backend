@@ -7,8 +7,8 @@ from fastapi_error_map import ErrorAwareRouter
 
 from app.core.commands.delete_cash_journal_entry import DeleteCashJournalEntry, DeleteCashJournalEntryRequest
 from app.core.commands.exceptions import CashJournalEntryNotFoundError
-from app.infrastructure.exceptions import StorageError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

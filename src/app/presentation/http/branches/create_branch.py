@@ -6,8 +6,8 @@ from fastapi_error_map import ErrorAwareRouter
 from app.core.commands.create_branch import CreateBranch, CreateBranchRequest, CreateBranchResponse
 from app.core.commands.exceptions import OrganizationNotFoundError
 from app.core.common.exceptions import BusinessTypeError
-from app.infrastructure.exceptions import StorageError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

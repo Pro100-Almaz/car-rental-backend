@@ -50,7 +50,8 @@ class MarkNotificationRead:
 
         notification_id = NotificationId(request.notification_id)
         notification = await self._notification_tx_storage.get_by_id(
-            notification_id, for_update=True,
+            notification_id,
+            for_update=True,
         )
         if notification is None:
             raise NotificationNotFoundError

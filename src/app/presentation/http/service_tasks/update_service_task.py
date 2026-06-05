@@ -11,8 +11,8 @@ from pydantic import BaseModel, ConfigDict
 from app.core.commands.exceptions import InvalidTaskStatusTransitionError, ServiceTaskNotFoundError
 from app.core.commands.update_service_task import UpdateServiceTask, UpdateServiceTaskRequest
 from app.core.common.entities.types_ import TaskPriority, TaskStatus
-from app.infrastructure.exceptions import StorageError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

@@ -9,8 +9,8 @@ from pydantic import BaseModel, ConfigDict
 
 from app.core.queries.list_fines import ListFines, ListFinesRequest
 from app.core.queries.ports.fine_reader import ListFinesQm
-from app.infrastructure.exceptions import ReaderError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import ReaderError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 

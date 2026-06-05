@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
@@ -38,7 +38,7 @@ def make_get_returns_queue_router() -> APIRouter:
         request_schema: Annotated[ReturnsQueueRequestSchema, Depends()],
         interactor: FromDishka[GetReturnsQueue],
     ) -> ReturnsQueueQm:
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         tomorrow_end = (now + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
         request = GetReturnsQueueRequest(
             organization_id=request_schema.organization_id,

@@ -15,8 +15,8 @@ from app.core.commands.manage_vehicle_photos import (
     RemoveVehiclePhoto,
     RemoveVehiclePhotoRequest,
 )
-from app.infrastructure.exceptions import StorageError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
+from app.infrastructure.exceptions import StorageError
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -47,9 +47,7 @@ def make_manage_photos_router() -> APIRouter:
         body: AddPhotoBody,
         interactor: FromDishka[AddVehiclePhoto],
     ) -> list[str]:
-        return await interactor.execute(
-            AddVehiclePhotoRequest(vehicle_id=vehicle_id, url=body.url)
-        )
+        return await interactor.execute(AddVehiclePhotoRequest(vehicle_id=vehicle_id, url=body.url))
 
     @router.delete(
         "/{vehicle_id}/photos/{photo_index}",
@@ -68,8 +66,6 @@ def make_manage_photos_router() -> APIRouter:
         photo_index: int,
         interactor: FromDishka[RemoveVehiclePhoto],
     ) -> list[str]:
-        return await interactor.execute(
-            RemoveVehiclePhotoRequest(vehicle_id=vehicle_id, photo_index=photo_index)
-        )
+        return await interactor.execute(RemoveVehiclePhotoRequest(vehicle_id=vehicle_id, photo_index=photo_index))
 
     return router

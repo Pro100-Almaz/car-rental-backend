@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from app.core.common.entities.base import Entity
-from app.core.common.entities.types_ import BranchId, ClientId, OrganizationId, UserId, UserPasswordHash, UserRole
+from app.core.common.entities.types_ import BranchId, OrganizationId, UserId, UserPasswordHash, UserRole
 from app.core.common.value_objects.email import Email
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 
@@ -23,7 +23,6 @@ class User(Entity[UserId]):
         email_verified: bool,
         last_login_at: datetime | None,
         branch_id: BranchId | None,
-        client_id: ClientId | None,
         notification_preferences: dict[str, Any] | None,
         created_at: UtcDatetime,
         updated_at: UtcDatetime,
@@ -40,7 +39,6 @@ class User(Entity[UserId]):
         self.email_verified = email_verified
         self.last_login_at = last_login_at
         self.branch_id = branch_id
-        self.client_id = client_id
         self.notification_preferences = notification_preferences or {}
         self._created_at = created_at
         self.updated_at = updated_at

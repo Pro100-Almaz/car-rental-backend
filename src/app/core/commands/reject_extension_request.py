@@ -64,19 +64,19 @@ class RejectExtensionRequest:
         ext_req.status = ExtensionRequestStatus.REJECTED
         ext_req.rejection_reason = request.rejection_reason
         ext_req.reviewed_by = UserId(current_user.id_)
-        ext_req.reviewed_at = now
+        ext_req.reviewed_at = now.value
         await self._transaction_manager.commit()
 
         rental = await self._rental_tx_storage.get_by_id(ext_req.rental_id)
 
-        user_id = ext_req.client_id
+        client_id = ext_req.client_id
         org_id = ext_req.organization_id
         if rental is not None:
-            user_id = rental.client_id
+            client_id = rental.client_id
             org_id = rental.organization_id
 
-        await self._notification_service.send(
-            user_id=user_id,
+        await self._notification_service.send_to_client(
+            client_id=client_id,
             organization_id=org_id,
             type_=NotificationType.EXTENSION_REJECTED,
             title="Extension Rejected",

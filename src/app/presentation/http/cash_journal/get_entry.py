@@ -2,9 +2,10 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 from fastapi_error_map import ErrorAwareRouter
 
+from app.core.commands.exceptions import CashJournalEntryNotFoundError
 from app.core.queries.get_cash_journal_entry import GetCashJournalEntry, GetCashJournalEntryRequest
 from app.core.queries.models.cash_journal_entry import CashJournalEntryQm
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
@@ -21,6 +22,7 @@ def make_get_entry_router() -> APIRouter:
         error_map={
             AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            CashJournalEntryNotFoundError: status.HTTP_404_NOT_FOUND,
         },
         default_on_error=log_info,
         status_code=status.HTTP_200_OK,
@@ -33,7 +35,7 @@ def make_get_entry_router() -> APIRouter:
     ) -> CashJournalEntryQm:
         result = await interactor.execute(GetCashJournalEntryRequest(entry_id=entry_id))
         if result is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cash journal entry not found.")
+            raise CashJournalEntryNotFoundError
         return result
 
     return router

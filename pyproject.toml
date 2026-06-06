@@ -19,6 +19,8 @@ dependencies = [
   "psycopg[binary]==3.3.3",
   "pydantic-settings==2.13.1",
   "pyjwt[crypto]==2.12.1",
+  "redis[hiredis]>=5.0,<7",
+  "slowapi>=0.1.9,<1",
   "sqlalchemy[mypy]==2.0.48",
   "uuid-utils==0.14.1",
   "uvicorn==0.42.0",

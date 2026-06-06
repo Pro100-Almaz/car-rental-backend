@@ -12,34 +12,35 @@ from starlette.requests import Request
 from app.core.common.ports.email_sender import EmailSender
 from app.infrastructure.adapters.bcrypt_password_hasher import HasherSemaphore, HasherThreadPoolExecutor
 from app.infrastructure.adapters.smtp_email_sender import SmtpEmailSender
-from app.infrastructure.auth_ctx.cookie_manager import CookieManager, CookieName
+from app.infrastructure.auth_ctx.bearer_token_reader import BearerTokenReader
 from app.infrastructure.auth_ctx.handlers.change_password import ChangePassword
 from app.infrastructure.auth_ctx.handlers.create_invite import CreateInvite
 from app.infrastructure.auth_ctx.handlers.forgot_password import ForgotPassword
 from app.infrastructure.auth_ctx.handlers.get_invite import GetInvite
 from app.infrastructure.auth_ctx.handlers.log_in import LogIn
 from app.infrastructure.auth_ctx.handlers.log_out import LogOut
+from app.infrastructure.auth_ctx.handlers.log_out_all import LogOutAll
+from app.infrastructure.auth_ctx.handlers.refresh import RefreshTokenHandler
 from app.infrastructure.auth_ctx.handlers.resend_verification import ResendVerification
 from app.infrastructure.auth_ctx.handlers.reset_password import ResetPassword
 from app.infrastructure.auth_ctx.handlers.sign_up import SignUp
 from app.infrastructure.auth_ctx.handlers.verify_email import VerifyEmail
 from app.infrastructure.auth_ctx.jwt_processor import JwtProcessor
 from app.infrastructure.auth_ctx.service import AuthService
+from app.infrastructure.auth_ctx.sqla_failed_login_attempt_tx_storage import SqlaFailedLoginAttemptTxStorage
 from app.infrastructure.auth_ctx.sqla_invite_tx_storage import InviteSqlaTxStorage
+from app.infrastructure.auth_ctx.sqla_refresh_token_tx_storage import SqlaRefreshTokenTxStorage
+from app.infrastructure.auth_ctx.sqla_revoked_access_jti_tx_storage import SqlaRevokedAccessJtiTxStorage
 from app.infrastructure.auth_ctx.sqla_transaction_manager import AuthSqlaTransactionManager
-from app.infrastructure.auth_ctx.sqla_tx_storage import AuthSessionSqlaTxStorage
 from app.infrastructure.auth_ctx.sqla_user_tx_storage import AuthSqlaUserTxStorage
 from app.infrastructure.auth_ctx.sqla_verification_code_tx_storage import EmailVerificationCodeSqlaTxStorage
 from app.infrastructure.auth_ctx.types_ import AuthAsyncSession
-from app.infrastructure.auth_ctx.utc_timer import AuthSessionUtcTimer
 from app.infrastructure.auth_ctx.verification_types import DefaultOrganizationId, ResendCooldown, VerificationCodeTtl
 from app.main.config.settings import (
     AppSettings,
-    CookieSettings,
     JwtSettings,
     PasswordHasherSettings,
     PostgresSettings,
-    SessionSettings,
     SmtpSettings,
     SqlaSettings,
     VerificationSettings,
@@ -155,17 +156,6 @@ class AuthProvider(Provider):
 
     auth_service = provide(AuthService)
 
-    @provide(scope=Scope.APP)
-    def provide_utc_auth_session_timer(
-        self,
-        settings: SessionSettings,
-    ) -> AuthSessionUtcTimer:
-        return AuthSessionUtcTimer(
-            ttl=settings.ttl,
-            refresh_threshold_ratio=settings.REFRESH_THRESHOLD_RATIO,
-        )
-
-    auth_session_tx_storage = provide(AuthSessionSqlaTxStorage)
     auth_tx_manager = provide(AuthSqlaTransactionManager)
 
     @provide(scope=Scope.APP)
@@ -176,13 +166,16 @@ class AuthProvider(Provider):
         return JwtProcessor(
             secret=settings.SECRET,
             algorithm=settings.ALGORITHM,
+            issuer=settings.ISSUER,
+            audience=settings.AUDIENCE,
         )
 
-    @provide(scope=Scope.APP)
-    def provide_cookie_name(self, settings: CookieSettings) -> CookieName:
-        return CookieName(settings.NAME)
+    bearer_token_reader = provide(BearerTokenReader)
 
-    cookie_manager = provide(CookieManager)
+    # New JWT-era storage adapters
+    refresh_token_tx_storage = provide(SqlaRefreshTokenTxStorage)
+    revoked_access_jti_tx_storage = provide(SqlaRevokedAccessJtiTxStorage)
+    failed_login_attempt_tx_storage = provide(SqlaFailedLoginAttemptTxStorage)
 
     auth_sqla_user_tx_storage = provide(AuthSqlaUserTxStorage)
     verification_code_tx_storage = provide(EmailVerificationCodeSqlaTxStorage)
@@ -207,10 +200,12 @@ class AuthProvider(Provider):
     forgot_password = provide(ForgotPassword)
     reset_password = provide(ResetPassword)
     log_out = provide(LogOut)
+    refresh_token_handler = provide(RefreshTokenHandler)
     verify_email = provide(VerifyEmail)
     resend_verification = provide(ResendVerification)
     create_invite = provide(CreateInvite)
     get_invite = provide(GetInvite)
+    log_out_all = provide(LogOutAll)
 
 
 class RequestProvider(Provider):

@@ -22,7 +22,6 @@ during database migrations.
 """
 
 from app.infrastructure.persistence_sqla.mappings.additional_service import map_additional_services_table
-from app.infrastructure.persistence_sqla.mappings.auth_session import map_auth_sessions_table
 from app.infrastructure.persistence_sqla.mappings.branch import map_branches_table
 from app.infrastructure.persistence_sqla.mappings.cash_journal_entry import map_cash_journal_table
 from app.infrastructure.persistence_sqla.mappings.client import map_clients_table
@@ -31,14 +30,17 @@ from app.infrastructure.persistence_sqla.mappings.device_token import map_device
 from app.infrastructure.persistence_sqla.mappings.email_verification_code import map_email_verification_codes_table
 from app.infrastructure.persistence_sqla.mappings.expense_category import map_expense_categories_table
 from app.infrastructure.persistence_sqla.mappings.extension_request import map_extension_requests_table
+from app.infrastructure.persistence_sqla.mappings.failed_login_attempt import map_failed_login_attempts_table
 from app.infrastructure.persistence_sqla.mappings.fine import map_fines_table
 from app.infrastructure.persistence_sqla.mappings.investor import map_investors_table
 from app.infrastructure.persistence_sqla.mappings.investor_payout import map_investor_payouts_table
 from app.infrastructure.persistence_sqla.mappings.invite import map_invites_table
 from app.infrastructure.persistence_sqla.mappings.notification import map_notifications_table
 from app.infrastructure.persistence_sqla.mappings.organization import map_organizations_table
+from app.infrastructure.persistence_sqla.mappings.refresh_token import map_refresh_tokens_table
 from app.infrastructure.persistence_sqla.mappings.rental import map_rentals_table
 from app.infrastructure.persistence_sqla.mappings.rental_service import map_rental_services_table
+from app.infrastructure.persistence_sqla.mappings.revoked_access_jti import map_revoked_access_jtis_table
 from app.infrastructure.persistence_sqla.mappings.service_task import map_service_tasks_table
 from app.infrastructure.persistence_sqla.mappings.transaction import map_transactions_table
 from app.infrastructure.persistence_sqla.mappings.user import map_users_table
@@ -70,7 +72,6 @@ def map_tables() -> None:
     map_rental_services_table()
     map_expense_categories_table()
     map_cash_journal_table()
-    map_auth_sessions_table()
     map_email_verification_codes_table()
     map_invites_table()
     map_vehicle_categories_table()
@@ -79,3 +80,6 @@ def map_tables() -> None:
     map_device_tokens_table()
     map_extension_requests_table()
     map_client_organizations_table()
+    map_refresh_tokens_table()
+    map_revoked_access_jtis_table()
+    map_failed_login_attempts_table()

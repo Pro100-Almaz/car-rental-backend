@@ -25,10 +25,10 @@ from app.presentation.http.vehicle_pricing.router import make_vehicle_pricing_ro
 from app.presentation.http.vehicles.router import make_vehicles_router
 
 
-def make_v1_router(*, cookie_name: str) -> APIRouter:
+def make_v1_router() -> APIRouter:
     router = APIRouter(prefix="/api/v1")
-    router.include_router(make_account_router(cookie_name=cookie_name))
-    router.include_router(make_users_router(cookie_name=cookie_name))
+    router.include_router(make_account_router())
+    router.include_router(make_users_router())
     router.include_router(make_organizations_router())
     router.include_router(make_branches_router())
     router.include_router(make_vehicles_router())

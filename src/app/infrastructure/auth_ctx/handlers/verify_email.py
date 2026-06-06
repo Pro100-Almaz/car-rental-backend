@@ -9,7 +9,6 @@ from app.infrastructure.auth_ctx.exceptions import (
     EmailAlreadyVerifiedError,
     InvalidVerificationCodeError,
 )
-from app.infrastructure.auth_ctx.service import AuthService
 from app.infrastructure.auth_ctx.sqla_user_tx_storage import AuthSqlaUserTxStorage
 from app.infrastructure.auth_ctx.sqla_verification_code_tx_storage import EmailVerificationCodeSqlaTxStorage
 
@@ -30,14 +29,12 @@ class VerifyEmail:
         verification_code_tx_storage: EmailVerificationCodeSqlaTxStorage,
         flusher: Flusher,
         transaction_manager: TransactionManager,
-        auth_service: AuthService,
     ) -> None:
         self._utc_timer = utc_timer
         self._user_tx_storage = user_tx_storage
         self._verification_code_tx_storage = verification_code_tx_storage
         self._flusher = flusher
         self._transaction_manager = transaction_manager
-        self._auth_service = auth_service
 
     async def execute(self, request: VerifyEmailRequest) -> None:
         logger.info("Verify email: started.")
@@ -67,6 +64,4 @@ class VerifyEmail:
         await self._flusher.flush()
         await self._transaction_manager.commit()
 
-        await self._auth_service.issue_session(user.id_)
-
-        logger.info("Verify email: done. Session issued.")
+        logger.info("Verify email: done.")

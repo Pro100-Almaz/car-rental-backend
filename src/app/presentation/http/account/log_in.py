@@ -1,18 +1,58 @@
+import math
+from datetime import datetime, timezone
 from inspect import getdoc
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
+from pydantic import BaseModel, ConfigDict
+from starlette.responses import JSONResponse
 
 from app.core.common.authorization.exceptions import AuthorizationError
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.adapters.exceptions import PasswordHasherBusyError
-from app.infrastructure.auth_ctx.exceptions import AlreadyAuthenticatedError, AuthenticationError, EmailNotVerifiedError
+from app.infrastructure.auth_ctx.exceptions import (
+    AccountLockedError,
+    AuthenticationError,
+    EmailNotVerifiedError,
+)
 from app.infrastructure.auth_ctx.handlers.log_in import LogIn, LogInRequest
+from app.infrastructure.auth_ctx.service import TokenPair
 from app.infrastructure.exceptions import StorageError
+from app.main.rate_limit import limiter
 from app.presentation.http.errors.callbacks import log_info
-from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
+from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
+from slowapi.errors import RateLimitExceeded
+
+
+class LogInRequestSchema(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    email: str
+    password: str
+
+
+class LogInResponse(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    access_token: str
+    refresh_token: str
+    token_type: str = "Bearer"
+    expires_in: int
+    refresh_expires_in: int
+
+
+def _pair_to_response(pair: TokenPair) -> LogInResponse:
+    now = datetime.now(tz=timezone.utc)
+    expires_in = max(0, math.floor((pair.access_expires_at.replace(tzinfo=timezone.utc) - now).total_seconds()))
+    refresh_expires_in = max(0, math.floor((pair.refresh_expires_at.replace(tzinfo=timezone.utc) - now).total_seconds()))
+    return LogInResponse(
+        access_token=pair.access_token,
+        refresh_token=pair.refresh_token,
+        expires_in=expires_in,
+        refresh_expires_in=refresh_expires_in,
+    )
 
 
 def make_log_in_router() -> APIRouter:
@@ -23,21 +63,41 @@ def make_log_in_router() -> APIRouter:
         error_map={
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             AuthorizationError: status.HTTP_403_FORBIDDEN,
-            AlreadyAuthenticatedError: status.HTTP_403_FORBIDDEN,
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
             AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             EmailNotVerifiedError: status.HTTP_403_FORBIDDEN,
             PasswordHasherBusyError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            RateLimitExceeded: HTTP_429_RATE_LIMITED_RULE,
         },
         default_on_error=log_info,
-        status_code=status.HTTP_204_NO_CONTENT,
+        status_code=status.HTTP_200_OK,
         description=getdoc(LogIn),
     )
+    @limiter.limit("5/minute;30/hour")
     @inject
     async def log_in(
-        request: LogInRequest,
+        request_schema: LogInRequestSchema,
+        request: Request,
         handler: FromDishka[LogIn],
-    ) -> None:
-        await handler.execute(request)
+    ) -> LogInResponse:
+        ip = request.client.host if request.client else None
+        ua = request.headers.get("user-agent")
+        try:
+            pair = await handler.execute(
+                LogInRequest(
+                    email=request_schema.email,
+                    password=request_schema.password,
+                    ip=ip,
+                    user_agent=ua,
+                )
+            )
+        except AccountLockedError as exc:
+            log_info(exc)
+            return JSONResponse(
+                status_code=status.HTTP_423_LOCKED,
+                content={"error": str(exc)},
+                headers={"Retry-After": "900"},
+            )
+        return _pair_to_response(pair)
 
     return router

@@ -2,6 +2,7 @@ import logging
 from typing import Any
 from uuid import UUID
 
+from app.core.commands.ports.client_tx_storage import ClientTxStorage
 from app.core.commands.ports.device_token_tx_storage import DeviceTokenTxStorage
 from app.core.commands.ports.flusher import Flusher
 from app.core.commands.ports.notification_tx_storage import NotificationTxStorage
@@ -10,6 +11,7 @@ from app.core.commands.ports.user_tx_storage import UserTxStorage
 from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.common.entities.notification import Notification
 from app.core.common.entities.types_ import (
+    ClientId,
     NotificationType,
     OrganizationId,
     UserId,
@@ -28,6 +30,7 @@ class NotificationService:
         notification_tx_storage: NotificationTxStorage,
         device_token_tx_storage: DeviceTokenTxStorage,
         user_tx_storage: UserTxStorage,
+        client_tx_storage: ClientTxStorage,
         push_sender: PushSender,
         flusher: Flusher,
         transaction_manager: TransactionManager,
@@ -36,9 +39,47 @@ class NotificationService:
         self._notification_tx_storage = notification_tx_storage
         self._device_token_tx_storage = device_token_tx_storage
         self._user_tx_storage = user_tx_storage
+        self._client_tx_storage = client_tx_storage
         self._push_sender = push_sender
         self._flusher = flusher
         self._transaction_manager = transaction_manager
+
+    async def send_to_client(
+        self,
+        *,
+        client_id: UUID,
+        organization_id: UUID,
+        type_: NotificationType,
+        title: str,
+        body: str,
+        deep_link: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        """Dispatch a notification to the user account linked to a client, or skip silently.
+
+        `notifications.user_id` FKs to `users.id`, but rental code holds `clients.id`. Clients may
+        or may not have a paired user account (`clients.user_id` is nullable). When absent, we
+        skip — no in-app notification possible, no FK violation either.
+        """
+        client = await self._client_tx_storage.get_by_id(ClientId(client_id))
+        if client is None:
+            logger.info("Notification skipped: client %s not found.", client_id)
+            return
+        if client.user_id is None:
+            logger.info(
+                "Notification skipped: client %s has no paired user account.",
+                client_id,
+            )
+            return
+        await self.send(
+            user_id=client.user_id,
+            organization_id=organization_id,
+            type_=type_,
+            title=title,
+            body=body,
+            deep_link=deep_link,
+            metadata=metadata,
+        )
 
     async def send(
         self,

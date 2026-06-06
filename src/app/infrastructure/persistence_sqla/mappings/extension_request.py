@@ -70,7 +70,8 @@ def map_extension_requests_table() -> None:
             "status": extension_requests_table.c.status,
             "rejection_reason": extension_requests_table.c.rejection_reason,
             "reviewed_by": extension_requests_table.c.reviewed_by,
-            "reviewed_at": composite(UtcDatetime, extension_requests_table.c.reviewed_at),
+            # reviewed_at is nullable; plain column mapping avoids the composite-wrapper-on-None issue.
+            "reviewed_at": extension_requests_table.c.reviewed_at,
             "_created_at": composite(UtcDatetime, extension_requests_table.c.created_at),
         },
         column_prefix="__",

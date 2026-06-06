@@ -62,9 +62,23 @@ class JwtSettings(BaseModel):
     SECRET: str = Field(min_length=32)
 
     ALGORITHM: JwtAlgorithm = "HS256"
+    ISSUER: str = "car-rental-backend"
+    AUDIENCE: str = "car-rental-clients"
+    ACCESS_TTL_MIN: int = Field(ge=1, default=15)
+    REFRESH_TTL_DAYS: int = Field(ge=1, default=30)
+
+    @property
+    def access_ttl(self) -> timedelta:
+        return timedelta(minutes=self.ACCESS_TTL_MIN)
+
+    @property
+    def refresh_ttl(self) -> timedelta:
+        return timedelta(days=self.REFRESH_TTL_DAYS)
 
 
 class SessionSettings(BaseModel):
+    # Retained as a no-op shim during the cookie→bearer migration.
+    # Will be removed once all references are gone.
     TTL_MIN: int = Field(ge=1, default=5)
     REFRESH_THRESHOLD_RATIO: float = Field(gt=0, lt=1, default=0.2)
 
@@ -74,10 +88,7 @@ class SessionSettings(BaseModel):
 
 
 class CorsSettings(BaseModel):
-    ALLOWED_ORIGINS: list[str] = [
-        "http://localhost:3000",
-        "https://car-rental-frontend-ruddy-nu.vercel.app",
-    ]
+    ALLOWED_ORIGINS: list[str] = []
 
 
 class CookieSettings(BaseModel):
@@ -86,6 +97,18 @@ class CookieSettings(BaseModel):
     HTTPONLY: bool = True
     SECURE: bool = True
     SAMESITE: Literal["lax", "strict", "none"] = "none"
+
+
+class RedisSettings(BaseModel):
+    HOST: str = "redis"
+    PORT: int = 6379
+    DB: int = 0
+    PASSWORD: str | None = None
+
+    @property
+    def url(self) -> str:
+        auth = f":{self.PASSWORD}@" if self.PASSWORD else ""
+        return f"redis://{auth}{self.HOST}:{self.PORT}/{self.DB}"
 
 
 class SmtpSettings(BaseModel):

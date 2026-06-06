@@ -26,6 +26,9 @@ DeviceTokenId = NewType("DeviceTokenId", UUID)
 ExtensionRequestId = NewType("ExtensionRequestId", UUID)
 ClientOrganizationId = NewType("ClientOrganizationId", UUID)
 UserPasswordHash = NewType("UserPasswordHash", bytes)
+RefreshTokenId = NewType("RefreshTokenId", UUID)
+RefreshTokenFamilyId = NewType("RefreshTokenFamilyId", UUID)
+AccessTokenJti = NewType("AccessTokenJti", UUID)
 
 
 class VehicleStatus(StrEnum):

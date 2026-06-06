@@ -2,8 +2,7 @@ from inspect import getdoc
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, Depends, status
-from fastapi.security import APIKeyCookie
+from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
 from pydantic import BaseModel, ConfigDict
 
@@ -13,8 +12,10 @@ from app.infrastructure.adapters.exceptions import PasswordHasherBusyError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationChangeError, AuthenticationError, ReAuthenticationError
 from app.infrastructure.auth_ctx.handlers.change_password import ChangePassword, ChangePasswordRequest
 from app.infrastructure.exceptions import StorageError
+from app.main.rate_limit import get_user_id_or_ip, limiter
 from app.presentation.http.errors.callbacks import log_info
-from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
+from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
+from slowapi.errors import RateLimitExceeded
 
 
 class ChangePasswordRequestSchema(BaseModel):
@@ -29,7 +30,7 @@ class ChangePasswordRequestSchema(BaseModel):
     new_password: str
 
 
-def make_change_password_router(*, cookie_name: str) -> APIRouter:
+def make_change_password_router() -> APIRouter:
     router = ErrorAwareRouter()
 
     @router.put(
@@ -42,15 +43,17 @@ def make_change_password_router(*, cookie_name: str) -> APIRouter:
             AuthenticationChangeError: status.HTTP_400_BAD_REQUEST,
             ReAuthenticationError: status.HTTP_403_FORBIDDEN,
             PasswordHasherBusyError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            RateLimitExceeded: HTTP_429_RATE_LIMITED_RULE,
         },
         default_on_error=log_info,
         status_code=status.HTTP_204_NO_CONTENT,
-        dependencies=[Depends(APIKeyCookie(name=cookie_name))],
         description=getdoc(ChangePassword),
     )
+    @limiter.limit("10/hour", key_func=get_user_id_or_ip)
     @inject
     async def change_password(
         request_schema: ChangePasswordRequestSchema,
+        request: Request,
         handler: FromDishka[ChangePassword],
     ) -> None:
         request = ChangePasswordRequest(

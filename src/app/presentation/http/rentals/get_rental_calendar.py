@@ -7,7 +7,7 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, Depends, status
 from fastapi_error_map import ErrorAwareRouter
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, StringConstraints
 
 from app.core.queries.get_rental_calendar import GetRentalCalendar, GetRentalCalendarRequest
 from app.core.queries.models.rental_calendar import RentalCalendarQm
@@ -22,7 +22,7 @@ DECEMBER = 12
 class CalendarRequestSchema(BaseModel):
     model_config = ConfigDict(frozen=True)
     organization_id: UUID
-    month: str
+    month: Annotated[str, StringConstraints(pattern=r"^\d{4}-\d{2}$")]
 
 
 def make_get_rental_calendar_router() -> APIRouter:

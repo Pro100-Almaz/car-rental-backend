@@ -22,7 +22,6 @@ from app.core.common.authorization.rbac import HasPermission, PermissionCheckCon
 from app.core.common.entities.rental import Rental
 from app.core.common.entities.types_ import (
     BookingType,
-    ClientId,
     DepositStatus,
     DepositType,
     OrganizationId,
@@ -128,7 +127,7 @@ class SubmitBookingRequestCommand:
 
         self._validate_request(request)
 
-        client = await self._client_tx_storage.get_by_id(ClientId(current_user.client_id))
+        client = await self._client_tx_storage.get_by_user_id(current_user.id_)
         if client is None:
             raise ClientNotFoundError
 
@@ -156,7 +155,7 @@ class SubmitBookingRequestCommand:
             id_=create_rental_id(),
             organization_id=OrganizationId(request.organization_id),
             vehicle_id=VehicleId(request.vehicle_id),
-            client_id=ClientId(current_user.client_id),
+            client_id=client.id_,
             manager_id=None,
             status=RentalStatus.PENDING,
             booking_type=request.booking_type,

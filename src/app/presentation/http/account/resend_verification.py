@@ -1,6 +1,6 @@
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
 
 from app.core.common.exceptions import BusinessTypeError
@@ -12,8 +12,10 @@ from app.infrastructure.auth_ctx.exceptions import (
 )
 from app.infrastructure.auth_ctx.handlers.resend_verification import ResendVerification, ResendVerificationRequest
 from app.infrastructure.exceptions import EmailSendError, StorageError
+from app.main.rate_limit import limiter
 from app.presentation.http.errors.callbacks import log_info
-from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
+from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
+from slowapi.errors import RateLimitExceeded
 
 
 def make_resend_verification_router() -> APIRouter:
@@ -29,15 +31,18 @@ def make_resend_verification_router() -> APIRouter:
             EmailAlreadyVerifiedError: status.HTTP_409_CONFLICT,
             VerificationCodeRateLimitError: status.HTTP_429_TOO_MANY_REQUESTS,
             EmailSendError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            RateLimitExceeded: HTTP_429_RATE_LIMITED_RULE,
         },
         default_on_error=log_info,
         status_code=status.HTTP_204_NO_CONTENT,
     )
+    @limiter.limit("5/hour")
     @inject
     async def resend_verification(
-        request: ResendVerificationRequest,
+        body: ResendVerificationRequest,
+        request: Request,
         handler: FromDishka[ResendVerification],
     ) -> None:
-        await handler.execute(request)
+        await handler.execute(body)
 
     return router

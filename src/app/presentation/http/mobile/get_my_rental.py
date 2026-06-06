@@ -2,9 +2,10 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 from fastapi_error_map import ErrorAwareRouter
 
+from app.core.commands.exceptions import RentalNotFoundError
 from app.core.common.authorization.exceptions import AuthorizationError
 from app.core.queries.get_my_rental import GetMyRental, GetMyRentalRequest
 from app.core.queries.models.mobile_rental import MobileRentalQm
@@ -23,6 +24,7 @@ def make_get_my_rental_router() -> APIRouter:
             AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             AuthorizationError: status.HTTP_403_FORBIDDEN,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            RentalNotFoundError: status.HTTP_404_NOT_FOUND,
         },
         default_on_error=log_info,
         status_code=status.HTTP_200_OK,
@@ -35,10 +37,7 @@ def make_get_my_rental_router() -> APIRouter:
     ) -> MobileRentalQm:
         result = await interactor.execute(GetMyRentalRequest(rental_id=rental_id))
         if result is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Rental not found.",
-            )
+            raise RentalNotFoundError
         return result
 
     return router

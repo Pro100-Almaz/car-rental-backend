@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from app.core.common.entities.base import Entity
@@ -25,7 +26,7 @@ class ExtensionRequest(Entity[ExtensionRequestId]):
         status: ExtensionRequestStatus,
         rejection_reason: str | None,
         reviewed_by: UserId | None,
-        reviewed_at: UtcDatetime | None,
+        reviewed_at: datetime | None,
         created_at: UtcDatetime,
     ) -> None:
         super().__init__(id_=id_)

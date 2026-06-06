@@ -35,8 +35,8 @@ class CheckReturnReminders:
         sent = 0
         for rental in rentals:
             try:
-                await self._notification_service.send(
-                    user_id=rental["client_id"],
+                await self._notification_service.send_to_client(
+                    client_id=rental["client_id"],
                     organization_id=organization_id,
                     type_=NotificationType.RETURN_REMINDER,
                     title="Return Reminder",

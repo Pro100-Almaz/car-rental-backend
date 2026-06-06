@@ -125,3 +125,7 @@ class ClientOrganizationNotFoundError(BaseError):
 
 class CannotLeaveHomeOrganizationError(BaseError):
     default_message: ClassVar[str] = "Cannot leave your home organization."
+
+
+class InvalidRevenueChartRangeError(BaseError):
+    default_message: ClassVar[str] = "Invalid revenue-chart date range."

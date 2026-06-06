@@ -8,7 +8,6 @@ from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
-from app.core.common.entities.types_ import ClientId
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 
 logger = logging.getLogger(__name__)
@@ -48,13 +47,7 @@ class UpdateClientProfile:
             ),
         )
 
-        if current_user.client_id is None:
-            raise ClientNotFoundError
-
-        client = await self._client_tx_storage.get_by_id(
-            ClientId(current_user.client_id),
-            for_update=True,
-        )
+        client = await self._client_tx_storage.get_by_user_id(current_user.id_, for_update=True)
         if client is None:
             raise ClientNotFoundError
 

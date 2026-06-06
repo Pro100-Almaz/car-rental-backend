@@ -2,9 +2,10 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 from fastapi_error_map import ErrorAwareRouter
 
+from app.core.commands.exceptions import InvestorNotFoundError
 from app.core.queries.get_investor import GetInvestor, GetInvestorRequest
 from app.core.queries.models.investor import InvestorQm
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
@@ -21,6 +22,7 @@ def make_get_investor_router() -> APIRouter:
         error_map={
             AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             StorageError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            InvestorNotFoundError: status.HTTP_404_NOT_FOUND,
         },
         default_on_error=log_info,
         status_code=status.HTTP_200_OK,
@@ -33,7 +35,7 @@ def make_get_investor_router() -> APIRouter:
     ) -> InvestorQm:
         result = await interactor.execute(GetInvestorRequest(investor_id=investor_id))
         if result is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Investor not found.")
+            raise InvestorNotFoundError
         return result
 
     return router

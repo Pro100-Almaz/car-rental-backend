@@ -2,9 +2,10 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 from fastapi_error_map import ErrorAwareRouter
 
+from app.core.commands.exceptions import ClientNotFoundError
 from app.core.queries.get_client import GetClient, GetClientRequest
 from app.core.queries.models.client import ClientQm
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
@@ -21,6 +22,7 @@ def make_get_client_router() -> APIRouter:
         error_map={
             AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            ClientNotFoundError: status.HTTP_404_NOT_FOUND,
         },
         default_on_error=log_info,
         status_code=status.HTTP_200_OK,
@@ -33,7 +35,7 @@ def make_get_client_router() -> APIRouter:
     ) -> ClientQm:
         result = await interactor.execute(GetClientRequest(client_id=client_id))
         if result is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client not found.")
+            raise ClientNotFoundError
         return result
 
     return router

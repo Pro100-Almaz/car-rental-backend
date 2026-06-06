@@ -2,9 +2,10 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 from fastapi_error_map import ErrorAwareRouter
 
+from app.core.commands.exceptions import ServiceTaskNotFoundError
 from app.core.queries.get_service_task import GetServiceTask, GetServiceTaskRequest
 from app.core.queries.models.service_task import ServiceTaskQm
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
@@ -21,6 +22,7 @@ def make_get_service_task_router() -> APIRouter:
         error_map={
             AuthenticationError: status.HTTP_401_UNAUTHORIZED,
             ReaderError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            ServiceTaskNotFoundError: status.HTTP_404_NOT_FOUND,
         },
         default_on_error=log_info,
         status_code=status.HTTP_200_OK,
@@ -33,7 +35,7 @@ def make_get_service_task_router() -> APIRouter:
     ) -> ServiceTaskQm:
         result = await interactor.execute(GetServiceTaskRequest(service_task_id=service_task_id))
         if result is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service task not found.")
+            raise ServiceTaskNotFoundError
         return result
 
     return router

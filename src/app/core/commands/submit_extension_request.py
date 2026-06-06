@@ -23,7 +23,6 @@ from app.core.common.authorization.current_user_service import CurrentUserServic
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
 from app.core.common.entities.extension_request import ExtensionRequest
 from app.core.common.entities.types_ import (
-    ClientId,
     ExtensionRequestStatus,
     OrganizationId,
     RentalId,
@@ -86,7 +85,7 @@ class SubmitExtensionRequestCommand:
             ),
         )
 
-        client = await self._client_tx_storage.get_by_id(ClientId(current_user.client_id))
+        client = await self._client_tx_storage.get_by_user_id(current_user.id_)
         if client is None:
             raise ClientNotFoundError
 

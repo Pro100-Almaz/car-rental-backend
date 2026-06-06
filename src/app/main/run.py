@@ -8,11 +8,11 @@ from fastapi import FastAPI
 from app.infrastructure.persistence_sqla.mappings.all import map_tables
 from app.main.config.loader import (
     load_app_settings,
-    load_cookie_settings,
     load_cors_settings,
     load_jwt_settings,
     load_password_hasher_settings,
     load_postgres_settings,
+    load_redis_settings,
     load_session_settings,
     load_smtp_settings,
     load_sqla_settings,
@@ -20,18 +20,24 @@ from app.main.config.loader import (
 )
 from app.main.config.settings import (
     AppSettings,
-    CookieSettings,
     CorsSettings,
     JwtSettings,
     PasswordHasherSettings,
     PostgresSettings,
+    RedisSettings,
     SessionSettings,
     SmtpSettings,
     SqlaSettings,
     VerificationSettings,
 )
 from app.main.ioc.provider_registry import get_providers
-from app.main.setup import setup_global_exception_handlers, setup_logging, setup_middlewares
+from app.main.rate_limit import make_limiter
+from app.main.setup import (
+    setup_global_exception_handlers,
+    setup_logging,
+    setup_middlewares,
+    setup_rate_limiter,
+)
 from app.presentation.http.root_router import make_fastapi_root_router
 
 
@@ -58,10 +64,10 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
     password_hasher_settings: PasswordHasherSettings | None = None,
     jwt_settings: JwtSettings | None = None,
     session_settings: SessionSettings | None = None,
-    cookie_settings: CookieSettings | None = None,
     cors_settings: CorsSettings | None = None,
     smtp_settings: SmtpSettings | None = None,
     verification_settings: VerificationSettings | None = None,
+    redis_settings: RedisSettings | None = None,
 ) -> FastAPI:
     """Pass providers to override existing ones for testing."""
     if app_settings is None:
@@ -79,14 +85,14 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
         jwt_settings = load_jwt_settings()
     if session_settings is None:
         session_settings = load_session_settings()
-    if cookie_settings is None:
-        cookie_settings = load_cookie_settings()
     if cors_settings is None:
         cors_settings = load_cors_settings()
     if smtp_settings is None:
         smtp_settings = load_smtp_settings()
     if verification_settings is None:
         verification_settings = load_verification_settings()
+    if redis_settings is None:
+        redis_settings = load_redis_settings()
 
     app = FastAPI(
         debug=app_settings.DEBUG_MODE,
@@ -106,18 +112,18 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
             PasswordHasherSettings: password_hasher_settings,
             JwtSettings: jwt_settings,
             SessionSettings: session_settings,
-            CookieSettings: cookie_settings,
             SmtpSettings: smtp_settings,
             VerificationSettings: verification_settings,
         },
     )
     setup_dishka(container, app)
-    setup_middlewares(app, cookie_settings, cors_settings)
+    setup_middlewares(app, cors_settings)
+    limiter = make_limiter(redis_settings.url)
+    setup_rate_limiter(app, limiter)
     setup_global_exception_handlers(app)
     app.include_router(
         make_fastapi_root_router(
             debug_mode=app_settings.DEBUG_MODE,
-            cookie_name=cookie_settings.NAME,
         )
     )
     return app

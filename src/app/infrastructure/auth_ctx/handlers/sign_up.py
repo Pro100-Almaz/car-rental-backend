@@ -1,15 +1,16 @@
 import logging
 from dataclasses import dataclass
 from decimal import Decimal
-from uuid import UUID, uuid4
+from uuid import uuid4
 
-from app.core.commands.exceptions import EmailAlreadyExistsError
 from app.core.commands.ports.client_organization_tx_storage import ClientOrganizationTxStorage
 from app.core.commands.ports.client_tx_storage import ClientTxStorage
 from app.core.commands.ports.flusher import Flusher
 from app.core.commands.ports.transaction_manager import TransactionManager
+from app.core.commands.ports.user_tx_storage import UserTxStorage
 from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.common.authorization.current_user_service import CurrentUserService
+from app.core.common.authorization.exceptions import AuthorizationError
 from app.core.common.entities.client import Client
 from app.core.common.entities.client_organization import ClientOrganization
 from app.core.common.entities.types_ import (
@@ -17,6 +18,7 @@ from app.core.common.entities.types_ import (
     OrganizationId,
     RegistrationSource,
     TrustLevel,
+    UserId,
     UserRole,
     VerificationStatus,
 )
@@ -34,8 +36,9 @@ from app.infrastructure.auth_ctx.exceptions import (
     InviteAlreadyUsedError,
     OrganizationIdRequiredError,
 )
+from app.infrastructure.auth_ctx.invite import Invite
 from app.infrastructure.auth_ctx.sqla_invite_tx_storage import InviteSqlaTxStorage
-from app.infrastructure.auth_ctx.sqla_user_tx_storage import AuthSqlaUserTxStorage
+from app.infrastructure.auth_ctx.sqla_transaction_manager import AuthSqlaTransactionManager
 from app.infrastructure.auth_ctx.sqla_verification_code_tx_storage import EmailVerificationCodeSqlaTxStorage
 from app.infrastructure.auth_ctx.verification_code import EmailVerificationCode
 from app.infrastructure.auth_ctx.verification_types import DefaultOrganizationId, VerificationCodeTtl
@@ -50,9 +53,7 @@ class SignUpRequest:
     first_name: str
     last_name: str
     phone: str | None = None
-    organization_id: UUID | None = None
     invite_token: str | None = None
-    role: str | None = None
 
 
 class SignUp:
@@ -61,11 +62,12 @@ class SignUp:
         current_user_service: CurrentUserService,
         utc_timer: UtcTimer,
         user_service: UserService,
-        user_tx_storage: AuthSqlaUserTxStorage,
+        user_tx_storage: UserTxStorage,
         client_tx_storage: ClientTxStorage,
         client_org_tx_storage: ClientOrganizationTxStorage,
         flusher: Flusher,
         transaction_manager: TransactionManager,
+        auth_transaction_manager: AuthSqlaTransactionManager,
         email_sender: EmailSender,
         verification_code_tx_storage: EmailVerificationCodeSqlaTxStorage,
         code_ttl: VerificationCodeTtl,
@@ -80,6 +82,7 @@ class SignUp:
         self._client_org_tx_storage = client_org_tx_storage
         self._flusher = flusher
         self._transaction_manager = transaction_manager
+        self._auth_transaction_manager = auth_transaction_manager
         self._email_sender = email_sender
         self._verification_code_tx_storage = verification_code_tx_storage
         self._code_ttl = code_ttl
@@ -88,11 +91,11 @@ class SignUp:
 
     async def _resolve_invite(
         self,
-        request: SignUpRequest,
+        invite_token: str,
         email: Email,
         now: UtcDatetime,
-    ) -> tuple[OrganizationId, UserRole]:
-        invite = await self._invite_tx_storage.get_by_token(request.invite_token)  # type: ignore[arg-type]
+    ) -> tuple[OrganizationId, UserRole, Invite]:
+        invite = await self._invite_tx_storage.get_by_token(invite_token)
         if invite is None:
             raise InvalidInviteError
         if invite.expires_at.value < now.value:
@@ -101,14 +104,14 @@ class SignUp:
             raise InviteAlreadyUsedError
         if invite.email != email.value:
             raise InvalidInviteError
-        return OrganizationId(invite.organization_id), invite.role
+        return OrganizationId(invite.organization_id), invite.role, invite
 
     def _create_client_and_subscription(
         self,
         *,
         client_id: ClientId,
         organization_id: OrganizationId,
-        user_id: "UUID",
+        user_id: UserId,
         request: SignUpRequest,
         email: Email,
         now: UtcDatetime,
@@ -151,22 +154,25 @@ class SignUp:
 
         try:
             await self._current_user_service.get_current_user()
-            raise AlreadyAuthenticatedError
-        except AuthenticationError:
+        except (AuthenticationError, AuthorizationError):
+            # No valid session (or a stale one that was just cleared). Signup is allowed.
             pass
+        else:
+            raise AlreadyAuthenticatedError
 
         email = Email(request.email)
         password = RawPassword(request.password)
         now = self._utc_timer.now
 
+        invite: Invite | None = None
         if request.invite_token:
-            organization_id, role = await self._resolve_invite(request, email, now)
+            organization_id, role, invite = await self._resolve_invite(request.invite_token, email, now)
         else:
-            raw_org_id = request.organization_id or self._default_organization_id
+            raw_org_id = self._default_organization_id
             if raw_org_id is None:
                 raise OrganizationIdRequiredError
             organization_id = OrganizationId(raw_org_id)
-            role = UserRole.CLIENT if request.role == "client" else UserRole.INVESTOR
+            role = UserRole.CLIENT
 
         client_id: ClientId | None = None
         if role == UserRole.CLIENT:
@@ -183,9 +189,9 @@ class SignUp:
             phone=request.phone,
             role=role,
             email_verified=False,
-            client_id=client_id,
         )
         self._user_tx_storage.add(user)
+        await self._flusher.flush()
 
         if role == UserRole.CLIENT and client_id is not None:
             self._create_client_and_subscription(
@@ -196,16 +202,10 @@ class SignUp:
                 email=email,
                 now=now,
             )
-
-        try:
             await self._flusher.flush()
-        except EmailAlreadyExistsError:
-            raise
 
-        if request.invite_token:
-            invite = await self._invite_tx_storage.get_by_token(request.invite_token)
-            if invite is not None:
-                invite.used_at = now
+        if invite is not None:
+            invite.used_at = now
 
         code = generate_verification_code()
         verification = EmailVerificationCode(
@@ -216,10 +216,9 @@ class SignUp:
             created_at=now,
         )
         self._verification_code_tx_storage.add(verification)
-        await self._transaction_manager.commit()
 
-        logger.debug("Verification code for %s: %s", email.value, code)
-
+        # Email send happens BEFORE any commit. If SMTP fails, neither session commits and
+        # PG rolls back — the user can retry without a stale "email already exists" block.
         await self._email_sender.send(
             to=email.value,
             subject="Email Verification Code",
@@ -228,5 +227,11 @@ class SignUp:
                 f"This code expires in {self._code_ttl.total_seconds() // 60:.0f} minutes."
             ),
         )
+
+        # Commit primary first (user + client become visible), then auth (verification_code +
+        # invite update). Order matters: auth-side FKs on email_verification_codes.user_id need
+        # to see the committed user row.
+        await self._transaction_manager.commit()
+        await self._auth_transaction_manager.commit()
 
         logger.info("Sign up: done. Verification email sent.")

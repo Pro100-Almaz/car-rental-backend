@@ -45,3 +45,10 @@ class InvalidInviteError(BaseError):
 
 class InviteAlreadyUsedError(BaseError):
     default_message: ClassVar[str] = "This invite has already been used."
+
+
+class AccountLockedError(BaseError):
+    default_message: ClassVar[str] = (
+        "Account temporarily locked due to too many failed login attempts. "
+        "Please try again in 15 minutes."
+    )

@@ -16,7 +16,6 @@ from app.core.common.authorization.current_user_service import CurrentUserServic
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
 from app.core.common.entities.transaction import Transaction
 from app.core.common.entities.types_ import (
-    ClientId,
     OrganizationId,
     PaymentMethod,
     RentalId,
@@ -86,7 +85,7 @@ class RecordClientPayment:
         if request.client_note and len(request.client_note) > MAX_CLIENT_NOTE_LEN:
             raise InvalidPaymentAmountError(f"Client note cannot exceed {MAX_CLIENT_NOTE_LEN} characters.")
 
-        client = await self._client_tx_storage.get_by_id(ClientId(current_user.client_id))
+        client = await self._client_tx_storage.get_by_user_id(current_user.id_)
         if client is None:
             raise ClientNotFoundError
 

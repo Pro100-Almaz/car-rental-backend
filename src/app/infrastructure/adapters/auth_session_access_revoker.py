@@ -8,4 +8,4 @@ class AuthSessionAccessRevoker(AccessRevoker):
         self._auth_service = auth_service
 
     async def remove_all_user_access(self, user_id: UserId) -> None:
-        await self._auth_service.revoke_all_sessions(user_id)
+        await self._auth_service.revoke_all_for_user(user_id)

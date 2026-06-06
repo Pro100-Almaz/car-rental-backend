@@ -10,7 +10,7 @@ from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
-from app.core.common.entities.types_ import ClientId, RentalId, RentalStatus
+from app.core.common.entities.types_ import RentalId, RentalStatus
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class CancelOwnRental:
             ),
         )
 
-        client = await self._client_tx_storage.get_by_id(ClientId(current_user.client_id))
+        client = await self._client_tx_storage.get_by_user_id(current_user.id_)
         if client is None:
             raise ClientNotFoundError
 

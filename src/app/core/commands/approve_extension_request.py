@@ -79,10 +79,11 @@ class ApproveExtensionRequest:
         rental.scheduled_end = ext_req.new_end_date.value
         rental.estimated_total = rental.estimated_total + ext_req.additional_cost
         rental.updated_at = now
+        ext_req.reviewed_at = now.value
         await self._transaction_manager.commit()
 
-        await self._notification_service.send(
-            user_id=rental.client_id,
+        await self._notification_service.send_to_client(
+            client_id=rental.client_id,
             organization_id=rental.organization_id,
             type_=NotificationType.EXTENSION_APPROVED,
             title="Extension Approved",

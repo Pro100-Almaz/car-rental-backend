@@ -8,6 +8,7 @@ from app.infrastructure.exceptions import StorageError
 
 DB_COMMIT_DONE: Final[str] = "Commit was done."
 DB_COMMIT_FAILED: Final[str] = "Commit failed."
+DB_FLUSH_FAILED: Final[str] = "Flush failed."
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,11 @@ class AuthSqlaTransactionManager:
         try:
             await self._session.commit()
             logger.debug("%s.", DB_COMMIT_DONE)
-
         except SQLAlchemyError as e:
             raise StorageError(DB_COMMIT_FAILED) from e
+
+    async def flush(self) -> None:
+        try:
+            await self._session.flush()
+        except SQLAlchemyError as e:
+            raise StorageError(DB_FLUSH_FAILED) from e

@@ -10,6 +10,7 @@ from app.main.config.settings import (
     JwtSettings,
     PasswordHasherSettings,
     PostgresSettings,
+    RedisSettings,
     SessionSettings,
     SmtpSettings,
     SqlaSettings,
@@ -53,8 +54,22 @@ class SessionEnvConfig(BaseSettings, SessionSettings):
     model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="SESSION_")
 
 
-class CorsEnvConfig(BaseSettings, CorsSettings):
+class CorsEnvConfig(BaseSettings):
+    """Loads CORS config from env, accepting comma-separated origins.
+
+    Declared as ``str`` so pydantic-settings doesn't try to JSON-decode it.
+    The property converts to the ``list[str]`` expected by ``CorsSettings``.
+    """
+
     model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="CORS_")
+
+    ALLOWED_ORIGINS: str = ""
+
+    def to_cors_settings(self) -> "CorsSettings":
+        from app.main.config.settings import CorsSettings  # local import to avoid circularity
+
+        origins = [s.strip() for s in self.ALLOWED_ORIGINS.split(",") if s.strip()]
+        return CorsSettings(ALLOWED_ORIGINS=origins)
 
 
 class CookieEnvConfig(BaseSettings, CookieSettings):
@@ -67,6 +82,10 @@ class SmtpEnvConfig(BaseSettings, SmtpSettings):
 
 class VerificationEnvConfig(BaseSettings, VerificationSettings):
     model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="VERIFICATION_")
+
+
+class RedisEnvConfig(BaseSettings, RedisSettings):
+    model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="REDIS_")
 
 
 def load_app_settings() -> AppSettings:
@@ -94,7 +113,7 @@ def load_session_settings() -> SessionSettings:
 
 
 def load_cors_settings() -> CorsSettings:
-    return _load_settings(CorsEnvConfig)
+    return _load_settings(CorsEnvConfig).to_cors_settings()
 
 
 def load_cookie_settings() -> CookieSettings:
@@ -107,3 +126,7 @@ def load_smtp_settings() -> SmtpSettings:
 
 def load_verification_settings() -> VerificationSettings:
     return _load_settings(VerificationEnvConfig)
+
+
+def load_redis_settings() -> RedisSettings:
+    return _load_settings(RedisEnvConfig)

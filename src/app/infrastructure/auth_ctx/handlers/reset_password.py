@@ -7,7 +7,9 @@ from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.common.services.user import UserService
 from app.core.common.value_objects.email import Email
 from app.core.common.value_objects.raw_password import RawPassword
+from app.infrastructure.auth_ctx.audit_log import emit as audit
 from app.infrastructure.auth_ctx.exceptions import InvalidVerificationCodeError
+from app.infrastructure.auth_ctx.service import AuthService
 from app.infrastructure.auth_ctx.sqla_user_tx_storage import AuthSqlaUserTxStorage
 from app.infrastructure.auth_ctx.sqla_verification_code_tx_storage import EmailVerificationCodeSqlaTxStorage
 
@@ -30,6 +32,7 @@ class ResetPassword:
         user_service: UserService,
         flusher: Flusher,
         transaction_manager: TransactionManager,
+        auth_service: AuthService,
     ) -> None:
         self._utc_timer = utc_timer
         self._user_tx_storage = user_tx_storage
@@ -37,6 +40,7 @@ class ResetPassword:
         self._user_service = user_service
         self._flusher = flusher
         self._transaction_manager = transaction_manager
+        self._auth_service = auth_service
 
     async def execute(self, request: ResetPasswordRequest) -> None:
         logger.info("Reset password: started.")
@@ -62,5 +66,13 @@ class ResetPassword:
         await self._verification_code_tx_storage.delete_all_for_user(user.id_)
         await self._flusher.flush()
         await self._transaction_manager.commit()
+
+        # Revoke all sessions so stolen tokens are invalidated
+        await self._auth_service.revoke_all_and_denylist_for_user(
+            user.id_,
+            reason="password_reset",
+        )
+
+        audit("auth.password_reset", user_id=user.id_)
 
         logger.info("Reset password: done.")

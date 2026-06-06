@@ -2,7 +2,7 @@ from inspect import getdoc
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
 
 from app.core.commands.exceptions import EmailAlreadyExistsError
@@ -18,8 +18,10 @@ from app.infrastructure.auth_ctx.exceptions import (
 )
 from app.infrastructure.auth_ctx.handlers.sign_up import SignUp, SignUpRequest
 from app.infrastructure.exceptions import EmailSendError, StorageError
+from app.main.rate_limit import limiter
 from app.presentation.http.errors.callbacks import log_info
-from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
+from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
+from slowapi.errors import RateLimitExceeded
 
 
 def make_sign_up_router() -> APIRouter:
@@ -39,16 +41,19 @@ def make_sign_up_router() -> APIRouter:
             InviteAlreadyUsedError: status.HTTP_409_CONFLICT,
             OrganizationIdRequiredError: status.HTTP_400_BAD_REQUEST,
             EmailSendError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
+            RateLimitExceeded: HTTP_429_RATE_LIMITED_RULE,
         },
         default_on_error=log_info,
         status_code=status.HTTP_204_NO_CONTENT,
         description=getdoc(SignUp),
     )
+    @limiter.limit("3/hour;10/day")
     @inject
     async def sign_up(
-        request: SignUpRequest,
+        body: SignUpRequest,
+        request: Request,
         handler: FromDishka[SignUp],
     ) -> None:
-        await handler.execute(request)
+        await handler.execute(body)
 
     return router

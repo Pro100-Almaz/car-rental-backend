@@ -13,12 +13,25 @@ services:
     depends_on:
       db_pg:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - .env
     environment:
       - COVERAGE_FILE=/tmp/.coverage
       - UVICORN_RELOAD=true
     command: ["start", "8000"]
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 1s
 
   db_pg:
     image: postgres:18-alpine

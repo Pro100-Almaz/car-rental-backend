@@ -29,6 +29,8 @@ from app.core.common.entities.types_ import (
     RentalStatus,
     VehicleId,
 )
+from typing import ClassVar
+
 from app.core.common.exceptions import BaseError
 from app.core.common.factories.id_factory import create_extension_request_id
 from app.core.common.value_objects.utc_datetime import UtcDatetime
@@ -39,7 +41,7 @@ MAX_EXTENSION_DAYS = 30
 
 
 class InvalidExtensionDatesError(BaseError):
-    default_message: str = "Invalid extension dates."
+    default_message: ClassVar[str] = "Invalid extension dates."
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

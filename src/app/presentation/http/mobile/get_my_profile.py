@@ -4,6 +4,8 @@ from fastapi import APIRouter, status
 from fastapi_error_map import ErrorAwareRouter
 
 from app.core.common.authorization.exceptions import AuthorizationError
+from typing import ClassVar
+
 from app.core.common.exceptions import BaseError
 from app.core.queries.get_my_profile import GetMyProfile
 from app.core.queries.models.client import ClientQm
@@ -14,7 +16,7 @@ from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
 
 class ClientProfileNotFoundError(BaseError):
-    default_message: str = "Client profile not found."
+    default_message: ClassVar[str] = "Client profile not found."
 
 
 def make_get_my_profile_router() -> APIRouter:

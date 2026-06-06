@@ -18,6 +18,7 @@ from app.core.common.entities.types_ import (
     OrganizationId,
     PaymentMethod,
     RentalId,
+    TransactionSource,
     TransactionStatus,
     TransactionType,
 )
@@ -84,6 +85,9 @@ class ProcessRefund:
             status=TransactionStatus.PENDING,
             external_id=request.external_id,
             metadata=request.metadata,
+            source=TransactionSource.MANUAL,
+            client_note=None,
+            rejection_reason=None,
             created_at=now,
             updated_at=now,
         )

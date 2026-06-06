@@ -32,6 +32,8 @@ from app.core.common.entities.types_ import (
     VehicleId,
     VehicleStatus,
 )
+from typing import ClassVar
+
 from app.core.common.exceptions import BaseError
 from app.core.common.factories.id_factory import create_rental_id
 from app.core.common.value_objects.utc_datetime import UtcDatetime
@@ -43,19 +45,19 @@ MAX_PICKUP_NOTES_LEN = 500
 
 
 class ClientNotVerifiedError(BaseError):
-    default_message: str = "Client must be verified before booking."
+    default_message: ClassVar[str] = "Client must be verified before booking."
 
 
 class ClientBlacklistedError(BaseError):
-    default_message: str = "Blacklisted clients cannot create bookings."
+    default_message: ClassVar[str] = "Blacklisted clients cannot create bookings."
 
 
 class VehicleNotAvailableError(BaseError):
-    default_message: str = "Vehicle is not available for booking."
+    default_message: ClassVar[str] = "Vehicle is not available for booking."
 
 
 class InvalidBookingDatesError(BaseError):
-    default_message: str = "Invalid booking dates."
+    default_message: ClassVar[str] = "Invalid booking dates."
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

@@ -23,6 +23,8 @@ from app.core.common.entities.types_ import (
     TransactionStatus,
     TransactionType,
 )
+from typing import ClassVar
+
 from app.core.common.exceptions import BaseError
 from app.core.common.factories.id_factory import create_transaction_id
 from app.core.common.value_objects.utc_datetime import UtcDatetime
@@ -33,7 +35,7 @@ MAX_CLIENT_NOTE_LEN = 2000
 
 
 class InvalidPaymentAmountError(BaseError):
-    default_message: str = "Payment amount must be positive."
+    default_message: ClassVar[str] = "Payment amount must be positive."
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

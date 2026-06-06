@@ -9,6 +9,7 @@ from app.core.commands.ports.vehicle_tx_storage import VehicleTxStorage
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
+from app.core.common.entities.types_ import VehicleId
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class AddVehiclePhoto:
             ),
         )
 
-        vehicle = await self._vehicle_tx_storage.get_by_id(request.vehicle_id)
+        vehicle = await self._vehicle_tx_storage.get_by_id(VehicleId(request.vehicle_id))
         if vehicle is None:
             raise VehicleNotFoundError
 
@@ -102,7 +103,7 @@ class RemoveVehiclePhoto:
             ),
         )
 
-        vehicle = await self._vehicle_tx_storage.get_by_id(request.vehicle_id)
+        vehicle = await self._vehicle_tx_storage.get_by_id(VehicleId(request.vehicle_id))
         if vehicle is None:
             raise VehicleNotFoundError
 

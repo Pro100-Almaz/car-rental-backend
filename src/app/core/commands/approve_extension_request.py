@@ -74,12 +74,11 @@ class ApproveExtensionRequest:
         now = UtcDatetime(self._utc_timer.now.value)
         ext_req.status = ExtensionRequestStatus.APPROVED
         ext_req.reviewed_by = UserId(current_user.id_)
-        ext_req.reviewed_at = now
+        ext_req.reviewed_at = now.value
 
         rental.scheduled_end = ext_req.new_end_date.value
         rental.estimated_total = rental.estimated_total + ext_req.additional_cost
         rental.updated_at = now
-        ext_req.reviewed_at = now.value
         await self._transaction_manager.commit()
 
         await self._notification_service.send_to_client(

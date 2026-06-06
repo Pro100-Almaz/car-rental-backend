@@ -13,7 +13,7 @@ from app.infrastructure.adapters.exceptions import PasswordHasherBusyError
 from app.infrastructure.auth_ctx.exceptions import AuthenticationChangeError, AuthenticationError, ReAuthenticationError
 from app.infrastructure.auth_ctx.handlers.change_password import ChangePassword, ChangePasswordRequest
 from app.infrastructure.exceptions import StorageError
-from app.main.rate_limit import get_user_id_or_ip, limiter
+from app.infrastructure.rate_limit import get_user_id_or_ip, limiter
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -56,10 +56,10 @@ def make_change_password_router() -> APIRouter:
         request: Request,
         handler: FromDishka[ChangePassword],
     ) -> None:
-        request = ChangePasswordRequest(
+        cmd = ChangePasswordRequest(
             current_password=request_schema.current_password,
             new_password=request_schema.new_password,
         )
-        await handler.execute(request)
+        await handler.execute(cmd)
 
     return router

@@ -2,9 +2,14 @@ from typing import ClassVar
 
 from app.core.common.exceptions import (
     BaseError,
-    ClientNotFoundError as ClientNotFoundError,
-    InvestorNotFoundError as InvestorNotFoundError,
+    ClientNotFoundError,
+    InvestorNotFoundError,
 )
+
+__all__ = [
+    "ClientNotFoundError",
+    "InvestorNotFoundError",
+]
 
 
 class EmailAlreadyExistsError(BaseError):

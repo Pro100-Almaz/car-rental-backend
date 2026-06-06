@@ -3,8 +3,8 @@ import logging
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 
-from app.core.commands.exceptions import InvestorNotFoundError
 from app.core.common.authorization.current_user_service import CurrentUserService
+from app.core.common.exceptions import InvestorNotFoundError
 from app.core.queries.get_investor_pnl import GetInvestorPnl, GetInvestorPnlRequest
 from app.core.queries.models.investor_pnl import InvestorPnlQm
 from app.core.queries.ports.investor_reader import InvestorReader

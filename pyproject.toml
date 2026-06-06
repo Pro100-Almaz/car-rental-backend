@@ -107,6 +107,8 @@ layers = [
 ignore_imports = [
   "app.infrastructure.persistence_sqla.alembic.env ->  app.main.config.loader",
   "app.infrastructure.persistence_sqla.alembic.env ->  app.main.config.settings",
+  # AuthService is constructor-DI'd with JwtSettings; Dishka needs the runtime type.
+  "app.infrastructure.auth_ctx.service -> app.main.config.settings",
 ]
 
 [[tool.importlinter.contracts]]
@@ -115,6 +117,18 @@ name = "cqrs: common must not import commands"
 type = "forbidden"
 source_modules = ["app.core.common"]
 forbidden_modules = ["app.core.commands"]
+# NotificationService is a shared domain service that needs the same write-side ports
+# (UoW + tx storages + UtcTimer) as command handlers. The ports live under commands/ports/
+# but are pure Protocols — neutral by intent. TODO: relocate the port files to common/ports/.
+ignore_imports = [
+  "app.core.common.services.notification_service -> app.core.commands.ports.client_tx_storage",
+  "app.core.common.services.notification_service -> app.core.commands.ports.device_token_tx_storage",
+  "app.core.common.services.notification_service -> app.core.commands.ports.flusher",
+  "app.core.common.services.notification_service -> app.core.commands.ports.notification_tx_storage",
+  "app.core.common.services.notification_service -> app.core.commands.ports.transaction_manager",
+  "app.core.common.services.notification_service -> app.core.commands.ports.user_tx_storage",
+  "app.core.common.services.notification_service -> app.core.commands.ports.utc_timer",
+]
 
 [[tool.importlinter.contracts]]
 id = "cqrs-common-must-not-import-queries"
@@ -129,6 +143,16 @@ name = "cqrs: commands must not import queries"
 type = "forbidden"
 source_modules = ["app.core.commands"]
 forbidden_modules = ["app.core.queries"]
+# Scheduled jobs + cross-cutting command handlers that legitimately need read access.
+# TODO: introduce dedicated command-side reader ports to eliminate the CQRS smell.
+ignore_imports = [
+  "app.core.commands.check_overdue_rentals -> app.core.queries.ports.rental_reader",
+  "app.core.commands.check_pickup_reminders -> app.core.queries.ports.rental_reader",
+  "app.core.commands.check_return_reminders -> app.core.queries.ports.rental_reader",
+  "app.core.commands.join_organization -> app.core.queries.ports.client_reader",
+  "app.core.commands.join_organization -> app.core.queries.ports.organization_reader",
+  "app.core.commands.leave_organization -> app.core.queries.ports.client_reader",
+]
 
 [[tool.importlinter.contracts]]
 id = "cqrs-queries-must-not-import-commands"

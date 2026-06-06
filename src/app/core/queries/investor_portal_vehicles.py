@@ -1,7 +1,7 @@
 import logging
 
-from app.core.commands.exceptions import InvestorNotFoundError
 from app.core.common.authorization.current_user_service import CurrentUserService
+from app.core.common.exceptions import InvestorNotFoundError
 from app.core.queries.ports.investor_reader import InvestorReader, ListVehicleInvestorsQm
 
 logger = logging.getLogger(__name__)

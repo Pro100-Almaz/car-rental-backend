@@ -21,7 +21,7 @@ from app.infrastructure.auth_ctx.exceptions import (
 from app.infrastructure.auth_ctx.handlers.log_in import LogIn, LogInRequest
 from app.infrastructure.auth_ctx.service import TokenPair
 from app.infrastructure.exceptions import StorageError
-from app.main.rate_limit import limiter
+from app.infrastructure.rate_limit import limiter
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
 
@@ -79,7 +79,7 @@ def make_log_in_router() -> APIRouter:
         request_schema: LogInRequestSchema,
         request: Request,
         handler: FromDishka[LogIn],
-    ) -> LogInResponse:
+    ) -> LogInResponse | JSONResponse:
         ip = request.client.host if request.client else None
         ua = request.headers.get("user-agent")
         try:

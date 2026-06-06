@@ -71,6 +71,7 @@ def make_log_in_router() -> APIRouter:
         },
         default_on_error=log_info,
         status_code=status.HTTP_200_OK,
+        response_model=LogInResponse,
         description=getdoc(LogIn),
     )
     @limiter.limit("5/minute;30/hour")

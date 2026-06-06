@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.common.entities.types_ import AccessTokenJti, UserId
@@ -116,7 +116,7 @@ class AuthService:
         now = self._utc_timer.now.value
 
         # Expired (and not yet revoked) — reject without family kill
-        if stored.expires_at.replace(tzinfo=timezone.utc) < now:
+        if stored.expires_at.replace(tzinfo=UTC) < now:
             raise AuthenticationError("Refresh token expired.")
 
         # Revoked — replay detected; kill the whole family
@@ -226,9 +226,7 @@ class AuthService:
         now = self._utc_timer.now.value
 
         # Fetch active JTIs before revoking
-        active_jtis = await self._refresh_token_tx_storage.get_active_access_jtis_for_user(
-            user_id
-        )
+        active_jtis = await self._refresh_token_tx_storage.get_active_access_jtis_for_user(user_id)
 
         # Denylist each access JTI
         for jti, expires_at in active_jtis:
@@ -258,4 +256,3 @@ class AuthService:
             raise AuthenticationError("Access token revoked.")
 
         return claims.sub
-

@@ -23,3 +23,11 @@ class ActivationChangeNotPermittedError(BaseError):
 
 class RoleChangeNotPermittedError(BaseError):
     default_message: ClassVar[str] = "Role change is not permitted."
+
+
+class ClientNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Client not found."
+
+
+class InvestorNotFoundError(BaseError):
+    default_message: ClassVar[str] = "Investor not found."

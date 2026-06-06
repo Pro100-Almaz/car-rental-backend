@@ -19,6 +19,8 @@ Key design decisions
   ``failed_login_attempts`` DB table (see lockout logic in LogIn handler).
 """
 
+import base64
+import json
 import logging
 
 from limits.storage import storage_from_string
@@ -27,6 +29,8 @@ from slowapi.util import get_remote_address
 from starlette.requests import Request
 
 logger = logging.getLogger(__name__)
+
+_BASE64_PAD_BLOCK = 4
 
 # Module-level singleton — imported by route modules for @limiter.limit() decorators.
 # Starts with in-memory storage; reconfigured with Redis via make_limiter().
@@ -46,16 +50,12 @@ def make_limiter(redis_url: str) -> Limiter:
     """
     try:
         new_storage = storage_from_string(redis_url)
-        limiter._storage = new_storage
-        limiter._storage_uri = redis_url
-        limiter._storage_dead = False
+        limiter._storage = new_storage  # noqa: SLF001 — slowapi exposes no public storage setter
+        limiter._storage_uri = redis_url  # noqa: SLF001
+        limiter._storage_dead = False  # noqa: SLF001
         logger.info("Rate limiter reconfigured with storage_uri=%s", redis_url)
-    except Exception as exc:  # noqa: BLE001
-        logger.warning(
-            "Failed to configure Redis storage for rate limiter (%s); "
-            "falling back to in-memory storage.",
-            exc,
-        )
+    except Exception:
+        logger.exception("Failed to configure Redis storage for rate limiter; falling back to in-memory storage.")
     return limiter
 
 
@@ -64,21 +64,17 @@ def get_user_id_or_ip(request: Request) -> str:
     auth = request.headers.get("authorization", "")
     if auth.lower().startswith("bearer "):
         token = auth.split(None, 1)[1].strip()
-        # Decode without verifying signature here — we only need the sub claim
-        # for bucketing; actual token validation happens in the handler.
+        # Decode without verifying signature — we only need the sub claim for bucketing;
+        # actual token validation happens in the handler.
         try:
-            import base64
-            import json
-
             payload_part = token.split(".")[1]
-            # Add padding
-            padding = 4 - len(payload_part) % 4
-            if padding != 4:
+            padding = _BASE64_PAD_BLOCK - len(payload_part) % _BASE64_PAD_BLOCK
+            if padding != _BASE64_PAD_BLOCK:
                 payload_part += "=" * padding
             payload = json.loads(base64.urlsafe_b64decode(payload_part))
             sub = payload.get("sub")
             if sub:
                 return f"user:{sub}"
-        except Exception:  # noqa: BLE001 — any decode failure → fall back to IP
-            pass
+        except (IndexError, ValueError, json.JSONDecodeError):
+            logger.debug("rate_limit key decode failed; falling back to IP", exc_info=True)
     return get_remote_address(request)

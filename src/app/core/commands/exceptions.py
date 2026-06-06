@@ -1,6 +1,10 @@
 from typing import ClassVar
 
-from app.core.common.exceptions import BaseError
+from app.core.common.exceptions import (
+    BaseError,
+    ClientNotFoundError as ClientNotFoundError,
+    InvestorNotFoundError as InvestorNotFoundError,
+)
 
 
 class EmailAlreadyExistsError(BaseError):
@@ -29,10 +33,6 @@ class VehicleNotFoundError(BaseError):
 
 class InvalidVehicleStatusTransitionError(BaseError):
     default_message: ClassVar[str] = "Invalid vehicle status transition."
-
-
-class ClientNotFoundError(BaseError):
-    default_message: ClassVar[str] = "Client not found."
 
 
 class RentalNotFoundError(BaseError):
@@ -65,10 +65,6 @@ class ServiceTaskNotFoundError(BaseError):
 
 class InvalidTaskStatusTransitionError(BaseError):
     default_message: ClassVar[str] = "Invalid task status transition."
-
-
-class InvestorNotFoundError(BaseError):
-    default_message: ClassVar[str] = "Investor not found."
 
 
 class VehicleInvestorNotFoundError(BaseError):

@@ -16,7 +16,7 @@ Claims:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 from uuid import UUID
 
@@ -108,6 +108,6 @@ class JwtProcessor:
         return AccessClaims(
             sub=UserId(sub_uuid),
             jti=AccessTokenJti(jti_uuid),
-            exp=datetime.fromtimestamp(exp_raw, tz=timezone.utc),
-            iat=datetime.fromtimestamp(iat_raw, tz=timezone.utc),
+            exp=datetime.fromtimestamp(exp_raw, tz=UTC),
+            iat=datetime.fromtimestamp(iat_raw, tz=UTC),
         )

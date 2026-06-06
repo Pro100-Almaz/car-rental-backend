@@ -30,6 +30,5 @@ class LockedTranslator(ErrorTranslator[SimpleErrorResponseModel]):
 
     def from_error(self, err: Exception) -> SimpleErrorResponseModel:
         return SimpleErrorResponseModel(
-            error="Account temporarily locked due to too many failed login attempts. "
-            "Please try again in 15 minutes."
+            error="Account temporarily locked due to too many failed login attempts. Please try again in 15 minutes."
         )

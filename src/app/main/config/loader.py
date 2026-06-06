@@ -65,9 +65,7 @@ class CorsEnvConfig(BaseSettings):
 
     ALLOWED_ORIGINS: str = ""
 
-    def to_cors_settings(self) -> "CorsSettings":
-        from app.main.config.settings import CorsSettings  # local import to avoid circularity
-
+    def to_cors_settings(self) -> CorsSettings:
         origins = [s.strip() for s in self.ALLOWED_ORIGINS.split(",") if s.strip()]
         return CorsSettings(ALLOWED_ORIGINS=origins)
 

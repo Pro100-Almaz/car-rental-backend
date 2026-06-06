@@ -58,31 +58,23 @@ class SqlaRefreshTokenTxStorage:
         except SQLAlchemyError as e:
             raise StorageError from e
 
-    async def get_active_access_jtis_for_user(
-        self, user_id: UserId
-    ) -> list[tuple[AccessTokenJti, datetime]]:
+    async def get_active_access_jtis_for_user(self, user_id: UserId) -> list[tuple[AccessTokenJti, datetime]]:
         """Return (jti, expires_at) for all non-revoked refresh tokens of a user.
 
         Used by logout-all to pre-populate the JTI denylist before revoking.
         """
-        stmt = (
-            select(
-                refresh_tokens_table.c.issued_access_jti,
-                refresh_tokens_table.c.expires_at,
-            )
-            .where(
-                and_(
-                    refresh_tokens_table.c.user_id == user_id,
-                    refresh_tokens_table.c.revoked_at.is_(None),
-                    refresh_tokens_table.c.issued_access_jti.isnot(None),
-                )
+        stmt = select(
+            refresh_tokens_table.c.issued_access_jti,
+            refresh_tokens_table.c.expires_at,
+        ).where(
+            and_(
+                refresh_tokens_table.c.user_id == user_id,
+                refresh_tokens_table.c.revoked_at.is_(None),
+                refresh_tokens_table.c.issued_access_jti.isnot(None),
             )
         )
         try:
             result = await self._session.execute(stmt)
         except SQLAlchemyError as e:
             raise StorageError from e
-        return [
-            (AccessTokenJti(row[0]), row[1])
-            for row in result.fetchall()
-        ]
+        return [(AccessTokenJti(row[0]), row[1]) for row in result.fetchall()]

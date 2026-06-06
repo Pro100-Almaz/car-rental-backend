@@ -48,9 +48,7 @@ class SqlaFailedLoginAttemptTxStorage:
 
     async def delete_for_email(self, email_lower: str) -> None:
         """Remove all failed-attempt records for an email after a successful login."""
-        stmt = delete(failed_login_attempts_table).where(
-            failed_login_attempts_table.c.email_lower == email_lower
-        )
+        stmt = delete(failed_login_attempts_table).where(failed_login_attempts_table.c.email_lower == email_lower)
         try:
             await self._session.execute(stmt)
         except SQLAlchemyError as e:

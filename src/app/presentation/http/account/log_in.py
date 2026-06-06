@@ -1,5 +1,5 @@
 import math
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from inspect import getdoc
 
 from dishka import FromDishka
@@ -7,6 +7,7 @@ from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
 from pydantic import BaseModel, ConfigDict
+from slowapi.errors import RateLimitExceeded
 from starlette.responses import JSONResponse
 
 from app.core.common.authorization.exceptions import AuthorizationError
@@ -23,7 +24,6 @@ from app.infrastructure.exceptions import StorageError
 from app.main.rate_limit import limiter
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
-from slowapi.errors import RateLimitExceeded
 
 
 class LogInRequestSchema(BaseModel):
@@ -38,15 +38,15 @@ class LogInResponse(BaseModel):
 
     access_token: str
     refresh_token: str
-    token_type: str = "Bearer"
+    token_type: str = "Bearer"  # noqa: S105 — OAuth2 scheme name, not a credential
     expires_in: int
     refresh_expires_in: int
 
 
 def _pair_to_response(pair: TokenPair) -> LogInResponse:
-    now = datetime.now(tz=timezone.utc)
-    expires_in = max(0, math.floor((pair.access_expires_at.replace(tzinfo=timezone.utc) - now).total_seconds()))
-    refresh_expires_in = max(0, math.floor((pair.refresh_expires_at.replace(tzinfo=timezone.utc) - now).total_seconds()))
+    now = datetime.now(tz=UTC)
+    expires_in = max(0, math.floor((pair.access_expires_at.replace(tzinfo=UTC) - now).total_seconds()))
+    refresh_expires_in = max(0, math.floor((pair.refresh_expires_at.replace(tzinfo=UTC) - now).total_seconds()))
     return LogInResponse(
         access_token=pair.access_token,
         refresh_token=pair.refresh_token,

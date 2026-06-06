@@ -2,6 +2,7 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
+from slowapi.errors import RateLimitExceeded
 
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.auth_ctx.exceptions import (
@@ -15,7 +16,6 @@ from app.infrastructure.exceptions import EmailSendError, StorageError
 from app.main.rate_limit import limiter
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
-from slowapi.errors import RateLimitExceeded
 
 
 def make_resend_verification_router() -> APIRouter:

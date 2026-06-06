@@ -38,9 +38,7 @@ def _parse_week(
     if week_start.weekday() != 0:
         raise InvalidRevenueChartRangeError("week_start must be a Monday")
     if week_end != week_start + datetime.timedelta(days=6):
-        raise InvalidRevenueChartRangeError(
-            "week_end must be the Sunday following week_start (exactly 6 days later)"
-        )
+        raise InvalidRevenueChartRangeError("week_end must be the Sunday following week_start (exactly 6 days later)")
     return week_start, week_end
 
 
@@ -68,9 +66,7 @@ def make_revenue_chart_router() -> APIRouter:
         if week_start is not None and week_end is not None:
             d_from, d_to = _parse_week(week_start, week_end)
         elif week_start is not None or week_end is not None:
-            raise InvalidRevenueChartRangeError(
-                "Both week_start and week_end must be provided together"
-            )
+            raise InvalidRevenueChartRangeError("Both week_start and week_end must be provided together")
         else:
             d_from, d_to = _parse_period(period)
 

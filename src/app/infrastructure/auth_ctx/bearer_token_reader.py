@@ -7,6 +7,8 @@ roundtrip).
 
 from starlette.requests import Request
 
+_SCHEME_AND_TOKEN_PARTS = 2
+
 
 class BearerTokenReader:
     def __init__(self, request: Request) -> None:
@@ -17,7 +19,7 @@ class BearerTokenReader:
         if not auth:
             return None
         parts = auth.split(None, 1)
-        if len(parts) != 2 or parts[0].lower() != "bearer":
+        if len(parts) != _SCHEME_AND_TOKEN_PARTS or parts[0].lower() != "bearer":
             return None
         token = parts[1].strip()
         return token or None

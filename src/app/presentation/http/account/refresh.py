@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Request, status
-from fastapi_error_map import ErrorAwareRouter
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
+from fastapi import APIRouter, Request, status
+from fastapi_error_map import ErrorAwareRouter
 from pydantic import BaseModel, ConfigDict
+from slowapi.errors import RateLimitExceeded
 
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.infrastructure.auth_ctx.handlers.refresh import RefreshTokenHandler, RefreshTokenInput
@@ -11,7 +12,6 @@ from app.main.rate_limit import limiter
 from app.presentation.http.account.log_in import LogInResponse, _pair_to_response
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
-from slowapi.errors import RateLimitExceeded
 
 
 class RefreshRequestSchema(BaseModel):

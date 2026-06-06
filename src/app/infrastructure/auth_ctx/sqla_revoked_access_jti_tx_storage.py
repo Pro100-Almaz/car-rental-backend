@@ -19,9 +19,7 @@ class SqlaRevokedAccessJtiTxStorage:
             raise StorageError from e
 
     async def is_revoked(self, jti: AccessTokenJti) -> bool:
-        stmt = select(revoked_access_jtis_table.c.jti).where(
-            revoked_access_jtis_table.c.jti == jti
-        )
+        stmt = select(revoked_access_jtis_table.c.jti).where(revoked_access_jtis_table.c.jti == jti)
         try:
             result = await self._session.execute(stmt)
         except SQLAlchemyError as e:

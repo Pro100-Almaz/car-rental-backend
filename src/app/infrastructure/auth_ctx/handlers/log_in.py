@@ -15,7 +15,7 @@ verify so that timing does not reveal whether an account exists.
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import bcrypt
 
@@ -81,13 +81,11 @@ class LogIn:
         ip = request.ip or "unknown"
         ua = request.user_agent
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # --- Pre-check: email-based lockout ---
         email_since = now - timedelta(minutes=_EMAIL_WINDOW_MINUTES)
-        email_failures = await self._failed_attempt_storage.count_for_email_within(
-            email_lower, email_since
-        )
+        email_failures = await self._failed_attempt_storage.count_for_email_within(email_lower, email_since)
         if email_failures >= _EMAIL_MAX_ATTEMPTS:
             audit(
                 "auth.login.locked",
@@ -185,7 +183,7 @@ class LogIn:
         return pair
 
     async def _record_failure(self, email_lower: str, ip: str) -> None:
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         record = FailedLoginAttempt(
             email_lower=email_lower,
             ip=ip,

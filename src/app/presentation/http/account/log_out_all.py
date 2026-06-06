@@ -6,6 +6,7 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
+from slowapi.errors import RateLimitExceeded
 
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
 from app.infrastructure.auth_ctx.handlers.log_out_all import LogOutAll
@@ -13,7 +14,6 @@ from app.infrastructure.exceptions import StorageError
 from app.main.rate_limit import get_user_id_or_ip, limiter
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
-from slowapi.errors import RateLimitExceeded
 
 
 def make_log_out_all_router() -> APIRouter:

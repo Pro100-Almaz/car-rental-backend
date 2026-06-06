@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
 from pydantic import BaseModel, ConfigDict
+from slowapi.errors import RateLimitExceeded
 
 from app.core.common.authorization.exceptions import AuthorizationError
 from app.core.common.exceptions import BusinessTypeError
@@ -15,7 +16,6 @@ from app.infrastructure.exceptions import StorageError
 from app.main.rate_limit import get_user_id_or_ip, limiter
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
-from slowapi.errors import RateLimitExceeded
 
 
 class ChangePasswordRequestSchema(BaseModel):

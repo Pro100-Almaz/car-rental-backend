@@ -1,6 +1,8 @@
+from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import Column, func, select
+from sqlalchemy.engine import Row
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,7 +16,7 @@ class SqlaExtensionRequestReader(ExtensionRequestReader):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    def _base_columns(self) -> list:
+    def _base_columns(self) -> list[Column[Any]]:
         t = extension_requests_table
         return [
             t.c.id,
@@ -30,7 +32,7 @@ class SqlaExtensionRequestReader(ExtensionRequestReader):
             t.c.created_at,
         ]
 
-    def _row_to_qm(self, row) -> ExtensionRequestQm:
+    def _row_to_qm(self, row: Row[Any]) -> ExtensionRequestQm:
         return ExtensionRequestQm(
             id=row.id,
             organization_id=row.organization_id,

@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from typing import cast
 from uuid import UUID
 
 from app.core.commands.ports.flusher import Flusher
@@ -56,11 +57,11 @@ class UpdateVehicleCategory:
             raise VehicleCategoryNotFoundError
 
         if request.name is not _UNSET:
-            category.name = request.name
+            category.name = cast(str, request.name)
         if request.sort_order is not _UNSET:
-            category.sort_order = request.sort_order
+            category.sort_order = cast(int, request.sort_order)
         if request.is_active is not _UNSET:
-            category.is_active = request.is_active
+            category.is_active = cast(bool, request.is_active)
 
         await self._flusher.flush()
         await self._transaction_manager.commit()

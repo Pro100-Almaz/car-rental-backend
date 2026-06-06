@@ -1,11 +1,11 @@
+from typing import ClassVar
+
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, status
 from fastapi_error_map import ErrorAwareRouter
 
 from app.core.common.authorization.exceptions import AuthorizationError
-from typing import ClassVar
-
 from app.core.common.exceptions import BaseError
 from app.core.queries.get_my_profile import GetMyProfile
 from app.core.queries.models.client import ClientQm

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import and_, case, func, outerjoin, select
@@ -47,10 +48,10 @@ class SqlaReportReader(ReportReader):
         returns_and_discounts = Decimal(0)
         net_revenue = total_revenue - returns_and_discounts
 
-        total_direct = sum(e.amount for e in direct_expenses)
+        total_direct: Decimal = sum((e.amount for e in direct_expenses), Decimal(0))
         marginal_profit = net_revenue - total_direct
 
-        total_overhead = sum(e.amount for e in overhead_expenses)
+        total_overhead: Decimal = sum((e.amount for e in overhead_expenses), Decimal(0))
         operating_profit = marginal_profit - total_overhead
 
         net_profit = operating_profit - taxes
@@ -196,8 +197,8 @@ class SqlaReportReader(ReportReader):
         except SQLAlchemyError as e:
             raise ReaderError from e
 
-        total_income = sum(d.income for d in daily)
-        total_expense = sum(d.expense for d in daily)
+        total_income: Decimal = sum((d.income for d in daily), Decimal(0))
+        total_expense: Decimal = sum((d.expense for d in daily), Decimal(0))
         closing_balance = opening_balance + total_income - total_expense
 
         return CashFlowQm(
@@ -320,7 +321,7 @@ class SqlaReportReader(ReportReader):
                     )
                     for name in category_names
                 ]
-                total_exp = sum(e.amount for e in expense_lines)
+                total_exp: Decimal = sum((e.amount for e in expense_lines), Decimal(0))
 
                 items.append(
                     VehicleComparisonItemQm(
@@ -344,7 +345,7 @@ class SqlaReportReader(ReportReader):
             vehicles=items,
         )
 
-    async def _get_org_vehicles(self, organization_id: UUID) -> list[dict]:
+    async def _get_org_vehicles(self, organization_id: UUID) -> list[dict[str, Any]]:
         stmt = (
             select(
                 vehicles_table.c.id,
@@ -357,7 +358,7 @@ class SqlaReportReader(ReportReader):
         result = await self._session.execute(stmt)
         return [{"id": row.id, "nickname": row.nickname, "license_plate": row.license_plate} for row in result.all()]
 
-    async def _get_active_direct_categories(self, organization_id: UUID) -> list[dict]:
+    async def _get_active_direct_categories(self, organization_id: UUID) -> list[dict[str, Any]]:
         stmt = (
             select(
                 expense_categories_table.c.id,

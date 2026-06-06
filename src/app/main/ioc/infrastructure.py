@@ -191,7 +191,7 @@ class AuthProvider(Provider):
 
     @provide(scope=Scope.APP)
     def provide_default_organization_id(self, settings: AppSettings) -> DefaultOrganizationId:
-        return DefaultOrganizationId(settings.DEFAULT_ORGANIZATION_ID)
+        return settings.DEFAULT_ORGANIZATION_ID
 
     # Account handlers
     sign_up = provide(SignUp)

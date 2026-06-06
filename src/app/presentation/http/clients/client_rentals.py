@@ -30,7 +30,7 @@ def make_client_rentals_router() -> APIRouter:
     async def list_client_rentals(
         client_id: UUID,
         organization_id: Annotated[UUID, Query(...)],
-        interactor: FromDishka[ListRentals] = ...,
+        interactor: FromDishka[ListRentals],
     ) -> ListRentalsQm:
         request = ListRentalsRequest(
             organization_id=organization_id,

@@ -1,7 +1,7 @@
 from datetime import timedelta
-from typing import NewType, TypeAlias
+from typing import NewType
 from uuid import UUID
 
 VerificationCodeTtl = NewType("VerificationCodeTtl", timedelta)
 ResendCooldown = NewType("ResendCooldown", timedelta)
-DefaultOrganizationId: TypeAlias = UUID | None
+type DefaultOrganizationId = UUID | None

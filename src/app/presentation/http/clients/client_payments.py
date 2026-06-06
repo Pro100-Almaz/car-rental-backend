@@ -30,7 +30,7 @@ def make_client_payments_router() -> APIRouter:
     async def list_client_payments(
         client_id: UUID,
         organization_id: Annotated[UUID, Query(...)],
-        interactor: FromDishka[ListTransactions] = ...,
+        interactor: FromDishka[ListTransactions],
     ) -> ListTransactionsQm:
         request = ListTransactionsRequest(
             organization_id=organization_id,

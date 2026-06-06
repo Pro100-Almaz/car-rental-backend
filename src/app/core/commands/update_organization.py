@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from app.core.commands.exceptions import OrganizationNotFoundError
@@ -65,7 +65,7 @@ class UpdateOrganization:
 
         if request.settings is not _UNSET:
             current_settings = organization.settings or {}
-            merged = {**current_settings, **request.settings}  # type: ignore[arg-type]
+            merged = {**current_settings, **cast(dict[str, Any], request.settings)}
             if merged != current_settings:
                 organization.settings = merged
                 changed = True

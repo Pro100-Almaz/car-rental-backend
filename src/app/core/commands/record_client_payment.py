@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import TypedDict
+from typing import ClassVar, TypedDict
 from uuid import UUID
 
 from app.core.commands.exceptions import ClientNotFoundError
@@ -23,8 +23,6 @@ from app.core.common.entities.types_ import (
     TransactionStatus,
     TransactionType,
 )
-from typing import ClassVar
-
 from app.core.common.exceptions import BaseError
 from app.core.common.factories.id_factory import create_transaction_id
 from app.core.common.value_objects.utc_datetime import UtcDatetime

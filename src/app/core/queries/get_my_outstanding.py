@@ -66,9 +66,10 @@ class GetMyOutstanding:
             for r in completed_rentals["rentals"]
             if r.actual_total is not None and r.actual_total > (r.prepayment_amount + r.deposit_refund_amount)
         ]
-        total_debt = (
-            sum((r.actual_total - r.prepayment_amount) for r in rentals_with_debt) if rentals_with_debt else Decimal(0)
-        )
+        _debt_items: list[Decimal] = [
+            r.actual_total - r.prepayment_amount for r in rentals_with_debt if r.actual_total is not None
+        ]
+        total_debt: Decimal = sum(_debt_items, Decimal(0))
 
         fines_result = await self._fine_reader.list_fines(
             organization_id=client.organization_id,
@@ -76,7 +77,7 @@ class GetMyOutstanding:
             status="charged_to_client",
         )
         unpaid_fines = fines_result["fines"]
-        total_unpaid_fines = sum(f.amount for f in unpaid_fines) if unpaid_fines else Decimal(0)
+        total_unpaid_fines: Decimal = sum((f.amount for f in unpaid_fines), Decimal(0))
 
         logger.info("Get my outstanding: done.")
         return OutstandingQm(

@@ -154,7 +154,7 @@ class SqlaDashboardReader(DashboardReader):
             raise ReaderError from e
 
         data_points = [RevenueDataPointQm(date=row.day.isoformat(), revenue=row.revenue) for row in rows]
-        total = sum(dp.revenue for dp in data_points)
+        total: Decimal = sum((dp.revenue for dp in data_points), Decimal(0))
 
         return DashboardRevenueChartQm(
             period_from=date_from.isoformat(),

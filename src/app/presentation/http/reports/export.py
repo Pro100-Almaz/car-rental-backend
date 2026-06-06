@@ -64,50 +64,50 @@ def make_export_router() -> APIRouter:  # noqa: PLR0915 - TODO: split per-report
         ws = wb.active
 
         if report_type == "pnl":
-            result = await pnl_interactor.execute(
+            pnl_result = await pnl_interactor.execute(
                 GetCompanyPnlRequest(organization_id=organization_id, date_from=d_from, date_to=d_to)
             )
             ws.title = "P&L"
             ws.append(["Company P&L", f"{d_from} — {d_to}"])
             ws.append([])
-            ws.append(["Total Revenue", float(result.total_revenue)])
-            ws.append(["Returns & Discounts", float(result.returns_and_discounts)])
-            ws.append(["Net Revenue", float(result.net_revenue)])
+            ws.append(["Total Revenue", float(pnl_result.total_revenue)])
+            ws.append(["Returns & Discounts", float(pnl_result.returns_and_discounts)])
+            ws.append(["Net Revenue", float(pnl_result.net_revenue)])
             ws.append([])
             ws.append(["Direct Expenses"])
-            for line in result.direct_expenses:
+            for line in pnl_result.direct_expenses:
                 ws.append([f"  {line.category_name}", float(line.amount)])
-            ws.append(["Total Direct Expenses", float(result.total_direct_expenses)])
-            ws.append(["Marginal Profit", float(result.marginal_profit)])
+            ws.append(["Total Direct Expenses", float(pnl_result.total_direct_expenses)])
+            ws.append(["Marginal Profit", float(pnl_result.marginal_profit)])
             ws.append([])
             ws.append(["Overhead Expenses"])
-            for line in result.overhead_expenses:
+            for line in pnl_result.overhead_expenses:
                 ws.append([f"  {line.category_name}", float(line.amount)])
-            ws.append(["Total Overhead Expenses", float(result.total_overhead_expenses)])
-            ws.append(["Operating Profit", float(result.operating_profit)])
-            ws.append(["Taxes", float(result.taxes)])
-            ws.append(["Net Profit", float(result.net_profit)])
-            ws.append(["Investor Payouts", float(result.investor_payouts)])
-            ws.append(["Retained Profit", float(result.retained_profit)])
+            ws.append(["Total Overhead Expenses", float(pnl_result.total_overhead_expenses)])
+            ws.append(["Operating Profit", float(pnl_result.operating_profit)])
+            ws.append(["Taxes", float(pnl_result.taxes)])
+            ws.append(["Net Profit", float(pnl_result.net_profit)])
+            ws.append(["Investor Payouts", float(pnl_result.investor_payouts)])
+            ws.append(["Retained Profit", float(pnl_result.retained_profit)])
 
         elif report_type == "cash-flow":
-            result = await cf_interactor.execute(
+            cf_result = await cf_interactor.execute(
                 GetCashFlowRequest(organization_id=organization_id, date_from=d_from, date_to=d_to)
             )
             ws.title = "Cash Flow"
             ws.append(["Cash Flow", f"{d_from} — {d_to}"])
             ws.append([])
-            ws.append(["Opening Balance", float(result.opening_balance)])
-            ws.append(["Total Income", float(result.total_income)])
-            ws.append(["Total Expense", float(result.total_expense)])
-            ws.append(["Closing Balance", float(result.closing_balance)])
+            ws.append(["Opening Balance", float(cf_result.opening_balance)])
+            ws.append(["Total Income", float(cf_result.total_income)])
+            ws.append(["Total Expense", float(cf_result.total_expense)])
+            ws.append(["Closing Balance", float(cf_result.closing_balance)])
             ws.append([])
             ws.append(["Date", "Income", "Expense", "Net"])
-            for day in result.daily_breakdown:
+            for day in cf_result.daily_breakdown:
                 ws.append([day.date, float(day.income), float(day.expense), float(day.net)])
 
         elif report_type == "vehicles-comparison":
-            result = await vc_interactor.execute(
+            vc_result = await vc_interactor.execute(
                 GetVehiclesComparisonRequest(organization_id=organization_id, date_from=d_from, date_to=d_to)
             )
             ws.title = "Vehicles"
@@ -115,13 +115,13 @@ def make_export_router() -> APIRouter:  # noqa: PLR0915 - TODO: split per-report
                 "Vehicle",
                 "License Plate",
                 "Revenue",
-                *result.expense_categories,
+                *vc_result.expense_categories,
                 "Total Expenses",
                 "Net Profit",
                 "Utilization %",
             ]
             ws.append(headers)
-            for v in result.vehicles:
+            for v in vc_result.vehicles:
                 row = [
                     v.nickname or "",
                     v.license_plate,

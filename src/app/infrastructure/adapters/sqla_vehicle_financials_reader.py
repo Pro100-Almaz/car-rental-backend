@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from typing import Any, cast
 from uuid import UUID
 
 from sqlalchemy import and_, func, select
@@ -72,7 +73,7 @@ class SqlaVehicleFinancialsReader(VehicleFinancialsReader):
             ),
         )
         result = await self._session.execute(stmt)
-        return result.scalar_one()
+        return cast(Decimal | None, result.scalar_one())
 
     async def _get_expenses(
         self,
@@ -91,14 +92,14 @@ class SqlaVehicleFinancialsReader(VehicleFinancialsReader):
             ),
         )
         result = await self._session.execute(stmt)
-        return result.scalar_one()
+        return cast(Decimal | None, result.scalar_one())
 
     async def _get_rental_stats(
         self,
         vehicle_id: UUID,
         date_from: date,
         date_to: date,
-    ) -> dict:
+    ) -> dict[str, Any]:
         stmt = select(
             func.count().label("total_rentals"),
             func.coalesce(

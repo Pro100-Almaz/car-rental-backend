@@ -1,4 +1,7 @@
+from typing import Any
+
 from sqlalchemy import delete, select
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -50,7 +53,8 @@ class SqlaDeviceTokenTxStorage(DeviceTokenTxStorage):
                 .where(device_tokens_table.c.user_id == user_id)
             )
             result = await self._session.execute(stmt)
-            return result.rowcount > 0
+            cursor: CursorResult[Any] = result  # type: ignore[assignment]
+            return (cursor.rowcount or 0) > 0
         except SQLAlchemyError as e:
             raise StorageError from e
 

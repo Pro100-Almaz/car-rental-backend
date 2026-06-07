@@ -16,6 +16,10 @@ class EmailAlreadyExistsError(BaseError):
     default_message: ClassVar[str] = "Email already exists."
 
 
+class ClientPhoneAlreadyExistsError(BaseError):
+    default_message: ClassVar[str] = "A client with this phone number already exists in this organization."
+
+
 class UserNotFoundError(BaseError):
     default_message: ClassVar[str] = "User not found."
 

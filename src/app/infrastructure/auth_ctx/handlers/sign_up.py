@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from uuid import uuid4
 
+from app.core.commands.exceptions import ClientPhoneAlreadyExistsError
 from app.core.commands.ports.client_organization_tx_storage import ClientOrganizationTxStorage
 from app.core.commands.ports.client_tx_storage import ClientTxStorage
 from app.core.commands.ports.flusher import Flusher
@@ -177,6 +178,16 @@ class SignUp:
         client_id: ClientId | None = None
         if role == UserRole.CLIENT:
             client_id = create_client_id()
+            # Pre-check: the partial unique index `idx_clients_phone` only fires when
+            # phone is non-empty. Reject early so we return 409 instead of letting the
+            # downstream flush surface the same constraint as a race-safety net.
+            if request.phone:
+                existing = await self._client_tx_storage.get_by_org_and_phone(
+                    organization_id,
+                    request.phone,
+                )
+                if existing is not None:
+                    raise ClientPhoneAlreadyExistsError
 
         user = await self._user_service.create_user_with_raw_password(
             user_id=create_user_id(),

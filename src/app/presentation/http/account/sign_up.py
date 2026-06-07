@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, status
 from fastapi_error_map import ErrorAwareRouter
 from slowapi.errors import RateLimitExceeded
 
-from app.core.commands.exceptions import EmailAlreadyExistsError
+from app.core.commands.exceptions import ClientPhoneAlreadyExistsError, EmailAlreadyExistsError
 from app.core.common.authorization.exceptions import AuthorizationError
 from app.core.common.exceptions import BusinessTypeError
 from app.infrastructure.adapters.exceptions import PasswordHasherBusyError
@@ -37,6 +37,7 @@ def make_sign_up_router() -> APIRouter:
             BusinessTypeError: status.HTTP_400_BAD_REQUEST,
             PasswordHasherBusyError: HTTP_503_SERVICE_UNAVAILABLE_RULE,
             EmailAlreadyExistsError: status.HTTP_409_CONFLICT,
+            ClientPhoneAlreadyExistsError: status.HTTP_409_CONFLICT,
             InvalidInviteError: status.HTTP_400_BAD_REQUEST,
             InviteAlreadyUsedError: status.HTTP_409_CONFLICT,
             OrganizationIdRequiredError: status.HTTP_400_BAD_REQUEST,

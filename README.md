@@ -113,3 +113,32 @@ src/app/
     config/            Settings (Pydantic)
     ioc/               dishka IoC container providers
 ```
+
+## Operations
+
+### Scheduled background jobs
+
+Triggered by external cron. Each endpoint requires the `X-Internal-Job-Token`
+header matching `JOB_RUNNER_SECRET`.
+
+| Endpoint | Recommended cadence |
+|---|---|
+| `POST /api/v1/internal/jobs/check-pickup-reminders` | every 5 min |
+| `POST /api/v1/internal/jobs/check-return-reminders` | every 5 min |
+| `POST /api/v1/internal/jobs/check-overdue-rentals` | every 15 min |
+
+Example k8s CronJob, GitHub Actions schedule, or host crontab.
+
+### Rental lifecycle E2E smoke test
+
+Runs 5 scenarios (happy path, client cancel, manager reject, date overlap, extension reject+retry) against the live Docker stack. Requires `curl`, `jq`, and `docker` with the stack already running (`make upd`).
+
+```shell
+# All scenarios
+./scripts/qa/rental_lifecycle_e2e.sh
+
+# Single scenario (A / B / C / D / E)
+./scripts/qa/rental_lifecycle_e2e.sh A
+```
+
+The script restarts the app container before each scenario to reset rate-limit counters, seeds three dedicated E2E vehicles (license plates `E2E-001..003`), and cancels any stale rentals from previous runs. All output goes to stderr; exit code 0 means all selected scenarios passed.

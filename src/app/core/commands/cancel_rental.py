@@ -7,10 +7,12 @@ from app.core.commands.ports.rental_tx_storage import RentalTxStorage
 from app.core.commands.ports.transaction_manager import TransactionManager
 from app.core.commands.ports.utc_timer import UtcTimer
 from app.core.commands.rental_transitions import VALID_RENTAL_TRANSITIONS
+from app.core.common.audit_log import emit as audit_emit
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
-from app.core.common.entities.types_ import RentalId, RentalStatus
+from app.core.common.entities.types_ import NotificationType, RentalId, RentalStatus
+from app.core.common.services.notification_service import NotificationService
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 
 logger = logging.getLogger(__name__)
@@ -29,11 +31,13 @@ class CancelRental:
         utc_timer: UtcTimer,
         rental_tx_storage: RentalTxStorage,
         transaction_manager: TransactionManager,
+        notification_service: NotificationService,
     ) -> None:
         self._current_user_service = current_user_service
         self._utc_timer = utc_timer
         self._rental_tx_storage = rental_tx_storage
         self._transaction_manager = transaction_manager
+        self._notification_service = notification_service
 
     async def execute(self, request: CancelRentalRequest) -> None:
         logger.info("Cancel rental: started.")
@@ -56,9 +60,38 @@ class CancelRental:
         if RentalStatus.CANCELLED not in allowed:
             raise InvalidRentalStatusTransitionError(f"Cannot cancel rental with status '{rental.status}'.")
 
+        previous_status = rental.status
         rental.status = RentalStatus.CANCELLED
         rental.cancellation_reason = request.reason
         rental.updated_at = UtcDatetime(self._utc_timer.now.value)
         await self._transaction_manager.commit()
+
+        audit_emit(
+            "rental.cancelled",
+            rental_id=str(rental.id_),
+            manager_id=str(current_user.id_),
+            client_id=str(rental.client_id),
+            vehicle_id=str(rental.vehicle_id),
+            previous_status=str(previous_status),
+        )
+
+        # Only notify client if the admin cancelled — not if already user-cancelled.
+        if previous_status != RentalStatus.CANCELLED:
+            try:
+                await self._notification_service.send_to_client(
+                    client_id=rental.client_id,
+                    organization_id=rental.organization_id,
+                    type_=NotificationType.BOOKING_CANCELLED,
+                    title="Rental Cancelled",
+                    body="Your rental has been cancelled by the manager.",
+                    deep_link=f"/rentals/{rental.id_}",
+                    metadata={"rental_id": str(rental.id_)},
+                )
+            except Exception:
+                logger.warning(
+                    "Failed to send RENTAL_CANCELLED notification for rental %s; ignoring.",
+                    rental.id_,
+                    exc_info=True,
+                )
 
         logger.info("Cancel rental: done.")

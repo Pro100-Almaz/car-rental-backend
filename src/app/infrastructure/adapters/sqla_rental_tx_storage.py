@@ -43,17 +43,18 @@ class SqlaRentalTxStorage(RentalTxStorage):
         vehicle_id: VehicleId,
         scheduled_start: datetime,
         scheduled_end: datetime,
+        *,
+        exclude_rental_id: RentalId | None = None,
     ) -> bool:
-        stmt = (
-            select(rentals_table.c.id)
-            .where(
-                rentals_table.c.vehicle_id == vehicle_id,
-                rentals_table.c.status.notin_(self._NON_BLOCKING_STATUSES),
-                rentals_table.c.scheduled_start < scheduled_end,
-                rentals_table.c.scheduled_end > scheduled_start,
-            )
-            .limit(1)
-        )
+        conditions = [
+            rentals_table.c.vehicle_id == vehicle_id,
+            rentals_table.c.status.notin_(self._NON_BLOCKING_STATUSES),
+            rentals_table.c.scheduled_start < scheduled_end,
+            rentals_table.c.scheduled_end > scheduled_start,
+        ]
+        if exclude_rental_id is not None:
+            conditions.append(rentals_table.c.id != exclude_rental_id)
+        stmt = select(rentals_table.c.id).where(*conditions).limit(1)
         try:
             result = await self._session.execute(stmt)
             return result.first() is not None

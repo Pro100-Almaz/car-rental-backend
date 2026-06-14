@@ -7,6 +7,7 @@ from app.core.commands.ports.client_tx_storage import ClientTxStorage
 from app.core.commands.ports.rental_tx_storage import RentalTxStorage
 from app.core.commands.ports.transaction_manager import TransactionManager
 from app.core.commands.ports.utc_timer import UtcTimer
+from app.core.common.audit_log import emit as audit_emit
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
@@ -70,5 +71,12 @@ class CancelOwnRental:
         rental.cancellation_reason = request.reason
         rental.updated_at = UtcDatetime(self._utc_timer.now.value)
         await self._transaction_manager.commit()
+
+        audit_emit(
+            "rental.cancelled_by_client",
+            rental_id=str(rental.id_),
+            client_id=str(rental.client_id),
+            vehicle_id=str(rental.vehicle_id),
+        )
 
         logger.info("Cancel own rental: done.")

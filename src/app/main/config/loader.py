@@ -7,6 +7,7 @@ from app.main.config.settings import (
     AppSettings,
     CookieSettings,
     CorsSettings,
+    InternalJobsSettings,
     JwtSettings,
     PasswordHasherSettings,
     PostgresSettings,
@@ -86,6 +87,10 @@ class RedisEnvConfig(BaseSettings, RedisSettings):
     model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="REDIS_")
 
 
+class InternalJobsEnvConfig(BaseSettings, InternalJobsSettings):
+    model_config = _DEFAULT_CONFIG_DICT | SettingsConfigDict(env_prefix="JOB_")
+
+
 def load_app_settings() -> AppSettings:
     return _load_settings(AppEnvConfig)
 
@@ -128,3 +133,7 @@ def load_verification_settings() -> VerificationSettings:
 
 def load_redis_settings() -> RedisSettings:
     return _load_settings(RedisEnvConfig)
+
+
+def load_internal_jobs_settings() -> InternalJobsSettings:
+    return _load_settings(InternalJobsEnvConfig)

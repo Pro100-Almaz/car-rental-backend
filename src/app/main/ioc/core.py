@@ -2,6 +2,7 @@ from dishka import Provider, Scope, provide
 
 from app.core.commands.activate_user import ActivateUser
 from app.core.commands.add_rental_service import AddRentalService
+from app.core.commands.approve_booking_request import ApproveBookingRequest
 from app.core.commands.approve_extension_request import ApproveExtensionRequest
 from app.core.commands.bind_vehicle_investor import BindVehicleInvestor
 from app.core.commands.blacklist_client import BlacklistClient
@@ -75,6 +76,7 @@ from app.core.commands.ports.vehicle_tx_storage import VehicleTxStorage
 from app.core.commands.process_refund import ProcessRefund
 from app.core.commands.record_client_payment import RecordClientPayment
 from app.core.commands.register_device_token import RegisterDeviceToken
+from app.core.commands.reject_booking_request import RejectBookingRequest
 from app.core.commands.reject_client_payment import RejectClientPayment
 from app.core.commands.reject_extension_request import RejectExtensionRequest
 from app.core.commands.release_deposit import ReleaseDeposit
@@ -267,7 +269,8 @@ from app.infrastructure.adapters.sqla_vehicle_timeline_reader import SqlaVehicle
 from app.infrastructure.adapters.sqla_vehicle_tx_storage import SqlaVehicleTxStorage
 from app.infrastructure.adapters.stub_push_sender import StubPushSender
 from app.infrastructure.adapters.system_utc_timer import SystemUtcTimer
-from app.main.config.settings import PasswordHasherSettings
+from app.infrastructure.job_types import JobRunnerSecret
+from app.main.config.settings import InternalJobsSettings, PasswordHasherSettings
 
 
 class CoreProvider(Provider):
@@ -292,6 +295,10 @@ class CoreProvider(Provider):
             semaphore=semaphore,
             semaphore_wait_timeout_s=settings.SEMAPHORE_WAIT_TIMEOUT_S,
         )
+
+    @provide(scope=Scope.APP)
+    def provide_job_runner_secret(self, settings: InternalJobsSettings) -> JobRunnerSecret:
+        return JobRunnerSecret(settings.RUNNER_SECRET)
 
     push_sender = provide(StubPushSender, provides=PushSender)
     notification_service = provide(NotificationService)
@@ -350,6 +357,8 @@ class CoreProvider(Provider):
     checkout_rental = provide(CheckoutRental)
     extend_rental = provide(ExtendRental)
     update_rental = provide(UpdateRental)
+    approve_booking_request = provide(ApproveBookingRequest)
+    reject_booking_request = provide(RejectBookingRequest)
     cancel_rental = provide(CancelRental)
     complete_rental = provide(CompleteRental)
     create_transaction = provide(CreateTransaction)

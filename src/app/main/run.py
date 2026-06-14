@@ -10,6 +10,7 @@ from app.infrastructure.rate_limit import make_limiter
 from app.main.config.loader import (
     load_app_settings,
     load_cors_settings,
+    load_internal_jobs_settings,
     load_jwt_settings,
     load_password_hasher_settings,
     load_postgres_settings,
@@ -22,6 +23,7 @@ from app.main.config.loader import (
 from app.main.config.settings import (
     AppSettings,
     CorsSettings,
+    InternalJobsSettings,
     JwtSettings,
     PasswordHasherSettings,
     PostgresSettings,
@@ -32,6 +34,7 @@ from app.main.config.settings import (
     VerificationSettings,
 )
 from app.main.ioc.provider_registry import get_providers
+from app.main.openapi import setup_openapi
 from app.main.setup import (
     setup_global_exception_handlers,
     setup_logging,
@@ -68,6 +71,7 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
     smtp_settings: SmtpSettings | None = None,
     verification_settings: VerificationSettings | None = None,
     redis_settings: RedisSettings | None = None,
+    internal_jobs_settings: InternalJobsSettings | None = None,
 ) -> FastAPI:
     """Pass providers to override existing ones for testing."""
     if app_settings is None:
@@ -93,6 +97,8 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
         verification_settings = load_verification_settings()
     if redis_settings is None:
         redis_settings = load_redis_settings()
+    if internal_jobs_settings is None:
+        internal_jobs_settings = load_internal_jobs_settings()
 
     app = FastAPI(
         debug=app_settings.DEBUG_MODE,
@@ -114,6 +120,7 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
             SessionSettings: session_settings,
             SmtpSettings: smtp_settings,
             VerificationSettings: verification_settings,
+            InternalJobsSettings: internal_jobs_settings,
         },
     )
     setup_dishka(container, app)
@@ -126,6 +133,7 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
             debug_mode=app_settings.DEBUG_MODE,
         )
     )
+    setup_openapi(app)
     return app
 
 

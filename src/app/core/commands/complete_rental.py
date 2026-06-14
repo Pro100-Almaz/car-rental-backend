@@ -7,10 +7,12 @@ from app.core.commands.exceptions import InvalidRentalStatusTransitionError, Ren
 from app.core.commands.ports.rental_tx_storage import RentalTxStorage
 from app.core.commands.ports.transaction_manager import TransactionManager
 from app.core.commands.ports.utc_timer import UtcTimer
+from app.core.common.audit_log import emit as audit_emit
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
-from app.core.common.entities.types_ import RentalId, RentalStatus
+from app.core.common.entities.types_ import NotificationType, RentalId, RentalStatus
+from app.core.common.services.notification_service import NotificationService
 from app.core.common.value_objects.utc_datetime import UtcDatetime
 
 logger = logging.getLogger(__name__)
@@ -36,11 +38,13 @@ class CompleteRental:
         utc_timer: UtcTimer,
         rental_tx_storage: RentalTxStorage,
         transaction_manager: TransactionManager,
+        notification_service: NotificationService,
     ) -> None:
         self._current_user_service = current_user_service
         self._utc_timer = utc_timer
         self._rental_tx_storage = rental_tx_storage
         self._transaction_manager = transaction_manager
+        self._notification_service = notification_service
 
     async def execute(self, request: CompleteRentalRequest) -> None:
         logger.info("Complete rental: started.")
@@ -76,5 +80,34 @@ class CompleteRental:
             rental.actual_end = now
         rental.updated_at = UtcDatetime(now)
         await self._transaction_manager.commit()
+
+        audit_emit(
+            "rental.completed",
+            rental_id=str(rental.id_),
+            manager_id=str(current_user.id_),
+            client_id=str(rental.client_id),
+            vehicle_id=str(rental.vehicle_id),
+        )
+
+        try:
+            await self._notification_service.send_to_client(
+                client_id=rental.client_id,
+                organization_id=rental.organization_id,
+                type_=NotificationType.RENTAL_COMPLETED,
+                title="Rental Completed",
+                body="Your rental has been completed. Thank you for choosing us!",
+                deep_link=f"/rentals/{rental.id_}",
+                metadata={
+                    "rental_id": str(rental.id_),
+                    "actual_total": str(rental.actual_total),
+                    "deposit_refund_amount": str(rental.deposit_refund_amount),
+                },
+            )
+        except Exception:
+            logger.warning(
+                "Failed to send RENTAL_COMPLETED notification for rental %s; ignoring.",
+                rental.id_,
+                exc_info=True,
+            )
 
         logger.info("Complete rental: done.")

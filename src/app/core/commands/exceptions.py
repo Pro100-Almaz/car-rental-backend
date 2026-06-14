@@ -56,6 +56,10 @@ class RentalDateOverlapError(BaseError):
     default_message: ClassVar[str] = "Vehicle already has a booking for the requested dates."
 
 
+class RentalNotPendingError(BaseError):
+    default_message: ClassVar[str] = "Rental is not in PENDING status."
+
+
 class TransactionNotFoundError(BaseError):
     default_message: ClassVar[str] = "Transaction not found."
 

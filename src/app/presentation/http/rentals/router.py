@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.presentation.http.rentals.approve_booking import make_approve_booking_router
 from app.presentation.http.rentals.approve_extension import make_approve_extension_router
 from app.presentation.http.rentals.cancel_rental import make_cancel_rental_router
 from app.presentation.http.rentals.checkin_rental import make_checkin_rental_router
@@ -13,6 +14,7 @@ from app.presentation.http.rentals.get_returns_queue import make_get_returns_que
 from app.presentation.http.rentals.list_booking_requests import make_list_booking_requests_router
 from app.presentation.http.rentals.list_pending_extensions import make_list_pending_extensions_router
 from app.presentation.http.rentals.list_rentals import make_list_rentals_router
+from app.presentation.http.rentals.reject_booking import make_reject_booking_router
 from app.presentation.http.rentals.reject_extension import make_reject_extension_router
 from app.presentation.http.rentals.transition_rental import make_transition_rental_router
 from app.presentation.http.rentals.update_rental import make_update_rental_router
@@ -40,6 +42,8 @@ def make_rentals_router() -> APIRouter:
     router.include_router(make_extend_rental_router())
     router.include_router(make_cancel_rental_router())
     router.include_router(make_complete_rental_router())
+    router.include_router(make_approve_booking_router())
+    router.include_router(make_reject_booking_router())
     router.include_router(make_approve_extension_router())
     router.include_router(make_reject_extension_router())
     return router

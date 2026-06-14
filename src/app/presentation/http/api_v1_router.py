@@ -8,6 +8,7 @@ from app.presentation.http.clients.router import make_clients_router
 from app.presentation.http.dashboard.router import make_dashboard_router
 from app.presentation.http.expense_categories.router import make_expense_categories_router
 from app.presentation.http.fines.router import make_fines_router
+from app.presentation.http.internal.router import make_internal_router
 from app.presentation.http.investor_portal.router import make_investor_portal_router
 from app.presentation.http.investors.router import make_investors_router
 from app.presentation.http.invites.router import make_invites_router
@@ -50,4 +51,5 @@ def make_v1_router() -> APIRouter:
     router.include_router(make_reports_router())
     router.include_router(make_dashboard_router())
     router.include_router(make_mobile_router())
+    router.include_router(make_internal_router())
     return router

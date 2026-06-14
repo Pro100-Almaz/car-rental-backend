@@ -16,3 +16,6 @@ class OrganizationTxStorage(Protocol):
         *,
         for_update: bool = False,
     ) -> Organization | None: ...
+
+    @abstractmethod
+    async def list_all_ids(self) -> list[OrganizationId]: ...

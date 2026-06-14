@@ -7,6 +7,7 @@ from app.core.commands.exceptions import InvalidRentalStatusTransitionError, Ren
 from app.core.commands.ports.rental_tx_storage import RentalTxStorage
 from app.core.commands.ports.transaction_manager import TransactionManager
 from app.core.commands.ports.utc_timer import UtcTimer
+from app.core.common.audit_log import emit as audit_emit
 from app.core.common.authorization.authorize import authorize
 from app.core.common.authorization.current_user_service import CurrentUserService
 from app.core.common.authorization.rbac import HasPermission, PermissionCheckContext
@@ -61,5 +62,13 @@ class CheckinRental:
         rental.checkin_data = request.checkin_data
         rental.updated_at = UtcDatetime(now)
         await self._transaction_manager.commit()
+
+        audit_emit(
+            "rental.checked_in",
+            rental_id=str(rental.id_),
+            manager_id=str(current_user.id_),
+            client_id=str(rental.client_id),
+            vehicle_id=str(rental.vehicle_id),
+        )
 
         logger.info("Checkin rental: done.")

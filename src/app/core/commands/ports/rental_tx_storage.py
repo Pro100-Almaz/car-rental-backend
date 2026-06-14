@@ -20,4 +20,6 @@ class RentalTxStorage(Protocol):
         vehicle_id: VehicleId,
         scheduled_start: datetime,
         scheduled_end: datetime,
+        *,
+        exclude_rental_id: RentalId | None = None,
     ) -> bool: ...

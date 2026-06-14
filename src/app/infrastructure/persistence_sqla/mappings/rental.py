@@ -132,6 +132,7 @@ rentals_table = Table(
     # Final
     Column("invoice_url", String(500), nullable=True),
     Column("cancellation_reason", Text, nullable=True),
+    Column("rejection_reason", Text, nullable=True),
     Column("prepayment_amount", Numeric(10, 2), nullable=False, default=0),
     Column(
         "prepayment_status",
@@ -200,6 +201,7 @@ def map_rentals_table() -> None:
             "checkout_data": rentals_table.c.checkout_data,
             "invoice_url": rentals_table.c.invoice_url,
             "cancellation_reason": rentals_table.c.cancellation_reason,
+            "rejection_reason": rentals_table.c.rejection_reason,
             "prepayment_amount": rentals_table.c.prepayment_amount,
             "prepayment_status": rentals_table.c.prepayment_status,
             "source": rentals_table.c.source,

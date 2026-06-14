@@ -127,3 +127,7 @@ class VerificationSettings(BaseModel):
     @property
     def code_ttl(self) -> timedelta:
         return timedelta(minutes=self.CODE_TTL_MIN)
+
+
+class InternalJobsSettings(BaseModel):
+    RUNNER_SECRET: str = Field(min_length=32)

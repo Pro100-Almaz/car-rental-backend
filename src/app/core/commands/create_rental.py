@@ -128,6 +128,7 @@ class CreateRental:
             checkout_data=None,
             invoice_url=None,
             cancellation_reason=None,
+            rejection_reason=None,
             prepayment_amount=request.prepayment_amount,
             prepayment_status=request.prepayment_status,
             source=RentalSource.MANUAL,

@@ -56,6 +56,7 @@ class Rental(Entity[RentalId]):
         checkout_data: dict[str, Any] | None,
         invoice_url: str | None,
         cancellation_reason: str | None,
+        rejection_reason: str | None,
         prepayment_amount: Decimal,
         prepayment_status: PrepaymentStatus,
         source: RentalSource,
@@ -96,6 +97,7 @@ class Rental(Entity[RentalId]):
         self.checkout_data = checkout_data
         self.invoice_url = invoice_url
         self.cancellation_reason = cancellation_reason
+        self.rejection_reason = rejection_reason
         self.prepayment_amount = prepayment_amount
         self.prepayment_status = prepayment_status
         self.source = source

@@ -10,7 +10,7 @@ MAKEFLAGS += --no-print-directory
 # INFRA_SERVICES: long-running infra (db, broker, cache, ...)
 # INFRA_INIT_SERVICES: one-shot services that prepare INFRA_SERVICES
 # -----------------------------
-PROJECT_NAME ?= $(notdir $(abspath .))
+PROJECT_NAME ?= car-rental
 INFRA_SERVICES ?= db_pg
 INFRA_INIT_SERVICES ?=
 
@@ -124,6 +124,25 @@ down:
 
 stop-all:
 	docker ps -q | xargs -r docker stop
+
+# Alembic migrations — run inside the app container so host env mismatch (db_pg vs localhost) is irrelevant.
+# Requires `make upd` first.
+.PHONY: migrate migrate-down migrate-revision migrate-history migrate-current
+migrate:
+	$(DOCKER_COMPOSE) exec app alembic upgrade head
+
+migrate-down:
+	$(DOCKER_COMPOSE) exec app alembic downgrade -1
+
+migrate-revision:
+	@if [ -z "$(MSG)" ]; then echo "Usage: make migrate-revision MSG=\"short description\""; exit 1; fi
+	$(DOCKER_COMPOSE) exec app alembic revision --autogenerate -m "$(MSG)"
+
+migrate-history:
+	$(DOCKER_COMPOSE) exec app alembic history --verbose
+
+migrate-current:
+	$(DOCKER_COMPOSE) exec app alembic current
 
 # Tests (with infra)
 .PHONY: test-docker

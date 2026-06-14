@@ -12,9 +12,9 @@
 # Requirements: bash 3.2+, curl, jq, docker (backend stack already running).
 #
 # Container names:
-#   backend-app-1    FastAPI app (port 8000)
-#   backend-db_pg-1  PostgreSQL  (db: clean-example, user: postgres)
-#   backend-redis-1  Redis
+#   car-rental-app-1    FastAPI app (port 8000)
+#   car-rental-db_pg-1  PostgreSQL  (db: clean-example, user: postgres)
+#   car-rental-redis-1  Redis
 #
 # --- Bash 3.2 compatibility note ---
 # macOS ships bash 3.2 which has a parser bug: when a string argument ending
@@ -43,9 +43,9 @@ API="${API:-http://localhost:8000/api/v1}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@platform.local}"
 ADMIN_PASS="${ADMIN_PASS:-ChangeMe123!}"
 DEFAULT_ORG_ID="${DEFAULT_ORG_ID:-019e549b-5ab4-71d1-9290-17de7937b9e3}"
-DB_CONTAINER="${DB_CONTAINER:-backend-db_pg-1}"
-APP_CONTAINER="${APP_CONTAINER:-backend-app-1}"
-REDIS_CONTAINER="${REDIS_CONTAINER:-backend-redis-1}"
+DB_CONTAINER="${DB_CONTAINER:-car-rental-db_pg-1}"
+APP_CONTAINER="${APP_CONTAINER:-car-rental-app-1}"
+REDIS_CONTAINER="${REDIS_CONTAINER:-car-rental-redis-1}"
 DB_NAME="${DB_NAME:-clean-example}"
 DB_USER="${DB_USER:-postgres}"
 

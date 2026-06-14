@@ -101,7 +101,7 @@ class CookieSettings(BaseModel):
 
 class RedisSettings(BaseModel):
     HOST: str = "redis"
-    PORT: int = 6379
+    PORT: int = 6380
     DB: int = 0
     PASSWORD: str | None = None
 

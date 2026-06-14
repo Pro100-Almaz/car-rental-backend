@@ -144,6 +144,12 @@ migrate-history:
 migrate-current:
 	$(DOCKER_COMPOSE) exec app alembic current
 
+# Seed bootstrap rows (Platform org, default signup org, super-admin user).
+# Idempotent — safe to re-run. Requires `make migrate` to have been run first.
+.PHONY: seed
+seed:
+	$(DOCKER_COMPOSE) exec app python -m app.main.cli.seed_superadmin
+
 # Tests (with infra)
 .PHONY: test-docker
 test-docker: docker-env

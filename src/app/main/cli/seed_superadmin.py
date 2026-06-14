@@ -1,5 +1,11 @@
 """
-Idempotent CLI command to seed the super_admin user and platform organization.
+Idempotent CLI command that bootstraps the rows the app needs to be usable:
+
+- Platform organization (`PLATFORM_ORG_ID`) and super-admin user.
+- Default signup organization (`DEFAULT_ORG_ID`) that mobile signups target
+  when no invite is used. Must match `APP_DEFAULT_ORGANIZATION_ID` in env.
+
+Re-running is safe — each row is created only when missing.
 
 Usage:
     python -m app.main.cli.seed_superadmin
@@ -36,6 +42,10 @@ SUPER_ADMIN_ID = UUID("00000000-0000-0000-0000-000000000002")
 SUPER_ADMIN_EMAIL = "admin@platform.local"
 SUPER_ADMIN_PASSWORD = "ChangeMe123!"  # noqa: S105 - initial seed password; rotate after first login
 
+# Default tenant for mobile signups without an invite. Must match
+# `APP_DEFAULT_ORGANIZATION_ID` in the deployment env.
+DEFAULT_ORG_ID = UUID("019e549b-5ab4-71d1-9290-17de7937b9e3")
+
 
 async def seed_superadmin() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -69,6 +79,28 @@ async def seed_superadmin() -> None:
                     )
                 )
                 logger.info("Platform organization created.")
+
+            existing_default_org = await session.execute(
+                select(organizations_table.c.id).where(
+                    organizations_table.c.id == DEFAULT_ORG_ID,
+                )
+            )
+            if existing_default_org.scalar_one_or_none() is not None:
+                logger.info("Default signup organization already exists — skipping.")
+            else:
+                now = datetime.now(UTC)
+                await session.execute(
+                    organizations_table.insert().values(
+                        id=DEFAULT_ORG_ID,
+                        name="Default",
+                        slug="default",
+                        settings=None,
+                        subscription_plan="free",
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
+                logger.info("Default signup organization created.")
 
             existing_user = await session.execute(
                 select(users_table.c.id).where(

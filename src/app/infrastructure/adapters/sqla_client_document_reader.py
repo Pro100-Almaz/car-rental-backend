@@ -48,15 +48,19 @@ class SqlaClientDocumentReader(ClientDocumentReader):
 
     def _default_national_id_qm(self) -> ClientDocumentListItemQm:
         return ClientDocumentListItemQm(
-            id=None, document_type="national_id", name="National ID", description="National ID", status="required"
+            id=None,
+            document_type="national_id",
+            name="Удостоверение Личности",
+            description="Удостоверение Личности",
+            status="required",
         )
 
     def _default_driver_license_qm(self) -> ClientDocumentListItemQm:
         return ClientDocumentListItemQm(
             id=None,
             document_type="driver_licence",
-            name="Driver License",
-            description="Driver License",
+            name="Водительские Права",
+            description="Водительские Права",
             status="required",
         )
 

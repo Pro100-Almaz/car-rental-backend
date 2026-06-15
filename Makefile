@@ -163,7 +163,7 @@ test-docker: docker-env
 	else \
 	  echo "INFRA_SERVICES is empty, skipping infra startup"; \
 	fi; \
-	$(DC_TEST_DOCKER) run --build --name $(TEST_RUNNER) app \
+	$(DC_TEST_DOCKER) run --build -T --name $(TEST_RUNNER) app \
 		pytest $(PYTEST_ARGS_VERBOSE) \
 			$(PYTEST_PATHS_ALL) \
 			$(PYTEST_ARGS_COV_DOCKER) \

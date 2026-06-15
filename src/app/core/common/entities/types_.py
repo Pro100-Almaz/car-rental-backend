@@ -7,6 +7,7 @@ BranchId = NewType("BranchId", UUID)
 UserId = NewType("UserId", UUID)
 VehicleId = NewType("VehicleId", UUID)
 ClientId = NewType("ClientId", UUID)
+ClientDocumentId = NewType("ClientDocumentId", UUID)
 RentalId = NewType("RentalId", UUID)
 TransactionId = NewType("TransactionId", UUID)
 FineId = NewType("FineId", UUID)
@@ -59,6 +60,7 @@ class VerificationStatus(StrEnum):
     PENDING = "pending"
     VERIFIED = "verified"
     REJECTED = "rejected"
+    NOT_STARTED = "not_started"
 
 
 class TrustLevel(StrEnum):
@@ -262,3 +264,14 @@ class ExtensionRequestStatus(StrEnum):
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
+
+
+class ClientDocumentStatus(StrEnum):
+    Required = "required"
+    Rejected = "rejected"
+    Valid = "valid"
+
+
+class ClientDocumentType(StrEnum):
+    NATIONAL_ID = "national_id"
+    DRIVER_LICENSE = "driver_license"

@@ -130,6 +130,7 @@ from app.core.queries.get_investor_pnl import GetInvestorPnl
 from app.core.queries.get_mobile_metrics import GetMobileMetrics
 from app.core.queries.get_mobile_vehicle import GetMobileVehicle
 from app.core.queries.get_my_active_rental import GetMyActiveRental
+from app.core.queries.get_my_documents import GetMyDocuments
 from app.core.queries.get_my_fines import GetMyFines
 from app.core.queries.get_my_outstanding import GetMyOutstanding
 from app.core.queries.get_my_payments import GetMyPayments
@@ -180,6 +181,7 @@ from app.core.queries.list_vehicles import ListVehicles
 from app.core.queries.ports.additional_service_reader import AdditionalServiceReader
 from app.core.queries.ports.branch_reader import BranchReader
 from app.core.queries.ports.cash_journal_reader import CashJournalReader
+from app.core.queries.ports.client_document_reader import ClientDocumentReader
 from app.core.queries.ports.client_organization_reader import ClientOrganizationReader
 from app.core.queries.ports.client_reader import ClientReader
 from app.core.queries.ports.dashboard_reader import DashboardReader
@@ -219,6 +221,7 @@ from app.infrastructure.adapters.sqla_branch_reader import SqlaBranchReader
 from app.infrastructure.adapters.sqla_branch_tx_storage import SqlaBranchTxStorage
 from app.infrastructure.adapters.sqla_cash_journal_reader import SqlaCashJournalReader
 from app.infrastructure.adapters.sqla_cash_journal_tx_storage import SqlaCashJournalTxStorage
+from app.infrastructure.adapters.sqla_client_document_reader import SqlaClientDocumentReader
 from app.infrastructure.adapters.sqla_client_organization_reader import SqlaClientOrganizationReader
 from app.infrastructure.adapters.sqla_client_organization_tx_storage import SqlaClientOrganizationTxStorage
 from app.infrastructure.adapters.sqla_client_reader import SqlaClientReader
@@ -428,6 +431,7 @@ class CoreProvider(Provider):
     vehicle_reader = provide(SqlaVehicleReader, provides=VehicleReader)
     client_reader = provide(SqlaClientReader, provides=ClientReader)
     client_org_reader = provide(SqlaClientOrganizationReader, provides=ClientOrganizationReader)
+    client_document_reader = provide(SqlaClientDocumentReader, provides=ClientDocumentReader)
     rental_reader = provide(SqlaRentalReader, provides=RentalReader)
     rental_calendar_reader = provide(SqlaRentalCalendarReader, provides=RentalCalendarReader)
     returns_queue_reader = provide(SqlaReturnsQueueReader, provides=ReturnsQueueReader)
@@ -512,6 +516,7 @@ class CoreProvider(Provider):
     get_my_fines = provide(GetMyFines)
     get_my_payments = provide(GetMyPayments)
     get_my_outstanding = provide(GetMyOutstanding)
+    get_my_documents = provide(GetMyDocuments)
     list_pending_payments = provide(ListPendingPayments)
     list_booking_requests = provide(ListBookingRequests)
     list_pending_extensions = provide(ListPendingExtensions)

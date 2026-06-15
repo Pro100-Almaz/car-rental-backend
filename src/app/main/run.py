@@ -6,7 +6,6 @@ from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 
 from app.infrastructure.persistence_sqla.mappings.all import map_tables
-from app.infrastructure.rate_limit import make_limiter
 from app.main.config.loader import (
     load_app_settings,
     load_cors_settings,
@@ -39,7 +38,6 @@ from app.main.setup import (
     setup_global_exception_handlers,
     setup_logging,
     setup_middlewares,
-    setup_rate_limiter,
 )
 from app.presentation.http.root_router import make_fastapi_root_router
 
@@ -125,8 +123,8 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
     )
     setup_dishka(container, app)
     setup_middlewares(app, cors_settings)
-    limiter = make_limiter(redis_settings.url)
-    setup_rate_limiter(app, limiter)
+    # limiter = make_limiter(redis_settings.url)
+    # setup_rate_limiter(app, limiter)
     setup_global_exception_handlers(app)
     app.include_router(
         make_fastapi_root_router(

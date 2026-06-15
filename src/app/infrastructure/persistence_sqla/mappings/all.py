@@ -25,6 +25,7 @@ from app.infrastructure.persistence_sqla.mappings.additional_service import map_
 from app.infrastructure.persistence_sqla.mappings.branch import map_branches_table
 from app.infrastructure.persistence_sqla.mappings.cash_journal_entry import map_cash_journal_table
 from app.infrastructure.persistence_sqla.mappings.client import map_clients_table
+from app.infrastructure.persistence_sqla.mappings.client_documents import map_client_document_table
 from app.infrastructure.persistence_sqla.mappings.client_organization import map_client_organizations_table
 from app.infrastructure.persistence_sqla.mappings.device_token import map_device_tokens_table
 from app.infrastructure.persistence_sqla.mappings.email_verification_code import map_email_verification_codes_table
@@ -60,6 +61,8 @@ def map_tables() -> None:
     map_users_table()
     map_vehicles_table()
     map_clients_table()
+    map_client_organizations_table()
+    map_client_document_table()
     map_rentals_table()
     map_transactions_table()
     map_fines_table()
@@ -79,7 +82,6 @@ def map_tables() -> None:
     map_notifications_table()
     map_device_tokens_table()
     map_extension_requests_table()
-    map_client_organizations_table()
     map_refresh_tokens_table()
     map_revoked_access_jtis_table()
     map_failed_login_attempts_table()

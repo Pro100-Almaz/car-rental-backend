@@ -208,6 +208,7 @@ from app.core.queries.ports.vehicle_financials_reader import VehicleFinancialsRe
 from app.core.queries.ports.vehicle_pricing_reader import VehiclePricingReader
 from app.core.queries.ports.vehicle_reader import VehicleReader
 from app.core.queries.ports.vehicle_timeline_reader import VehicleTimelineReader
+from app.core.queries.query_support.get_current_user import GetCurrentUser
 from app.infrastructure.adapters.auth_session_access_revoker import AuthSessionAccessRevoker
 from app.infrastructure.adapters.auth_session_identity_provider import AuthSessionIdentityProvider
 from app.infrastructure.adapters.bcrypt_password_hasher import (
@@ -502,6 +503,7 @@ class CoreProvider(Provider):
     get_dashboard_alerts = provide(GetDashboardAlerts)
     get_dashboard_active_rentals = provide(GetDashboardActiveRentals)
     get_dashboard_revenue_chart = provide(GetDashboardRevenueChart)
+    get_current_user = provide(GetCurrentUser)
 
     # Mobile Queries
     get_my_profile = provide(GetMyProfile)

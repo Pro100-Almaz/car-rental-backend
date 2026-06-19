@@ -4,7 +4,7 @@ from inspect import getdoc
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, Response, status
 from fastapi_error_map import ErrorAwareRouter
 from slowapi.errors import RateLimitExceeded
 
@@ -34,6 +34,7 @@ def make_log_out_all_router() -> APIRouter:
     @inject
     async def log_out_all(
         request: Request,
+        response: Response,
         handler: FromDishka[LogOutAll],
     ) -> None:
         auth = request.headers.get("authorization", "")
@@ -43,5 +44,7 @@ def make_log_out_all_router() -> APIRouter:
         if raw_token is None:
             raise AuthenticationError("No bearer token.")
         await handler.execute(raw_token, reason="user_request")
+
+        response.delete_cookie(key="refresh_token", path="/")
 
     return router

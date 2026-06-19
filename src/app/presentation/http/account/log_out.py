@@ -2,9 +2,8 @@ from inspect import getdoc
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, Response, status
 from fastapi_error_map import ErrorAwareRouter
-from pydantic import BaseModel, ConfigDict
 from slowapi.errors import RateLimitExceeded
 
 from app.infrastructure.auth_ctx.exceptions import AuthenticationError
@@ -13,12 +12,6 @@ from app.infrastructure.exceptions import StorageError
 from app.infrastructure.rate_limit import get_user_id_or_ip, limiter
 from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_503_SERVICE_UNAVAILABLE_RULE
-
-
-class LogOutRequestSchema(BaseModel):
-    model_config = ConfigDict(frozen=True)
-
-    refresh_token: str | None = None
 
 
 def make_log_out_router() -> APIRouter:
@@ -37,11 +30,10 @@ def make_log_out_router() -> APIRouter:
     )
     @limiter.limit("30/minute", key_func=get_user_id_or_ip)
     @inject
-    async def log_out(
-        request_schema: LogOutRequestSchema,
-        request: Request,
-        handler: FromDishka[LogOut],
-    ) -> None:
-        await handler.execute(request_schema.refresh_token)
+    async def log_out(request: Request, handler: FromDishka[LogOut], response: Response) -> None:
+        refresh_token = request.cookies.get("refresh_token")
+        await handler.execute(refresh_token)
+
+        response.delete_cookie(key="refresh_token", path="/")
 
     return router

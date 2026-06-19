@@ -2,6 +2,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.common.entities.user import User
 from app.core.queries.models.user import UserQm
 from app.core.queries.ports.user_reader import ListUsersQm, UserReader
 from app.core.queries.query_support.exceptions import SortingError
@@ -87,4 +88,23 @@ class SqlaUserReader(UserReader):
             total=rows[0].total,
             limit=pagination.limit,
             offset=pagination.offset,
+        )
+
+    def row_to_qm(self, row: User) -> UserQm:
+        data = row
+
+        return UserQm(
+            id=data.id_,
+            organization_id=data.organization_id,
+            email=str(data.email),
+            phone=data.phone,
+            role=str(data.role),
+            first_name=data.first_name,
+            last_name=data.last_name,
+            is_active=data.is_active,
+            email_verified=data.email_verified,
+            last_login_at=data.last_login_at,
+            branch_id=data.branch_id,
+            created_at=data.created_at.value,
+            updated_at=data.updated_at.value,
         )

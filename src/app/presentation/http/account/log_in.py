@@ -4,7 +4,7 @@ from inspect import getdoc
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, Response, status
 from fastapi_error_map import ErrorAwareRouter
 from pydantic import BaseModel, ConfigDict
 from slowapi.errors import RateLimitExceeded
@@ -28,7 +28,6 @@ from app.presentation.http.errors.rules import HTTP_429_RATE_LIMITED_RULE, HTTP_
 
 class LogInRequestSchema(BaseModel):
     model_config = ConfigDict(frozen=True)
-
     email: str
     password: str
 
@@ -37,22 +36,14 @@ class LogInResponse(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     access_token: str
-    refresh_token: str
     token_type: str = "Bearer"  # noqa: S105 — OAuth2 scheme name, not a credential
     expires_in: int
-    refresh_expires_in: int
 
 
-def _pair_to_response(pair: TokenPair) -> LogInResponse:
+def _pair_access_to_response(pair: TokenPair) -> LogInResponse:
     now = datetime.now(tz=UTC)
     expires_in = max(0, math.floor((pair.access_expires_at.replace(tzinfo=UTC) - now).total_seconds()))
-    refresh_expires_in = max(0, math.floor((pair.refresh_expires_at.replace(tzinfo=UTC) - now).total_seconds()))
-    return LogInResponse(
-        access_token=pair.access_token,
-        refresh_token=pair.refresh_token,
-        expires_in=expires_in,
-        refresh_expires_in=refresh_expires_in,
-    )
+    return LogInResponse(access_token=pair.access_token, expires_in=expires_in)
 
 
 def make_log_in_router() -> APIRouter:
@@ -79,6 +70,7 @@ def make_log_in_router() -> APIRouter:
     async def log_in(
         request_schema: LogInRequestSchema,
         request: Request,
+        response: Response,
         handler: FromDishka[LogIn],
     ) -> LogInResponse | JSONResponse:
         ip = request.client.host if request.client else None
@@ -99,6 +91,21 @@ def make_log_in_router() -> APIRouter:
                 content={"error": str(exc)},
                 headers={"Retry-After": "900"},
             )
-        return _pair_to_response(pair)
+
+        refresh_max_age = max(
+            0, math.floor((pair.refresh_expires_at.replace(tzinfo=UTC) - datetime.now(tz=UTC)).total_seconds())
+        )
+
+        response.set_cookie(
+            key="refresh_token",
+            value=pair.refresh_token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=refresh_max_age,
+            path="/",
+        )
+
+        return _pair_access_to_response(pair)
 
     return router

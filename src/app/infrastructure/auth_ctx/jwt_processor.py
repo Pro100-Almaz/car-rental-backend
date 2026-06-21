@@ -88,7 +88,7 @@ class JwtProcessor:
                 options={"require": ["sub", "typ", "jti", "exp", "iss", "aud"]},
             )
 
-        except Exception:
+        except jwt.PyJWTError:
             return None
 
         if payload.get(self.TYP_CLAIM) != ACCESS_TYP:

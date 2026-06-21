@@ -120,6 +120,7 @@ from app.core.queries.get_cash_journal_balance import GetCashJournalBalance
 from app.core.queries.get_cash_journal_entry import GetCashJournalEntry
 from app.core.queries.get_client import GetClient
 from app.core.queries.get_company_pnl import GetCompanyPnl
+from app.core.queries.get_current_user import GetCurrentUser
 from app.core.queries.get_dashboard_active_rentals import GetDashboardActiveRentals
 from app.core.queries.get_dashboard_alerts import GetDashboardAlerts
 from app.core.queries.get_dashboard_kpis import GetDashboardKpis
@@ -208,7 +209,6 @@ from app.core.queries.ports.vehicle_financials_reader import VehicleFinancialsRe
 from app.core.queries.ports.vehicle_pricing_reader import VehiclePricingReader
 from app.core.queries.ports.vehicle_reader import VehicleReader
 from app.core.queries.ports.vehicle_timeline_reader import VehicleTimelineReader
-from app.core.queries.query_support.get_current_user import GetCurrentUser
 from app.infrastructure.adapters.auth_session_access_revoker import AuthSessionAccessRevoker
 from app.infrastructure.adapters.auth_session_identity_provider import AuthSessionIdentityProvider
 from app.infrastructure.adapters.bcrypt_password_hasher import (

@@ -43,7 +43,12 @@ class SqlaClientDocumentReader(ClientDocumentReader):
 
     def _row_to_item_qm(self, row: Row[Any]) -> ClientDocumentListItemQm:
         return ClientDocumentListItemQm(
-            id=row.id, document_type=row.document_type, name=row.name, description=row.description, status=row.status
+            id=row.id,
+            document_type=row.document_type,
+            name=row.name,
+            description=row.description,
+            status=row.status,
+            url=row.url,
         )
 
     def _default_national_id_qm(self) -> ClientDocumentListItemQm:
@@ -53,15 +58,17 @@ class SqlaClientDocumentReader(ClientDocumentReader):
             name="Удостоверение Личности",
             description="Удостоверение Личности",
             status="required",
+            url=None,
         )
 
-    def _default_driver_license_qm(self) -> ClientDocumentListItemQm:
+    def _default_driver_license_qm(self, license_type: bool) -> ClientDocumentListItemQm:
         return ClientDocumentListItemQm(
             id=None,
-            document_type="driver_licence",
+            document_type="license_front" if license_type else "license_back",
             name="Водительские Права",
             description="Водительские Права",
             status="required",
+            url=None,
         )
 
     async def list_client_documents(self, *, client_id: UUID) -> GetClientDocumentsQm:
@@ -70,7 +77,6 @@ class SqlaClientDocumentReader(ClientDocumentReader):
             .where(client_document_table.c.client_id == client_id)
             .order_by(client_document_table.c.created_at.desc())
         )
-
         try:
             result = await self._session.execute(stmt)
             rows = result.all()
@@ -78,7 +84,9 @@ class SqlaClientDocumentReader(ClientDocumentReader):
             raise ReaderError from e
 
         documents = {row.document_type: self._row_to_item_qm(row) for row in rows}
+
         return GetClientDocumentsQm(
             national_id=documents.get("national_id", self._default_national_id_qm()),
-            driver_licence=documents.get("driver_licence", self._default_driver_license_qm()),
+            license_front=documents.get("license_front", self._default_driver_license_qm(True)),
+            license_back=documents.get("license_back", self._default_driver_license_qm(False)),
         )

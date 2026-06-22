@@ -25,6 +25,7 @@ from app.core.commands.create_additional_service import CreateAdditionalService
 from app.core.commands.create_branch import CreateBranch
 from app.core.commands.create_cash_journal_entry import CreateCashJournalEntry
 from app.core.commands.create_client import CreateClient
+from app.core.commands.create_client_document import CreateClientDocument
 from app.core.commands.create_expense_category import CreateExpenseCategory
 from app.core.commands.create_fine import CreateFine
 from app.core.commands.create_investor import CreateInvestor
@@ -40,6 +41,7 @@ from app.core.commands.create_vehicle_document import CreateVehicleDocument
 from app.core.commands.create_vehicle_pricing import CreateVehiclePricing
 from app.core.commands.deactivate_user import DeactivateUser
 from app.core.commands.delete_cash_journal_entry import DeleteCashJournalEntry
+from app.core.commands.delete_client_document import DeleteClientDocument
 from app.core.commands.delete_vehicle_document import DeleteVehicleDocument
 from app.core.commands.extend_rental import ExtendRental
 from app.core.commands.hold_deposit import HoldDeposit
@@ -50,6 +52,7 @@ from app.core.commands.mark_notification_read import MarkNotificationRead
 from app.core.commands.ports.additional_service_tx_storage import AdditionalServiceTxStorage
 from app.core.commands.ports.branch_tx_storage import BranchTxStorage
 from app.core.commands.ports.cash_journal_tx_storage import CashJournalTxStorage
+from app.core.commands.ports.client_document_tx_storage import ClientDocumentTxStorage
 from app.core.commands.ports.client_organization_tx_storage import ClientOrganizationTxStorage
 from app.core.commands.ports.client_tx_storage import ClientTxStorage
 from app.core.commands.ports.device_token_tx_storage import DeviceTokenTxStorage
@@ -93,6 +96,7 @@ from app.core.commands.unregister_device_token import UnregisterDeviceToken
 from app.core.commands.update_additional_service import UpdateAdditionalService
 from app.core.commands.update_cash_journal_entry import UpdateCashJournalEntry
 from app.core.commands.update_client import UpdateClient
+from app.core.commands.update_client_document import UpdateClientDocument
 from app.core.commands.update_client_profile import UpdateClientProfile
 from app.core.commands.update_expense_category import UpdateExpenseCategory
 from app.core.commands.update_investor import UpdateInvestor
@@ -113,12 +117,14 @@ from app.core.common.ports.access_revoker import AccessRevoker
 from app.core.common.ports.identity_provider import IdentityProvider
 from app.core.common.ports.password_hasher import PasswordHasher
 from app.core.common.ports.push_sender import PushSender
+from app.core.common.services.client_document_service import ClientDocumentService
 from app.core.common.services.notification_service import NotificationService
 from app.core.common.services.user import UserService
 from app.core.queries.get_cash_flow import GetCashFlow
 from app.core.queries.get_cash_journal_balance import GetCashJournalBalance
 from app.core.queries.get_cash_journal_entry import GetCashJournalEntry
 from app.core.queries.get_client import GetClient
+from app.core.queries.get_client_documents import GetClientDocuments
 from app.core.queries.get_company_pnl import GetCompanyPnl
 from app.core.queries.get_dashboard_active_rentals import GetDashboardActiveRentals
 from app.core.queries.get_dashboard_alerts import GetDashboardAlerts
@@ -223,6 +229,7 @@ from app.infrastructure.adapters.sqla_branch_tx_storage import SqlaBranchTxStora
 from app.infrastructure.adapters.sqla_cash_journal_reader import SqlaCashJournalReader
 from app.infrastructure.adapters.sqla_cash_journal_tx_storage import SqlaCashJournalTxStorage
 from app.infrastructure.adapters.sqla_client_document_reader import SqlaClientDocumentReader
+from app.infrastructure.adapters.sqla_client_document_tx_storage import SqlaClientDocumentTxStorage
 from app.infrastructure.adapters.sqla_client_organization_reader import SqlaClientOrganizationReader
 from app.infrastructure.adapters.sqla_client_organization_tx_storage import SqlaClientOrganizationTxStorage
 from app.infrastructure.adapters.sqla_client_reader import SqlaClientReader
@@ -306,6 +313,7 @@ class CoreProvider(Provider):
 
     push_sender = provide(StubPushSender, provides=PushSender)
     notification_service = provide(NotificationService)
+    client_document_service = provide(ClientDocumentService)
 
     identity_provider = provide(AuthSessionIdentityProvider, provides=IdentityProvider)
     authz_user_finder = provide(SqlaUserTxStorage, provides=AuthzUserFinder)
@@ -318,6 +326,7 @@ class CoreProvider(Provider):
     branch_tx_storage = provide(SqlaBranchTxStorage, provides=BranchTxStorage)
     vehicle_tx_storage = provide(SqlaVehicleTxStorage, provides=VehicleTxStorage)
     client_tx_storage = provide(SqlaClientTxStorage, provides=ClientTxStorage)
+    client_document_tx_storage = provide(SqlaClientDocumentTxStorage, provides=ClientDocumentTxStorage)
     client_org_tx_storage = provide(SqlaClientOrganizationTxStorage, provides=ClientOrganizationTxStorage)
     rental_tx_storage = provide(SqlaRentalTxStorage, provides=RentalTxStorage)
     payment_tx_storage = provide(SqlaPaymentTxStorage, provides=PaymentTxStorage)
@@ -351,6 +360,9 @@ class CoreProvider(Provider):
     update_vehicle = provide(UpdateVehicle)
     change_vehicle_status = provide(ChangeVehicleStatus)
     create_client = provide(CreateClient)
+    create_client_document = provide(CreateClientDocument)
+    update_client_document = provide(UpdateClientDocument)
+    delete_client_document = provide(DeleteClientDocument)
     update_client = provide(UpdateClient)
     verify_client = provide(VerifyClient)
     blacklist_client = provide(BlacklistClient)
@@ -466,6 +478,7 @@ class CoreProvider(Provider):
     get_vehicle = provide(GetVehicle)
     list_clients = provide(ListClients)
     get_client = provide(GetClient)
+    get_client_documents = provide(GetClientDocuments)
     list_rentals = provide(ListRentals)
     get_rental = provide(GetRental)
     get_rental_calendar = provide(GetRentalCalendar)

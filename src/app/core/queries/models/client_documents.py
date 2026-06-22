@@ -23,9 +23,11 @@ class ClientDocumentListItemQm:
     status: str
     description: str | None
     document_type: str
+    url: str | None
 
 
 @dataclass(frozen=True, slots=True)
 class GetClientDocumentsQm:
     national_id: ClientDocumentListItemQm
-    driver_licence: ClientDocumentListItemQm
+    license_front: ClientDocumentListItemQm
+    license_back: ClientDocumentListItemQm

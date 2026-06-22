@@ -12,7 +12,7 @@ from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
 
-def make_client_document_router() -> APIRouter:
+def make_client_me_document_router() -> APIRouter:
     router = ErrorAwareRouter()
 
     @router.get(

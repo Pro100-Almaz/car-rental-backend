@@ -1,9 +1,11 @@
 from collections.abc import AsyncIterator, Callable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from pathlib import Path
 
 from dishka import Provider, make_async_container
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
+from starlette.staticfiles import StaticFiles
 
 from app.infrastructure.persistence_sqla.mappings.all import map_tables
 from app.main.config.loader import (
@@ -40,6 +42,11 @@ from app.main.setup import (
     setup_middlewares,
 )
 from app.presentation.http.root_router import make_fastapi_root_router
+
+BASE_DIR = Path(__file__).resolve().parents[3]
+MEDIA_DIR = BASE_DIR / "uploads"
+
+MEDIA_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def make_lifespan() -> Callable[[FastAPI], AbstractAsyncContextManager[None]]:
@@ -132,6 +139,12 @@ def make_app(  # noqa: C901 - TODO: extract settings loading into a helper (see 
         )
     )
     setup_openapi(app)
+
+    app.mount(
+        "/media",
+        StaticFiles(directory=MEDIA_DIR),
+        name="uploads",
+    )
     return app
 
 

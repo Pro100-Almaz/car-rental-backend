@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.presentation.http.clients.blacklist_client import make_blacklist_client_router
+from app.presentation.http.clients.client_documents import make_client_documents_router
 from app.presentation.http.clients.client_payments import make_client_payments_router
 from app.presentation.http.clients.client_rentals import make_client_rentals_router
 from app.presentation.http.clients.create_client import make_create_client_router
@@ -25,4 +26,5 @@ def make_clients_router() -> APIRouter:
     router.include_router(make_client_rentals_router())
     router.include_router(make_client_payments_router())
     router.include_router(make_send_debt_reminder_router())
+    router.include_router(make_client_documents_router())
     return router

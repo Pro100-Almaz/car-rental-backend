@@ -30,3 +30,27 @@ class ClientDocument(Entity[ClientDocumentId]):
     @property
     def created_at(self) -> UtcDatetime:
         return self._created_at
+
+    @property
+    def updated_at(self) -> UtcDatetime:
+        return self._updated_at
+
+    def update_name(self, name: str) -> None:
+        self.name = name
+
+    def update_file_url(self, url: str, updated_at: UtcDatetime) -> None:
+        self.url = url
+        self._updated_at = updated_at
+
+    def update_metadata(
+        self,
+        *,
+        name: str,
+        status: ClientDocumentStatus,
+        updated_at: UtcDatetime,
+        description: str | None,
+    ) -> None:
+        self.name = name
+        self.status = status
+        self._updated_at = updated_at
+        self.description = description

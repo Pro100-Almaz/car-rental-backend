@@ -19,13 +19,10 @@ from app.presentation.http.errors.callbacks import log_info
 from app.presentation.http.errors.rules import HTTP_503_SERVICE_UNAVAILABLE_RULE
 
 
-class CreateUpdateClintrDocumentBody:
-    document_type: str
-
-
 def make_client_documents_router() -> APIRouter:
     router = ErrorAwareRouter()
 
+    # Get request ----------------------------------
     @router.get(
         "/{client_id}/documents",
         error_map={
@@ -42,6 +39,7 @@ def make_client_documents_router() -> APIRouter:
             raise ClientNotFoundError
         return result
 
+    # Post request ----------------------------------
     @router.post(
         "/{client_id}/documents",
         error_map={
@@ -67,6 +65,7 @@ def make_client_documents_router() -> APIRouter:
 
         return {"id": document_id}
 
+    # Patch request ----------------------------------
     @router.patch(
         "/client/{client_id}/documents",
         error_map={
@@ -99,6 +98,7 @@ def make_client_documents_router() -> APIRouter:
             )
         )
 
+    # Delete request ----------------------------------
     @router.delete(
         "/client/{client_id}/documents",
         error_map={

@@ -24,9 +24,6 @@ class Client(Entity[ClientId]):
         email: str | None,
         first_name: str,
         last_name: str,
-        id_document_url: str | None,
-        license_front_url: str | None,
-        license_back_url: str | None,
         verification_status: VerificationStatus,
         trust_score: int,
         trust_level: TrustLevel,
@@ -47,9 +44,6 @@ class Client(Entity[ClientId]):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
-        self.id_document_url = id_document_url
-        self.license_front_url = license_front_url
-        self.license_back_url = license_back_url
         self.verification_status = verification_status
         self.trust_score = trust_score
         self.trust_level = trust_level

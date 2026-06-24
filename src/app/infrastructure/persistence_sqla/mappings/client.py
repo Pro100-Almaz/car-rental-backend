@@ -35,9 +35,6 @@ clients_table = Table(
     Column("email", String(254), nullable=True),
     Column("first_name", String(100), nullable=False),
     Column("last_name", String(100), nullable=False),
-    Column("id_document_url", String(500), nullable=True),
-    Column("license_front_url", String(500), nullable=True),
-    Column("license_back_url", String(500), nullable=True),
     Column(
         "verification_status",
         Enum(
@@ -96,9 +93,6 @@ def map_clients_table() -> None:
             "email": clients_table.c.email,
             "first_name": clients_table.c.first_name,
             "last_name": clients_table.c.last_name,
-            "id_document_url": clients_table.c.id_document_url,
-            "license_front_url": clients_table.c.license_front_url,
-            "license_back_url": clients_table.c.license_back_url,
             "verification_status": clients_table.c.verification_status,
             "trust_score": clients_table.c.trust_score,
             "trust_level": clients_table.c.trust_level,

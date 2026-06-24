@@ -23,9 +23,6 @@ class UpdateClientBody(BaseModel):
     email: str | None = None
     first_name: str | None = None
     last_name: str | None = None
-    id_document_url: str | None = None
-    license_front_url: str | None = None
-    license_back_url: str | None = None
     metadata: dict[str, Any] | None = None
 
 

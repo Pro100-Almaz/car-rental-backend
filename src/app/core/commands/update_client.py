@@ -27,9 +27,6 @@ class UpdateClientRequest:
     email: str | None | object = _UNSET
     first_name: str | object = _UNSET
     last_name: str | object = _UNSET
-    id_document_url: str | None | object = _UNSET
-    license_front_url: str | None | object = _UNSET
-    license_back_url: str | None | object = _UNSET
     metadata: dict[str, Any] | None | object = _UNSET
 
 
@@ -69,9 +66,6 @@ class UpdateClient:
             "email",
             "first_name",
             "last_name",
-            "id_document_url",
-            "license_front_url",
-            "license_back_url",
             "metadata",
         ):
             val = getattr(request, attr)

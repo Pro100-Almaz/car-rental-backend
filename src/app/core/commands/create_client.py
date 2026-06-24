@@ -27,9 +27,6 @@ class CreateClientRequest:
     email: str | None = None
     first_name: str
     last_name: str
-    id_document_url: str | None = None
-    license_front_url: str | None = None
-    license_back_url: str | None = None
     metadata: dict[str, Any] | None = None
 
 
@@ -74,9 +71,6 @@ class CreateClient:
             email=request.email,
             first_name=request.first_name,
             last_name=request.last_name,
-            id_document_url=request.id_document_url,
-            license_front_url=request.license_front_url,
-            license_back_url=request.license_back_url,
             verification_status=VerificationStatus.PENDING,
             trust_score=0,
             trust_level=TrustLevel.NEW,

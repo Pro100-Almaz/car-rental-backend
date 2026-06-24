@@ -14,9 +14,6 @@ class ClientQm:
     email: str | None
     first_name: str
     last_name: str
-    id_document_url: str | None
-    license_front_url: str | None
-    license_back_url: str | None
     verification_status: str
     trust_score: int
     trust_level: str

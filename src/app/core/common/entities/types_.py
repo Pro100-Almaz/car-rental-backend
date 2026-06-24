@@ -267,6 +267,7 @@ class ExtensionRequestStatus(StrEnum):
 
 
 class ClientDocumentStatus(StrEnum):
+    Pending = "pending"
     Required = "required"
     Rejected = "rejected"
     Valid = "valid"
@@ -274,4 +275,5 @@ class ClientDocumentStatus(StrEnum):
 
 class ClientDocumentType(StrEnum):
     NATIONAL_ID = "national_id"
-    DRIVER_LICENSE = "driver_license"
+    DRIVER_LICENSE_FRONT = "license_front"
+    DRIVER_LICENSE_BACK = "license_back"

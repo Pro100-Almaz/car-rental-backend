@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from app.presentation.http.mobile.cancel_my_rental import make_cancel_my_rental_router
 from app.presentation.http.mobile.check_availability import make_check_availability_router
-from app.presentation.http.mobile.client_documents import make_client_document_router
+from app.presentation.http.mobile.client_documents import make_client_me_document_router
 from app.presentation.http.mobile.get_my_active_rental import make_get_my_active_rental_router
 from app.presentation.http.mobile.get_my_fines import make_get_my_fines_router
 from app.presentation.http.mobile.get_my_outstanding import make_get_my_outstanding_router
@@ -66,5 +66,5 @@ def make_mobile_router() -> APIRouter:
     # Payments
     router.include_router(make_record_payment_router())
     # Documents
-    router.include_router(make_client_document_router())
+    router.include_router(make_client_me_document_router())
     return router
